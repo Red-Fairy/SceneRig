@@ -1,0 +1,56 @@
+# Python/runtime caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Local environments and machine state
+.venv/
+.env
+.env.*
+.DS_Store
+
+# Run outputs, logs, and scratch artifacts
+output/
+outputs/
+run_logs/
+logs/
+audits/
+*.log
+
+# Local datasets. dataset_selected/ is the private smoke-test set and is not
+# distributed with the repository.
+dataset/
+dataset_selected/
+
+# Downloaded model repositories, checkpoints, and native build products.
+lib/utils/third_party/*
+!lib/utils/third_party/sam3d/
+!lib/utils/third_party/coacd/
+lib/utils/third_party/sam3d/checkpoints/
+lib/utils/third_party/sam3d/**/__pycache__/
+lib/utils/third_party/sam3d/doc/kidsroom_transparent.gif
+lib/utils/third_party/coacd/build/
+lib/utils/third_party/coacd/dist/
+lib/utils/third_party/coacd/*.egg-info/
+lib/utils/third_party/coacd/**/__pycache__/
+
+# Optional local backend checkouts/environments.
+lib/tools/sam3d/checkpoints/
+lib/tools/sam3d/.venv/
+
+# Blender/Isaac/generated binary artifacts
+*.blend1
+*.usd
+*.usda
+*.usdc
+*.glb
+*.ply
+*.npy
+*.npz
+
+# Keep repository source visible even when cloned inside a parent monorepo with
+# broad ignore rules.
+!lib/
+!scripts/

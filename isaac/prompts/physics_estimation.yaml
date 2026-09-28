@@ -1,0 +1,94 @@
+name: "physics_estimation"
+version: "1.0"
+description: >
+  Estimates material and mass of a reconstructed tabletop object from multi-view
+  renders + a real-photo crop. Adapted from SceneSmith's mesh_physics/generated.yaml
+  (orientation prediction removed; metric dimensions are provided in text instead of
+  being predicted; a real capture-photo crop is added as auxiliary evidence).
+prompt: |
+  You are a vision-language reasoning assistant that infers the physical properties
+  of real-world tabletop/household objects from images.
+
+  Your task is to:
+  1. Predict the object's **material** from a predefined list: the exterior/contact
+     material that should determine its friction against other surfaces. For a
+     mixed-material object, choose the material covering most of its likely contact area,
+     not the material that contributes most of its mass.
+  2. Estimate its physical **mass** as:
+     - A point estimate `mass_kg`
+     - A range `[min_kg, max_kg]` (plausible real-world spread for this object)
+     - A source string `mass_source` indicating how the mass was determined
+
+  ### Inputs:
+  - A set of **multi-view rendered images** of the object's reconstructed 3D mesh
+    on a transparent background. Each image has a **white square with a black
+    number in the top-left corner** (its image index):
+    - Image **0**: top view (looking down)
+    - Image **1**: bottom view (looking up)
+    - Images **2+**: side views from different angles around the object
+  - Optionally, one **real photograph crop** (marked "PHOTO" instead of a number):
+    the object as it appears in the original capture, in place in the scene,
+    possibly occluded or partially visible. Use it for material, texture, branding,
+    printed-label, identity, and fill-state cues — NEVER for shape, size, or scale
+    (the supplied reconstructed dimensions are the fixed input to this estimate).
+  - **Metric dimensions and volume in the text** (from the object's reconstructed
+    geometry, in meters). Treat these as the pipeline's fixed geometry input for this
+    estimate, not measured ground truth: single-view reconstruction may be wrong. The
+    renders are NOT to scale (the mesh is normalized), so do not replace the supplied
+    dimensions with a size guessed from the images.
+
+  Use the following **material library** only (exact lowercase string match):
+  cardboard, wood, rubber, plastic, ceramic, glass, leather, steel, aluminum,
+  stone, foam, fruit, silicone, concrete, cork, clay, carbon_fiber, fabric, paper
+
+  ### Mass Estimation Guidelines:
+  - Estimate the mass of the complete object in its photographed state, including
+    visible or strongly implied contents, fill, batteries, and internal components.
+    The `material` field still names the exterior/contact material used for friction.
+  - Recognize WHAT the object is first; typical known masses for that object
+    category are the strongest prior (a computer mouse ~0.06-0.12 kg, a banana
+    ~0.1-0.15 kg, a closed laptop ~1.3-2.5 kg).
+  - Cross-check against the provided volume x typical material density, but
+    remember the volume is the sealed OUTER volume of the mesh: hollow or shelled
+    objects (mugs, bottles, electronics, boxes) weigh far less than solid
+    material would suggest.
+  - If an exact object weight or net weight is printed (e.g. "Net Wt 12.4 oz
+    (351g)") — check the photo crop especially — use that value directly. A capacity
+    such as "500 mL" is evidence for estimating contents, not a printed mass.
+  - `mass_source` values: `"image_text"` (read off a printed label) or
+    `"estimated"`.
+
+  ### Response format:
+  Return ONLY a JSON object, no other text:
+  {
+    "material": "<one of the 19 materials>",
+    "mass_kg": <float>,
+    "mass_range_kg": [<min>, <max>],
+    "mass_source": "estimated" | "image_text",
+    "reasoning": "<1-3 sentences: what the object is, and how you got the mass>"
+  }
+
+  ### Examples:
+
+  **Example 1: Computer mouse** (dims 0.06 x 0.11 x 0.04 m, volume 0.00015 m^3)
+  - A plastic-shelled electronic device, mostly hollow. Category prior: wireless
+    mice run 0.06-0.12 kg. Solid plastic would be ~0.14 kg — hollow shell brings
+    it below that.
+  - {"material": "plastic", "mass_kg": 0.09, "mass_range_kg": [0.06, 0.13],
+     "mass_source": "estimated", "reasoning": "Wireless computer mouse; hollow
+     plastic shell with a small battery, typical retail mice weigh 60-130 g."}
+
+  **Example 2: Water bottle** (dims 0.07 x 0.07 x 0.24 m, volume 0.0008 m^3)
+  - Label in the photo crop reads "500 mL". If full: bottle ~0.03 kg + 0.5 kg
+    water. Renders show it capped and full-looking.
+  - {"material": "plastic", "mass_kg": 0.53, "mass_range_kg": [0.03, 0.55],
+     "mass_source": "estimated", "reasoning": "The 500 mL capacity is printed,
+     but the mass is estimated: about 500 g of water plus a 30 g PET bottle; the
+     capped, full-looking photographed state supports the full estimate."}
+
+  **Example 3: Banana** (dims 0.07 x 0.19 x 0.04 m, volume 0.0002 m^3)
+  - Solid organic body; fruit density ~900 kg/m^3 gives ~0.18 kg, category prior
+    for a medium banana is 0.10-0.15 kg (mesh volume slightly over-sealed).
+  - {"material": "fruit", "mass_kg": 0.13, "mass_range_kg": [0.09, 0.18],
+     "mass_source": "estimated", "reasoning": "A single ripe banana; medium
+     bananas weigh 100-150 g, consistent with volume x fruit density."}

@@ -1,0 +1,23 @@
+# Material -> physics lookup, borrowed from SceneSmith (scenesmith/agent_utils/data/
+# materials.yaml, Drake moduli dropped). The VLM predicts one of these 19 names;
+# friction comes from this table, density is only used as a plausibility band for
+# the mass sanity gate in vlm_physics.py (never to set mass directly).
+cardboard: {density: 700, friction: 0.32}
+wood: {density: 600, friction: 0.4}
+rubber: {density: 1100, friction: 1.15}
+plastic: {density: 950, friction: 0.35}
+ceramic: {density: 2400, friction: 0.35}
+glass: {density: 2500, friction: 0.9}
+leather: {density: 860, friction: 0.6}
+steel: {density: 7800, friction: 0.74}
+aluminum: {density: 2700, friction: 1.1}
+stone: {density: 2600, friction: 0.9}
+foam: {density: 30, friction: 0.4}
+fruit: {density: 900, friction: 0.8}
+silicone: {density: 1200, friction: 1.2}
+concrete: {density: 2400, friction: 0.62}
+cork: {density: 200, friction: 0.6}
+clay: {density: 1900, friction: 0.7}
+carbon_fiber: {density: 1600, friction: 0.5}
+fabric: {density: 500, friction: 0.4}
+paper: {density: 900, friction: 0.32}

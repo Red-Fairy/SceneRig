@@ -1,0 +1,13 @@
+include CMakeLists.txt main.cpp setup.py setup.cfg pyproject.toml
+include README.md UPSTREAM.json LICENSE
+graft src
+graft public
+graft cmake
+graft python/package
+graft 3rd/cdt
+graft tests
+# Match GRASE's policy: Python validation helpers remain local; C++ regression ships.
+recursive-exclude tests *_test.py test_*.py
+global-exclude *.py[cod] *.so *.dll *.dylib
+prune build
+prune dist

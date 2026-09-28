@@ -1,0 +1,69 @@
+{
+  "package_version": "1.0.7+grase.2",
+  "coacd": {
+    "repository": "https://github.com/SarahWeiii/CoACD",
+    "tag": "1.0.7",
+    "commit": "6700816e59640b33bb6f0681cb6dd4fcf4846179",
+    "archive_sha256": "901186447d701c33670d57441242b785a6565e52fc9a7ac7393d4d715dc918b3",
+    "license": "LICENSE"
+  },
+  "cdt": {
+    "repository": "https://github.com/artem-ogre/CDT",
+    "commit": "ec03b309fd18102ab1da069f2edf3b37be5d1fb3",
+    "archive_sha256": "9730f5260765e13a47461baf92660a41691387b027b1db897a13690a9f76168c",
+    "vendored": "3rd/cdt/CDT/include",
+    "license": "3rd/cdt/LICENSE.CDT",
+    "predicates_notice": "3rd/cdt/LICENSE.predicates"
+  },
+  "patched_header": {
+    "path": "src/intersection.h",
+    "sha256": "c512bd81a410efaca520ecb40493d6a8c8f561a0c88bcba2d57370c1ea18cecd"
+  },
+  "predicate_test": {
+    "path": "tests/coplanar_predicate_test.cpp",
+    "sha256": "6b9c6c4d2971f6fbcfbf7339952e7b3616794489c6f5175ab17c9fbeef2579c5"
+  },
+  "native_git_dependencies": {
+    "zlib": {
+      "cmake_file": "cmake/zlib.cmake",
+      "upstream_tag": "v1.2.11",
+      "commit": "cacf7f1d4e3d44d871b605da3b647f07d718623f",
+      "verification": "git rev-parse HEAD in the validated build FetchContent source"
+    },
+    "spdlog": {
+      "cmake_file": "cmake/spdlog.cmake",
+      "upstream_tag": "v1.8.2",
+      "commit": "de0dbfa3596a18cd70a4619b6a9766847a941276",
+      "verification": "git rev-parse HEAD in the validated build FetchContent source"
+    },
+    "openvdb": {
+      "cmake_file": "cmake/openvdb.cmake",
+      "upstream_tag": "v8.2.0",
+      "commit": "89873d2bd29870cc9f176ed12b3f3a930ca38d1a",
+      "verification": "git rev-parse HEAD in the validated build FetchContent source"
+    },
+    "tbb": {
+      "cmake_file": "cmake/openvdb.cmake",
+      "upstream_tag": "v2022.0.0",
+      "commit": "0c0ff192a2304e114bc9e6557582dfba101360ff",
+      "verification": "git rev-parse HEAD in the validated build FetchContent source"
+    }
+  },
+  "boost": {
+    "version": "1.81.0",
+    "unix": {
+      "url": "https://github.com/boostorg/boost/releases/download/boost-1.81.0/boost-1.81.0.tar.gz",
+      "md5": "ffac94fbdd92d6bc70a897052022eeba"
+    },
+    "windows": {
+      "url": "https://github.com/boostorg/boost/releases/download/boost-1.81.0/boost-1.81.0.zip",
+      "md5": "375693214b89309d2003f5296422c0a8"
+    },
+    "policy": "upstream URL and URL_HASH are unchanged"
+  },
+  "omitted": "Models/assets, examples, CI/docker/visualizer files, and unused cmake/eigen.cmake; none is referenced by the preserved configured build.",
+  "interval_predicate_test": {
+    "path": "tests/interval_predicate_test.cpp",
+    "sha256": "c84a76583f0748b9c8a1c5e987f49c0815342b66852cf8f726844bdcf3ab66f8"
+  }
+}
