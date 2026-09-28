@@ -40,7 +40,7 @@ def _respond(obj):
 
 def main():
     model = AutoModelForImageTextToText.from_pretrained(
-        MODEL, trust_remote_code=True, dtype="auto", device_map="auto"
+        MODEL, trust_remote_code=True, dtype=torch.bfloat16, device_map="auto"
     )
     processor = AutoProcessor.from_pretrained(
         MODEL, trust_remote_code=True, padding_side="left"
@@ -103,9 +103,12 @@ def main():
                     logits_processor=model.build_logit_processor_from_inputs(dev),
                     max_new_tokens=200,
                 )
-            text = processor.tokenizer.decode(
-                out[0, dev["input_ids"].shape[1] :], skip_special_tokens=False
-            )
+            generated_tokens = out[:, dev["input_ids"].shape[1] :]
+            text = processor.post_process_image_text_to_text(
+                generated_tokens,
+                skip_special_tokens=False,
+                clean_up_tokenization_spaces=False,
+            )[0]
             pts = model.extract_image_points(
                 text,
                 meta["token_pooling"],

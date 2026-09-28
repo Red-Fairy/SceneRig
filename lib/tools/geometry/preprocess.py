@@ -215,7 +215,7 @@ def _depth_consistency(
     mask, world_points, cam_pos, win=5, kmad=4.0, floor=0.02, min_keep=0.6
 ):
     """Prune mask pixels whose RADIAL depth (distance from camera) deviates from the local
-    windowed median — LingBot completion spikes and silhouette depth-bleed. Depth-domain, so
+    windowed median — edited-image completion spikes and silhouette depth-bleed. Depth-domain, so
     a smooth thin object (marker) keeps its tips, unlike a 3D density/isolation filter which
     deletes exactly the sparse extreme points that define a thin object's size. Tuned on the
     redetect object set (plush/monitor/keyboard/box/mug/tray/placemat/book/marker/scissors/
@@ -408,13 +408,13 @@ def build_placement_table(
         rd = r.get("redetect")
         if rd and os.path.exists(rd.get("mask_path", "")):
             # Redetected instance (generative resegment): the full-object mask from the
-            # edited image, with LingBot-refined points where available (the edit hole
+            # edited image, with MoGE-2 refreshed points where available (the edit hole
             # has no valid reference depth) — so center/size cover e.g. a monitor's
             # revealed stand and base.
             mask = np.load(rd["mask_path"])
             if rd.get("points_npy") and os.path.exists(rd["points_npy"]):
                 obj_world = mc.moge_points_to_world(np.load(rd["points_npy"]), R, T)
-                # LingBot-completed points carry small depth noise — the prune (already
+                # Refreshed points carry small depth noise — the prune (already
                 # ON for every object above) matters doubly here, at its original
                 # tuning (min_keep 0.6, scripts/tune_robust_box.py).
                 dfilter_min_keep = 0.6
@@ -3258,7 +3258,7 @@ def generate_meshes(
                 mp = rd["mask_path"]
                 obj_image = rd.get("edited_image") or image_path
                 rd_suffix = "_rd"
-                # Condition SAM3D on the object's OWN LingBot-refined depth point map (it
+                # Condition SAM3D on the object's own refreshed MoGE-2 point map (it
                 # matches the edited image, dims and content) — passing None makes SAM3D fall
                 # back to its internal MoGE-v1 estimate, less accurate than our refined depth.
                 # If a redetect has no completed depth (vital-only reseg on the ORIGINAL
@@ -3709,7 +3709,7 @@ def preprocess_scene(
         # hierarchy-gated) + per-instance vital-part check; redetect = occluded-by-objects
         # OR vital-part-missing -> LanPaint + Qwen-Image-Edit MASKED occluder removal (+
         # transitive support descendants), SAM3 re-segmentation (part-aware prompt), and
-        # LingBot depth completion over the edit hole. Records live in masks.json under each
+        # MoGE-2 depth refresh over the edit hole. Records live in masks.json under each
         # instance's `redetect` key; downstream stages (placement, meshes, ICP, register)
         # key on that record.
         try:
@@ -3748,14 +3748,6 @@ def preprocess_scene(
         if shared_sam3 is not None:
             shared_sam3.close()
 
-    # P1 (audit 07-28 §11.3): prespawn the ~163 s SAM3D boot in the background so it
-    # hides behind the CPU/API-bound steps between here and generate_meshes (tier-3
-    # merge VLM calls, connectivity prune, canonicalize, placement+graph). Placement
-    # is deliberately AFTER the resegment block: its Qwen edit server needs ~40 GB
-    # and fails boot next to large residents (07-27 "exited before ready"), so the
-    # SAM3D must never coexist with it — same invariant as the shared-SAM3 close
-    # above. A failed prespawn (or a fully mesh-cached rerun, which wastes one idle
-    # boot) degrades to generate_meshes' original lazy in-loop spawn.
     _mesh_srv: dict[str, Any] = {
         "srv": None,
         "thread": None,

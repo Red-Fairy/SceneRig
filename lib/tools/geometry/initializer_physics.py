@@ -175,10 +175,6 @@ def settle_initializer_candidate(
         for name in surfaces:
             isaac.rpc({"cmd": "add_static", "name": name, "npz": paths[name]})
         for name in static_objects:
-            # Out-of-scope object: a static obstacle at its current pose, admitted with
-            # the SAME CoACD collider a dynamic body would use (audit F-L8: the visual
-            # mesh dump is ~1 mm thinner than the hulls the movers are judged against).
-            # It gets no drift row from the sim.
             isaac.rpc({"cmd": "add_static", "name": name, "npz": colliders[name]})
         result = isaac.rpc(
             {

@@ -535,8 +535,6 @@ def _joint_view(joint: dict, members: list[str]) -> dict:
     strict gates judge each moved object on its own evidence — its riders' capsize,
     its own wedges — while accept/reject still act on the whole joint commit."""
     mset = set(members)
-    # a freed dependent (member of the joint commit but not one of the moved hierarchies)
-    # that ended wedged is judged in EVERY view (audit F-M2): the first view rejects
     deps = set(joint.get("members") or []) - set(joint.get("bodies") or joint.get("members") or [])
     per = {
         b: w for b, w in (joint.get("penetrations") or {}).items() if b in mset or b in deps
@@ -568,7 +566,7 @@ def _hull_cap_mm(
     """Hull-depth allowance for the pair ``a``/``b`` under the composition rules gate's
     class ladder: lateral siblings (same support, SIDE BY SIDE) 20 mm, else 8 mm.
     ``stacked`` (server ``body_stacked``: one body's bottom at or above the other's top)
-    turns a same-support pair into the stricter stacked class (audit F-M11); None keeps
+    turns a same-support pair into the stricter stacked class; None keeps
     the lateral reading. Without a support map every pair is judged at 8 mm."""
     if not support:
         return PEN_CAP_MM

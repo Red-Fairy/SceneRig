@@ -84,14 +84,11 @@ def _log_usage(resp: Any, chat_args: dict) -> None:
         logging.getLogger(__name__).warning("usage log failed: %s", exc)
 
 
-# --------------------------------------------------------------------------- #
-# T2.4 — native Anthropic Messages API + prompt caching (GRASE_NATIVE_API=1)   #
-# --------------------------------------------------------------------------- #
 # The pipeline's internal message/tool shapes stay OpenAI-formatted everywhere
 # (memory JSONs, prompt_builder, generator/verifier); this layer translates at
 # the single call boundary and wraps the response in duck-typed shims, so no
 # caller changes. Rationale: the OpenAI-compat endpoint cannot set
-# cache_control; caching requires the native API (audit 07-28 §13 / T2.4).
+# cache_control; caching requires the native API.
 
 _NATIVE_CLIENT = None
 
@@ -103,7 +100,7 @@ def _native_client():
 
         from lib.utils._api_keys import CLAUDE_API_KEY
 
-        # NOTE: CLAUDE_BASE_URL is the OpenAI-COMPAT base (".../v1/") — the native
+        # CLAUDE_BASE_URL is the OpenAI-compatible base; the native
         # SDK uses its own default base; only the key is shared.
         # max_retries=0: get_model_response owns every retry (same as the Responses
         # path), so a hang costs one MODEL_ATTEMPT_TIMEOUT_S, not SDK x wrapper attempts.
@@ -637,9 +634,13 @@ class _RespShimResponse:
         self.usage = _RespShimUsage(getattr(resp, "usage", None))
 
 
-_RESPONSES_BUDGET_SECONDS = 3600.0
+_RESPONSES_BUDGET_SECONDS = float(
+    os.environ.get("SCENERIG_MODEL_BUDGET_SECONDS", "3600")
+)
 RESPONSES_DEFAULT_MAX_OUTPUT_TOKENS = 16000
-MODEL_ATTEMPT_TIMEOUT_S = 120.0
+MODEL_ATTEMPT_TIMEOUT_S = float(
+    os.environ.get("SCENERIG_MODEL_TIMEOUT_SECONDS", "600")
+)
 _RESPONSES_ATTEMPT_TIMEOUT_SECONDS = MODEL_ATTEMPT_TIMEOUT_S
 
 
@@ -779,11 +780,6 @@ def get_model_response(client: OpenAI, chat_args: dict, effort: str = "high") ->
         chat_args["max_completion_tokens"] = chat_args.pop("max_tokens")
     last_error: Exception | None = None
     native = os.environ.get("GRASE_NATIVE_API", "0") == "1" and provider == "anthropic"
-    # Tool-bearing OpenAI calls go through /v1/responses: gpt-5.6-family models
-    # 400 on tools + reasoning at /v1/chat/completions, and 'reasoning_effort:
-    # none' (the only chat-completions escape) would strip the agent stages of
-    # thinking. Tool-less calls (all aux/preprocess VLM) stay on chat/completions.
-    # GRASE_OPENAI_RESPONSES=0 reverts.
     use_responses = (
         provider == "openai"
         and bool(chat_args.get("tools"))

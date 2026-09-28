@@ -295,27 +295,7 @@ def size_hint_aspect_suppressed(
     area_scale: Optional[float],
     yaw_aniso: Optional[float],
 ) -> bool:
-    """Is a FLAGGED size reading too aspect-inconsistent to recommend move('scale')?
-
-    ``area_scale`` (AREA ratio) and ``scale_est`` (principal-axis EXTENT ratio) measure the
-    same thing for a UNIFORMLY mis-sized object and agree; they diverge only when the SHAPE
-    disagrees. move('scale') is uniform, so a large spread means a resize cannot reach the
-    mismatch — see ``_SIZE_ASPECT_MAX`` for the measured outcome split.
-
-    Three guards, each forced by the data (all figures in that comment):
-
-    - ``area_scale < 1`` (render LARGER than the photo): the evidence is much weaker on the
-      too-small half (24% of moves died vs 47%), so it stays out for now.
-    - ``yaw_aniso < _FLIP_DEFER_ANISO_MIN``: above it the relation is NON-monotone
-      (33 / 14 / 36% dead by spread band), so this would misfire on cutlery — where scale
-      moves fail for an unrelated reason (the settle, see TODO).
-    - a MISSING measurement never suppresses. ``scale_est`` is None on 2.8% of flagged rows
-      (gated out by ``_SCALE_MIN_OVERLAP``) and ``area_scale`` is None when a silhouette is
-      empty; both leave the hint FIRING, i.e. today's behaviour.
-
-    Deliberately NOT applied to the size-locked DEPTH branch: every outcome measured here is
-    from an ``axis == "scale"`` move, and a depth correction is a different operator.
-    """
+    """Return whether a flagged size reading is too inconsistent for uniform scaling."""
     if not scale_est or not area_scale or yaw_aniso is None:
         return False
     if area_scale >= 1.0 or yaw_aniso >= _FLIP_DEFER_ANISO_MIN:

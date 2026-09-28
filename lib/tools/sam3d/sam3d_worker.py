@@ -18,13 +18,15 @@ ROOT: str = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 sys.path.append(os.path.join(ROOT, "utils", "third_party", "sam3d", "notebook"))
 sys.path.append(os.path.join(ROOT, "utils", "third_party", "sam3d"))
 
-# Must run before importing `inference`: notebook/inference.py reads CONDA_PREFIX
-# (sets CUDA_HOME from it) at import time. Direct launchers use the conda env's
-# Python binary, but that alone does not guarantee CONDA_PREFIX is set.
-if "CONDA_PREFIX" not in os.environ:
-    python_bin = sys.executable
-    conda_env = os.path.dirname(os.path.dirname(python_bin))
-    os.environ["CONDA_PREFIX"] = conda_env
+cuda_home = os.environ.get("CUDA_HOME", "/usr/local/cuda")
+if os.path.isfile(os.path.join(cuda_home, "bin", "nvcc")):
+    os.environ["CONDA_PREFIX"] = cuda_home
+else:
+    os.environ.setdefault("CONDA_PREFIX", os.path.dirname(os.path.dirname(sys.executable)))
+os.environ.setdefault(
+    "TORCH_EXTENSIONS_DIR",
+    os.path.join(os.path.expanduser("~"), ".cache", "torch_extensions_scenerig"),
+)
 
 from inference import Inference, load_image
 

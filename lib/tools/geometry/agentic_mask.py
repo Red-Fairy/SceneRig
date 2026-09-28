@@ -929,7 +929,11 @@ class Sam3dServer(_JsonServer):
         if pointmap_npy:
             req["pointmap"] = pointmap_npy
         resp = self._rpc(req)
-        return resp if resp and resp.get("ok") else None
+        if not resp:
+            raise RuntimeError("SAM3D server exited without a response")
+        if not resp.get("ok"):
+            raise RuntimeError(f"SAM3D reconstruction failed: {resp.get('error', 'unknown error')}")
+        return resp
 
 
 # --------------------------------------------------------------------------- #

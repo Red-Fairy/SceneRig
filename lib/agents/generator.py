@@ -1322,7 +1322,7 @@ class GeneratorAgent:
         }
         raw = getattr(message["assistant"], "raw_content", None)
         if raw:
-            # T2.4 native API: the provider's own content blocks (incl. thinking),
+            # Preserve the provider's content blocks, including thinking,
             # replayed VERBATIM by the request translator — required for tool-use
             # continuations on the same model. Absent on the OpenAI-compat path.
             entry["_raw_blocks"] = raw

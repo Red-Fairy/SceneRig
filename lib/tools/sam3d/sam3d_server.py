@@ -30,8 +30,9 @@ import sys
 
 import numpy as np
 
-# Keep a private real stdout for the JSON protocol; route model chatter to stderr.
-_real_stdout = sys.stdout
+_protocol_fd = os.dup(sys.stdout.fileno())
+_real_stdout = os.fdopen(_protocol_fd, "w", buffering=1)
+os.dup2(sys.stderr.fileno(), sys.stdout.fileno())
 sys.stdout = sys.stderr
 
 # sam3d_worker sets CONDA_PREFIX + sys.path and imports the SAM3D `inference`

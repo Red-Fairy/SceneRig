@@ -27,7 +27,8 @@ def main() -> None:  # pragma: no cover - subprocess entry
     from lanpaint_pipeline import LanPaintConfig, LanPaintInpaintPipeline
     from lanpaint_pipeline.registry import create_adapter
 
-    adapter = create_adapter("qwen", device="cuda", model_id=None)
+    adapter = create_adapter("qwen", device="cpu", model_id=None)
+    adapter.pipe.enable_sequential_cpu_offload()
     lp = LanPaintInpaintPipeline(
         adapter,
         config=LanPaintConfig(

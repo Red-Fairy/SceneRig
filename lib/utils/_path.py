@@ -18,7 +18,6 @@ SAM3_PY = _python_path("SAM3_PYTHON", "lib/utils/third_party/sam3/.venv/bin/pyth
 SAM3D_PY = _python_path("SAM3D_PYTHON", "lib/utils/third_party/sam3d/.venv/bin/python")
 MOLMO_PY = _python_path("MOLMO_PYTHON", "lib/utils/third_party/molmo/.venv/bin/python")
 
-LINGBOT_PY = _python_path("LINGBOT_PYTHON", "lib/utils/third_party/lingbot/.venv/bin/python")
 LANPAINT_QWEN_PY = _python_path(
     "LANPAINT_QWEN_PYTHON",
     "lib/utils/third_party/lanpaint-qwen/.venv/bin/python",

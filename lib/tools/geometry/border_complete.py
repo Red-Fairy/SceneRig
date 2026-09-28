@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import json
 import os
-import subprocess
 from pathlib import Path
 from typing import Any, Optional
 
@@ -141,14 +140,15 @@ def border_complete(
     gpu: Optional[str] = None,
 ) -> Optional[dict]:
     """Remove occluders (LanPaint inpaint) then extend the cut side (native outpaint) ->
-    LingBot depth refine (shifted principal point at the new width) -> unproject ->
+    MoGE-2 depth refresh (shifted principal point at the new width) -> unproject ->
     re-segment. Returns a redetect record with ``points_npy`` + a ``border`` marker, or
     None on failure. ``masks``/``desc`` are keyed by rid."""
     from PIL import Image
 
     from lib.tools.geometry.agentic_mask import Sam3Server
     from lib.tools.geometry.depth_geometry import unproject_depth
-    from lib.utils._path import LINGBOT_PY, SAM3_PY
+    from lib.tools.geometry.depth_refine import refine_depth
+    from lib.utils._path import SAM3_PY
 
     scene = Path(scene_dir)
     out_dir = scene / "masks" / "edited"
@@ -202,36 +202,22 @@ def border_complete(
     hole_p = out_dir / f"{slug}_border_hole.npy"
     np.save(sh_depth_p, sh_depth)
     np.save(hole_p, hole.astype(np.uint8))
-    req = {
-        "image": str(final_path),
-        "depth": str(sh_depth_p),
-        "hole": str(hole_p),
-        "intrinsics_norm": Kn_sh.tolist(),
-        "out_depth": str(out_dir / f"{slug}_border_refined_depth.npy"),
-        "out_points": str(out_dir / f"{slug}_border_lingbot_points.npy"),
-    }
-    req_p = out_dir / f"{slug}_border_lingbot_req.json"
-    json.dump(req, open(req_p, "w"))
-    env = {**os.environ}
     if gpu is not None:
-        env["CUDA_VISIBLE_DEVICES"] = gpu
-    proc = subprocess.run(
-        [LINGBOT_PY, "lib/tools/geometry/lingbot_worker.py", str(req_p)],
-        capture_output=True, text=True, env=env, timeout=600,
+        os.environ["CUDA_VISIBLE_DEVICES"] = gpu
+    refreshed = refine_depth(
+        scene_dir,
+        str(final_path),
+        str(hole_p),
+        f"{slug}_border_refined",
+        reference_depth=str(sh_depth_p),
+        intrinsics_norm=Kn_sh.tolist(),
     )
-    lresp = None
-    for line in reversed(proc.stdout.strip().splitlines() or [""]):
-        try:
-            lresp = json.loads(line)
-            break
-        except json.JSONDecodeError:
-            continue
-    if not lresp or not lresp.get("ok"):
-        print(f"[border_complete] {target}: LingBot failed ({(lresp or {}).get('error')})")
+    if not refreshed:
+        print(f"[border_complete] {target}: MoGE-2 refresh failed")
         return None
 
-    # 4) unproject refined depth with the shifted pixel-K -> points in the ORIGINAL frame
-    refined = np.load(req["out_depth"])
+    # 4) unproject refreshed depth with the shifted pixel-K -> points in the ORIGINAL frame
+    refined = np.load(refreshed["out_depth"])
     k_px = np.array([[fx, 0, cx_new], [0, fy, cy], [0, 0, 1]], float)
     points = unproject_depth(refined, k_px)
     points_npy = out_dir / f"{slug}_border_points.npy"

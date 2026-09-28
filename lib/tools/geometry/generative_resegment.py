@@ -30,12 +30,12 @@ module owns the whole detect -> decide -> re-segment pipeline over a segmented s
      - vital-only (no removable occluder — a segmentation miss): SAM3 part-aware
        re-segmentation on the ORIGINAL image; no edit. Frame-cut parts are NOT
        vital-flagged; purely frame-cut objects use the border-completion arm instead.
-     - border-only: outpaint the missing side, refine its depth with LingBot, then
+     - border-only: outpaint the missing side, refresh its depth with MoGE-2, then
        re-segment the completed object and retain its expanded point grid.
 
 Artifacts under ``<scene>/masks/``: ``generative_resegment.json`` (pairs, edges kept/
 dropped, vital verdicts, redetect set), ``_occl_*`` pair crops, ``_vital_*`` instance
-crops, ``edited/<slug>.png`` (+ ``<slug>_hole.png`` for LingBot depth invalidation),
+crops, ``edited/<slug>.png`` (+ ``<slug>_hole.png`` for depth invalidation),
 ``<slug>_redetect.npy``, and border-arm ``*_border.png`` / ``*_border_points.npy``.
 The per-instance ``redetect`` record persisted into
 masks.json keeps the schema downstream consumes (placement / meshes / ICP / register /
@@ -688,7 +688,7 @@ def remove_objects(
     region coherently from its surroundings, so a proper mask is safe: the occluder
     union dilated ``HOLE_DILATE_PX`` px (a few px past the soft edge -> clean
     boundary removal). Mask convention is white=keep / black=edit. The same region is
-    also saved as an alpha hole (``<slug>_hole.png``) for LingBot depth invalidation."""
+    also saved as an alpha hole (``<slug>_hole.png``) for depth invalidation."""
     from PIL import Image
 
     scene = Path(scene_dir)
@@ -707,7 +707,7 @@ def remove_objects(
     # LanPaint edit mask: white(255)=keep, black(0)=regenerate over the removal region.
     edit_mask_path = out_dir / f"{tag}_editmask.png"
     Image.fromarray(np.where(hole, 0, 255).astype("uint8"), "L").save(edit_mask_path)
-    # Alpha hole (alpha==0 = removed region) for LingBot depth re-completion.
+    # Alpha zeroes mark the removed region for depth refresh.
     rgba = np.array(img)
     rgba[..., 3] = np.where(hole, 0, 255)
     hole_path = out_dir / f"{tag}_hole.png"

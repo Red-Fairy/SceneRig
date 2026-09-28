@@ -28,15 +28,34 @@ source .venv/bin/activate
 The lockfile uses PyTorch CUDA 12.8. MoGE is pinned to a MoGE-2 source revision
 and is installed by `uv sync`. SceneRig does not require another depth backend.
 
-Install Blender and system libraries:
+Install the headless runtime libraries, Blender 4.5 LTS, and Isaac Sim 5.1:
 
 ```bash
 bash scripts/install_system_libs.sh
-export SCENERIG_BLENDER_COMMAND=/path/to/blender
+
+mkdir -p lib/utils/third_party
+curl -L https://download.blender.org/release/Blender4.5/blender-4.5.14-linux-x64.tar.xz \
+  | tar -xJ -C lib/utils/third_party
+ln -sfn blender-4.5.14-linux-x64 lib/utils/third_party/blender-4.5
+
+uv venv --python 3.11 lib/utils/third_party/isaac/venv
+lib/utils/third_party/isaac/venv/bin/pip install \
+  'isaacsim[all,extscache]==5.1.0' \
+  --extra-index-url https://pypi.nvidia.com
 ```
 
 If `SCENERIG_BLENDER_COMMAND` is unset, the launcher uses
-`lib/utils/third_party/blender-4.5/blender`.
+`lib/utils/third_party/blender-4.5/blender`. Isaac Sim requires Python 3.11;
+the default interpreter is `lib/utils/third_party/isaac/venv/bin/python`.
+Installing Isaac Sim confirms acceptance of NVIDIA's license terms shown by pip.
+
+Verify both runtimes before downloading model weights:
+
+```bash
+lib/utils/third_party/blender-4.5/blender --version
+OMNI_KIT_ACCEPT_EULA=YES lib/utils/third_party/isaac/venv/bin/python -c \
+  'from isaacsim import SimulationApp; app=SimulationApp({"headless": True}); app.close()'
+```
 
 ## Model Environments
 
@@ -47,7 +66,6 @@ Configure these interpreter paths directly, or create venvs at the defaults in
 export SAM3_PYTHON=/path/to/sam3/.venv/bin/python
 export SAM3D_PYTHON=/path/to/sam3d/.venv/bin/python
 export MOLMO_PYTHON=/path/to/molmo/.venv/bin/python
-export LINGBOT_PYTHON=/path/to/lingbot/.venv/bin/python
 export LANPAINT_QWEN_PYTHON=/path/to/lanpaint-qwen/.venv/bin/python
 export SHARP_PYTHON=/path/to/sharp/.venv/bin/python
 export SCENERIG_ISAAC_PYTHON=/path/to/isaac/venv/bin/python
@@ -66,7 +84,6 @@ directory. The tested source repositories are:
 
 ```bash
 git clone https://github.com/facebookresearch/sam3.git lib/utils/third_party/sam3
-git clone https://github.com/Robbyant/lingbot-depth.git lib/utils/third_party/lingbot
 git clone https://github.com/charrywhite/LanPaint-diffusers.git \
   lib/utils/third_party/lanpaint-qwen
 ```
@@ -80,8 +97,15 @@ huggingface-cli download facebook/sam-3d-objects \
   --local-dir lib/utils/third_party/sam3d/checkpoints/hf
 huggingface-cli download facebook/sam3
 huggingface-cli download allenai/MolmoPoint-8B
-huggingface-cli download robbyant/lingbot-depth-pretrain-vitl-14-v0.5
 huggingface-cli download Qwen/Qwen-Image-Edit-2509
+```
+
+SAM3D texture baking also needs the CUDA toolkit and `nvdiffrast`:
+
+```bash
+CUDA_HOME=/usr/local/cuda \
+  lib/utils/third_party/sam3d/.venv/bin/pip install \
+  'git+https://github.com/NVlabs/nvdiffrast.git@v0.3.3'
 ```
 
 MoGE-2 downloads `Ruicheng/moge-2-vitl-normal` automatically on first use.
@@ -108,6 +132,14 @@ loads `SCENERIG_KEYS_FILE`, then `GRASE_KEYS_FILE`, then `~/.zshrc`.
 export OPENAI_API_KEY=...
 export CLAUDE_API_KEY=...        # or ANTHROPIC_API_KEY
 export CLAUDE_BASE_URL=...       # only if using an OpenAI-compatible proxy
+```
+
+Long agent turns default to a 600-second request timeout. Override it when a
+provider has a stricter limit:
+
+```bash
+export SCENERIG_MODEL_TIMEOUT_SECONDS=600
+export SCENERIG_MODEL_BUDGET_SECONDS=3600
 ```
 
 Do not commit keys. [lib/utils/_api_keys.py](lib/utils/_api_keys.py) only reads

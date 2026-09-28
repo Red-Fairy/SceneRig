@@ -6834,8 +6834,6 @@ bpy.ops.wm.save_as_mainfile(filepath={os.path.abspath(save_path)!r})
                 self._pose_dirty = False
                 if not strict_physics:
                     self._armed = set()
-            # the settle gate's sibling allowance uses the rules gate's support map
-            # (root surfaces included) instead of carry parents alone (audit F-M11)
             self._physics_obj.support_map = self._support_body_map() or {}
             reports = self._physics_obj.settle_edited(
                 self._pose_session,
@@ -17973,8 +17971,6 @@ def initialize(args: dict[str, object]) -> dict[str, object]:
                 # execute_and_evaluate is the general pose tool here: a wider soft cap
                 # with neutral wording (see _typed feedback in _settle_after_edit note).
                 _executor.freeform_cap = 6
-                # investigate description: under strict physics execute_and_evaluate
-                # leaves the armed set alone (only undo_last_step clears it) — audit F-L1.
                 strict_investigate = copy.deepcopy(investigate_objects_tool)
                 strict_investigate["function"]["description"] = strict_investigate[
                     "function"

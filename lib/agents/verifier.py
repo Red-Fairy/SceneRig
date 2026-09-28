@@ -401,7 +401,7 @@ class VerifierAgent:
         assistant_content = message["assistant"].content
         assistant_tool_calls = message["assistant"].tool_calls[0].model_dump()
         _raw = getattr(message["assistant"], "raw_content", None)
-        _extra = {"_raw_blocks": _raw} if _raw else {}  # T2.4 thinking passthrough
+        _extra = {"_raw_blocks": _raw} if _raw else {}
         self.memory.append(
             {
                 **_extra,

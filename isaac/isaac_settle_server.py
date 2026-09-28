@@ -1084,7 +1084,7 @@ def _zrange(o):
 def _body_stacked(members, free, excl, pen):
     """For every measured pair in ``pen`` (body -> {other: depth_mm}), whether the pair is
     STACKED (one body's bottom at/above the other's top within 1 cm) rather than side by
-    side — the client's sibling-vs-stacked test for its hull allowance (audit F-M11)."""
+    side for the client's sibling-versus-stacked hull allowance."""
     out = {}
     for b, others in pen.items():
         zb = _zrange(_objs[b])
@@ -1111,10 +1111,6 @@ def cmd_settle_set(bodies, deltas, free=None, budget=None, groups=None):
         _apply_delta(_objs[b], C[:3, :3], C[:3, 3])
     names = bodies + free
     c_pre = {n: _objs[n].centroid() for n in names}
-    # Per-HIERARCHY lift-to-clear (audit F-M3): each moved hierarchy is lifted only as
-    # far as IT needs to clear the non-set bodies, so one body's wall overlap (never
-    # clears -> release in place) or big lift no longer drops every co-moved body from
-    # the same height. Groups default to one body each.
     groups = [list(g) for g in (groups or [[b] for b in bodies])]
     others = [h for n, o in _objs.items() if n not in pen_skip for h in o.hulls]
     up_of, lift_max = {}, 0.0
@@ -1138,7 +1134,7 @@ def cmd_settle_set(bodies, deltas, free=None, budget=None, groups=None):
     prims = [_prims[f"__free_{n}__"] for n in names]
     Ms, converged = _run_to_rest(prims, _steps(budget))
     unconverged = []
-    if not converged:  # name the bodies still moving (audit F-M4)
+    if not converged:
         speeds = _body_speed_report(prims)
         unconverged = [
             n for n, prim in zip(names, prims)

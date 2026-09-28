@@ -1,6 +1,4 @@
 #!/usr/bin/env bash
-# End-to-end SceneRig run for one image.
-#
 # Usage:
 #   scripts/run_e2e.sh <image_path> <output_dir> <gpu> [static_scene.py args...]
 #
@@ -29,8 +27,6 @@ if [ ! -f "$IMAGE" ]; then
     exit 1
 fi
 
-# Bash does not source zsh startup files. Load common exports from the user's key
-# file for local runs; explicit environment variables still win.
 KEY_FILE="${SCENERIG_KEYS_FILE:-${GRASE_KEYS_FILE:-$HOME/.zshrc}}"
 eval "$(grep -E '^[[:space:]]*export[[:space:]]+(HF_TOKEN|HUGGING_FACE_HUB_TOKEN|CLAUDE_API_KEY|CLAUDE_BASE_URL|ANTHROPIC_API_KEY|OPENAI_API_KEY|OPENAI_BASE_URL|FIREWORKS_API_KEY|FIREWORKS_BASE_URL|GEMINI_API_KEY|GEMINI_BASE_URL|QWEN_API_KEY|QWEN_BASE_URL)=' "$KEY_FILE" 2>/dev/null)" || true
 
@@ -39,8 +35,6 @@ export HUGGING_FACE_HUB_TOKEN="${HUGGING_FACE_HUB_TOKEN:-$HF_TOKEN}"
 export OPENAI_API_KEY="${OPENAI_API_KEY:-}"
 export CLAUDE_API_KEY="${CLAUDE_API_KEY:-${ANTHROPIC_API_KEY:-}}"
 
-# Downloads are enabled by default on a fresh installation. Set both variables
-# to 1 after the cache is populated for fully offline runs.
 export HF_HUB_OFFLINE="${HF_HUB_OFFLINE:-0}"
 export TRANSFORMERS_OFFLINE="${TRANSFORMERS_OFFLINE:-0}"
 unset HUGGINGFACE_HUB_CACHE

@@ -833,8 +833,6 @@ class RootSceneAgent:
         if repair is None:
             return certification
         if repair.get("skip"):
-            # audit F-M6: an unmapped object would have scoped the coverage gate to
-            # nothing (fail open); record why the round was skipped instead.
             certification["repair_round"] = {"skipped": repair["skip"]}
             return certification
         stage = self._stage_spec("composition")
@@ -849,7 +847,6 @@ class RootSceneAgent:
             result = await self._run_stage_single_pass(stage, stage_idx, repair=repair)
             self._log_stage_time("composition_repair", time.time() - t0)
             self.stage_context["composition_repair"] = result
-            # quality reads stage_artifacts (audit F-M5): make the round visible there
             self.stage_context.setdefault("stage_artifacts", {}).setdefault(
                 str(stage_idx), {}
             )["composition_repair"] = result
@@ -878,7 +875,6 @@ class RootSceneAgent:
             },
             "approved": result.get("approved"),
             "termination_reason": result.get("termination_reason"),
-            # None when the re-certify errored (audit F-L11): unknown, not "nothing"
             "still_notable": (
                 None
                 if still is None
@@ -964,8 +960,6 @@ class RootSceneAgent:
         if not rows:
             return None
         if unmapped:
-            # fail CLOSED (audit F-M6): without scene-graph ids the coverage scope would
-            # be empty and the round would pass with zero investigations
             return {
                 "objects": rows,
                 "skip": "repair round skipped: no scene-graph id for "
