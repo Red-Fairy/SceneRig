@@ -1,0 +1,13 @@
+__pycache__/
+.DS_Store
+.venv/
+node_modules/
+test-results/
+*.log
+
+# Local authoring files are excluded from the anonymous project page.
+AGENTS.md
+CHANGELOG.md
+README.md
+CLAUDE.md
+deploy/

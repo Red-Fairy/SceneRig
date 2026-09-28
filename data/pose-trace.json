@@ -1,0 +1,182 @@
+{
+  "scene": "scene-02",
+  "target": "spoon#1",
+  "summary": "Five consecutive tool calls from a recorded pose-refinement stage. The agent selects objects and edit types; the backend computes updates and returns geometric and physical feedback.",
+  "calls": [
+    {
+      "id": "inspect",
+      "label": "Inspect objects",
+      "tool": "investigate_objects",
+      "arguments": {
+        "objects": [
+          "napkin#0",
+          "spoon#1"
+        ]
+      },
+      "summary": "The spoon is displaced relative to the photograph; the neighboring napkin is already well aligned.",
+      "response": "napkin#0: score 0.912, silhouette IoU 0.92\nspoon#1: score 0.007, silhouette IoU 0.10\nPOSITION HINT for spoon#1: the silhouette might fit the photo better once shifted toward image-right and down",
+      "metrics": [
+        {
+          "label": "Spoon silhouette IoU",
+          "value": 0.1
+        },
+        {
+          "label": "Napkin silhouette IoU",
+          "value": 0.92
+        }
+      ],
+      "images": [
+        {
+          "src": "assets/method/pose-trace/reference.webp",
+          "label": "Input photograph",
+          "alt": "Source photograph crop showing a gold spoon beside a blue napkin."
+        },
+        {
+          "src": "assets/method/pose-trace/before.webp",
+          "label": "Render before refinement",
+          "alt": "Render before refinement, showing the spoon and neighboring napkin from the same camera."
+        }
+      ]
+    },
+    {
+      "id": "translate",
+      "label": "Adjust position",
+      "tool": "move",
+      "arguments": {
+        "object": "spoon#1",
+        "aspect": "xy"
+      },
+      "summary": "The agent selects XY translation. The backend searches the adjustment, settles the object, and returns a new crop.",
+      "response": "score 0.007 -> 0.261, IoU 0.10 -> 0.36\nPhysics-settled (cum tilt 0.0 deg).\nSize re-measured at the new pose: still ~19% too small (2D projected).",
+      "metrics": [
+        {
+          "label": "Spoon silhouette IoU",
+          "before": 0.1,
+          "after": 0.36
+        },
+        {
+          "label": "Backend score",
+          "before": 0.007,
+          "after": 0.261
+        }
+      ],
+      "images": [
+        {
+          "src": "assets/method/pose-trace/reference.webp",
+          "label": "Input photograph",
+          "alt": "Source photograph crop showing a gold spoon beside a blue napkin."
+        },
+        {
+          "src": "assets/method/pose-trace/after-xy.webp",
+          "label": "Render after position adjustment",
+          "alt": "Render after position adjustment, showing the spoon and neighboring napkin from the same camera."
+        }
+      ]
+    },
+    {
+      "id": "scale",
+      "label": "Adjust scale",
+      "tool": "move",
+      "arguments": {
+        "object": "spoon#1",
+        "aspect": "scale"
+      },
+      "summary": "The scale update improves the size estimate and backend score, although silhouette IoU decreases. Scale scoring tolerates positional misalignment; position still requires correction.",
+      "response": "score 0.261 -> 0.275, IoU 0.36 -> 0.30\nPhysics-settled (cum tilt 0.0 deg).\nSize re-measured at the new pose: matches the photo mask.",
+      "metrics": [
+        {
+          "label": "Spoon silhouette IoU",
+          "before": 0.36,
+          "after": 0.3
+        },
+        {
+          "label": "Backend score",
+          "before": 0.261,
+          "after": 0.275
+        }
+      ],
+      "images": [
+        {
+          "src": "assets/method/pose-trace/reference.webp",
+          "label": "Input photograph",
+          "alt": "Source photograph crop showing a gold spoon beside a blue napkin."
+        },
+        {
+          "src": "assets/method/pose-trace/after-scale.webp",
+          "label": "Render after scale adjustment",
+          "alt": "Render after scale adjustment, showing the spoon and neighboring napkin from the same camera."
+        }
+      ]
+    },
+    {
+      "id": "reinspect",
+      "label": "Inspect again",
+      "tool": "investigate_objects",
+      "arguments": {
+        "objects": [
+          "spoon#1"
+        ]
+      },
+      "summary": "The agent requests a fresh inspection of the spoon. The backend still detects a positional mismatch.",
+      "response": "spoon#1: score 0.275, silhouette IoU 0.30\nPOSITION HINT for spoon#1: the silhouette might fit the photo better once shifted toward image-right and down",
+      "metrics": [
+        {
+          "label": "Spoon silhouette IoU",
+          "value": 0.3
+        }
+      ],
+      "images": [
+        {
+          "src": "assets/method/pose-trace/reference.webp",
+          "label": "Input photograph",
+          "alt": "Source photograph crop showing a gold spoon beside a blue napkin."
+        },
+        {
+          "src": "assets/method/pose-trace/after-scale.webp",
+          "label": "Current render at reinspection",
+          "alt": "Current render at reinspection, showing the spoon and neighboring napkin from the same camera."
+        }
+      ]
+    },
+    {
+      "id": "refine",
+      "label": "Refine position",
+      "tool": "move",
+      "arguments": {
+        "object": "spoon#1",
+        "aspect": "xy"
+      },
+      "summary": "A second XY adjustment improves the spoon match. The backend also reports that the neighboring napkin was carried along.",
+      "response": "score 0.275 -> 0.488, IoU 0.30 -> 0.52\nPhysics-settled (cum tilt 0.0 deg; carried along: napkin#0).\nSize re-measured at the new pose: matches the photo mask.",
+      "metrics": [
+        {
+          "label": "Spoon silhouette IoU",
+          "before": 0.3,
+          "after": 0.52
+        },
+        {
+          "label": "Backend score",
+          "before": 0.275,
+          "after": 0.488
+        }
+      ],
+      "images": [
+        {
+          "src": "assets/method/pose-trace/reference.webp",
+          "label": "Input photograph",
+          "alt": "Source photograph crop showing a gold spoon beside a blue napkin."
+        },
+        {
+          "src": "assets/method/pose-trace/after-final.webp",
+          "label": "Render after second position adjustment",
+          "alt": "Render after second position adjustment, showing the spoon and neighboring napkin from the same camera."
+        }
+      ]
+    }
+  ],
+  "notes": [
+    "Silhouette IoU measures overlap between the rendered object mask and the reference mask. The backend score combines alignment criteria and depends on the selected edit type.",
+    "All panels use the same source-camera crop. Saved render resolutions differ; crops are resized for display. Responses are excerpts from tool outputs.",
+    "The final crop comes from the next scene-rendering call, with no intervening edits. The napkin moves during this update; this is an intermediate refinement result, not the final scene."
+  ]
+}

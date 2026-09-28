@@ -1,0 +1,1702 @@
+{
+  "groups": [
+    {
+      "id": "main",
+      "label": "Claude Opus 5",
+      "note": "Reconstruction comparisons with Claude Opus 5. VIGA uses the paper's object-grouping instructions. Source cameras are estimated independently; REST3D uses an approximately recovered camera. Nearby views rotate each method's source camera by +30° in its own scene frame. REST3D and SimFoundry show the qualitative visualization variants with white support surfaces.",
+      "methods": [
+        {
+          "id": "ours",
+          "label": "SceneRig",
+          "note": "Final SceneRig reconstruction."
+        },
+        {
+          "id": "simfoundry",
+          "label": "SimFoundry",
+          "note": "White support-surface visualization variant."
+        },
+        {
+          "id": "rest3d",
+          "label": "REST3D",
+          "note": "Approximately recovered source camera; white support-surface visualization variant."
+        },
+        {
+          "id": "sc",
+          "label": "SceneConductor",
+          "note": "Final reconstructed scene."
+        },
+        {
+          "id": "viga",
+          "label": "VIGA",
+          "note": "Object-grouped Claude Opus 5 run used in the paper."
+        }
+      ]
+    },
+    {
+      "id": "gpt6",
+      "label": "GPT-6 Astra",
+      "note": "These qualitative views show reconstructions before the additional post-reconstruction stability test; the paper’s quantitative GPT-6 comparison scores VIGA and direct Codex after five seconds of PhysX settling. SceneRig uses GPT-6 reconstruction agents with Claude Opus 5 preprocessing and includes its own physics refinement. VIGA uses object grouping and medium reasoning; direct Codex uses ultra reasoning. Nearby views are relative +30° camera changes in each reconstructed scene, rather than identical ground-truth camera poses.",
+      "methods": [
+        {
+          "id": "ours",
+          "label": "SceneRig",
+          "note": "GPT-6 Astra reconstruction agents with Claude Opus 5 preprocessing."
+        },
+        {
+          "id": "viga",
+          "label": "VIGA",
+          "note": "GPT-6 Astra, medium reasoning; object-grouping instructions."
+        },
+        {
+          "id": "codex",
+          "label": "Codex",
+          "note": "Direct Blender reconstruction with GPT-6 Astra, ultra reasoning."
+        }
+      ]
+    }
+  ],
+  "views": [
+    {
+      "id": "source",
+      "label": "Source view"
+    },
+    {
+      "id": "novel",
+      "label": "Nearby view · +30°"
+    }
+  ],
+  "scenes": [
+    {
+      "id": "main-scene-21",
+      "sourceId": "scene-21",
+      "title": "Scene 21",
+      "category": "Simulator scenes",
+      "group": "main",
+      "methods": [
+        {
+          "id": "ours",
+          "label": "SceneRig",
+          "source": "assets/gallery/main/scene-21/ours_source.webp",
+          "novel": "assets/gallery/main/scene-21/ours_novel.webp"
+        },
+        {
+          "id": "simfoundry",
+          "label": "SimFoundry",
+          "source": "assets/gallery/main/scene-21/simfoundry_source.webp",
+          "novel": "assets/gallery/main/scene-21/simfoundry_novel.webp"
+        },
+        {
+          "id": "rest3d",
+          "label": "REST3D",
+          "source": "assets/gallery/main/scene-21/rest3d_source.webp",
+          "novel": "assets/gallery/main/scene-21/rest3d_novel.webp"
+        },
+        {
+          "id": "sc",
+          "label": "SceneConductor",
+          "source": "assets/gallery/main/scene-21/sc_source.webp",
+          "novel": "assets/gallery/main/scene-21/sc_novel.webp"
+        },
+        {
+          "id": "viga",
+          "label": "VIGA",
+          "source": "assets/gallery/main/scene-21/viga_source.webp",
+          "novel": "assets/gallery/main/scene-21/viga_novel.webp"
+        }
+      ],
+      "input": "assets/gallery/main/scene-21/input.webp"
+    },
+    {
+      "id": "main-scene-01",
+      "sourceId": "scene-01",
+      "title": "Scene 01",
+      "category": "Everyday scenes",
+      "group": "main",
+      "methods": [
+        {
+          "id": "ours",
+          "label": "SceneRig",
+          "source": "assets/gallery/main/scene-01/ours_source.webp?v=edited-input",
+          "novel": "assets/gallery/main/scene-01/ours_novel.webp?v=edited-input"
+        },
+        {
+          "id": "simfoundry",
+          "label": "SimFoundry",
+          "source": "assets/gallery/main/scene-01/simfoundry_source.webp?v=edited-input",
+          "novel": "assets/gallery/main/scene-01/simfoundry_novel.webp?v=edited-input"
+        },
+        {
+          "id": "rest3d",
+          "label": "REST3D",
+          "source": "assets/gallery/main/scene-01/rest3d_source.webp?v=edited-input",
+          "novel": "assets/gallery/main/scene-01/rest3d_novel.webp?v=edited-input"
+        },
+        {
+          "id": "sc",
+          "label": "SceneConductor",
+          "source": "assets/gallery/main/scene-01/sc_source.webp?v=edited-input",
+          "novel": "assets/gallery/main/scene-01/sc_novel.webp?v=edited-input"
+        },
+        {
+          "id": "viga",
+          "label": "VIGA",
+          "source": "assets/gallery/main/scene-01/viga_source.webp?v=edited-input",
+          "novel": "assets/gallery/main/scene-01/viga_novel.webp?v=edited-input"
+        }
+      ],
+      "input": "assets/gallery/main/scene-01/input.webp?v=edited-input"
+    },
+    {
+      "id": "main-scene-02",
+      "sourceId": "scene-02",
+      "title": "Scene 02",
+      "category": "Robot workspaces",
+      "group": "main",
+      "methods": [
+        {
+          "id": "ours",
+          "label": "SceneRig",
+          "source": "assets/gallery/main/scene-02/ours_source.webp",
+          "novel": "assets/gallery/main/scene-02/ours_novel.webp"
+        },
+        {
+          "id": "simfoundry",
+          "label": "SimFoundry",
+          "source": "assets/gallery/main/scene-02/simfoundry_source.webp",
+          "novel": "assets/gallery/main/scene-02/simfoundry_novel.webp"
+        },
+        {
+          "id": "rest3d",
+          "label": "REST3D",
+          "source": "assets/gallery/main/scene-02/rest3d_source.webp",
+          "novel": "assets/gallery/main/scene-02/rest3d_novel.webp"
+        },
+        {
+          "id": "sc",
+          "label": "SceneConductor",
+          "source": "assets/gallery/main/scene-02/sc_source.webp",
+          "novel": "assets/gallery/main/scene-02/sc_novel.webp"
+        },
+        {
+          "id": "viga",
+          "label": "VIGA",
+          "source": "assets/gallery/main/scene-02/viga_source.webp",
+          "novel": "assets/gallery/main/scene-02/viga_novel.webp"
+        }
+      ],
+      "input": "assets/gallery/main/scene-02/input.webp"
+    },
+    {
+      "id": "main-scene-03",
+      "sourceId": "scene-03",
+      "title": "Scene 03",
+      "category": "Robot workspaces",
+      "group": "main",
+      "methods": [
+        {
+          "id": "ours",
+          "label": "SceneRig",
+          "source": "assets/gallery/main/scene-03/ours_source.webp",
+          "novel": "assets/gallery/main/scene-03/ours_novel.webp"
+        },
+        {
+          "id": "simfoundry",
+          "label": "SimFoundry",
+          "source": "assets/gallery/main/scene-03/simfoundry_source.webp",
+          "novel": "assets/gallery/main/scene-03/simfoundry_novel.webp"
+        },
+        {
+          "id": "rest3d",
+          "label": "REST3D",
+          "source": "assets/gallery/main/scene-03/rest3d_source.webp",
+          "novel": "assets/gallery/main/scene-03/rest3d_novel.webp"
+        },
+        {
+          "id": "sc",
+          "label": "SceneConductor",
+          "source": "assets/gallery/main/scene-03/sc_source.webp",
+          "novel": "assets/gallery/main/scene-03/sc_novel.webp"
+        },
+        {
+          "id": "viga",
+          "label": "VIGA",
+          "source": "assets/gallery/main/scene-03/viga_source.webp",
+          "novel": "assets/gallery/main/scene-03/viga_novel.webp"
+        }
+      ],
+      "input": "assets/gallery/main/scene-03/input.webp"
+    },
+    {
+      "id": "main-scene-04",
+      "sourceId": "scene-04",
+      "title": "Scene 04",
+      "category": "Robot workspaces",
+      "group": "main",
+      "methods": [
+        {
+          "id": "ours",
+          "label": "SceneRig",
+          "source": "assets/gallery/main/scene-04/ours_source.webp",
+          "novel": "assets/gallery/main/scene-04/ours_novel.webp"
+        },
+        {
+          "id": "simfoundry",
+          "label": "SimFoundry",
+          "source": "assets/gallery/main/scene-04/simfoundry_source.webp",
+          "novel": "assets/gallery/main/scene-04/simfoundry_novel.webp"
+        },
+        {
+          "id": "rest3d",
+          "label": "REST3D",
+          "source": "assets/gallery/main/scene-04/rest3d_source.webp",
+          "novel": "assets/gallery/main/scene-04/rest3d_novel.webp"
+        },
+        {
+          "id": "sc",
+          "label": "SceneConductor",
+          "source": "assets/gallery/main/scene-04/sc_source.webp",
+          "novel": "assets/gallery/main/scene-04/sc_novel.webp"
+        },
+        {
+          "id": "viga",
+          "label": "VIGA",
+          "source": "assets/gallery/main/scene-04/viga_source.webp",
+          "novel": "assets/gallery/main/scene-04/viga_novel.webp"
+        }
+      ],
+      "input": "assets/gallery/main/scene-04/input.webp"
+    },
+    {
+      "id": "main-scene-05",
+      "sourceId": "scene-05",
+      "title": "Scene 05",
+      "category": "Everyday scenes",
+      "group": "main",
+      "methods": [
+        {
+          "id": "ours",
+          "label": "SceneRig",
+          "source": "assets/gallery/main/scene-05/ours_source.webp",
+          "novel": "assets/gallery/main/scene-05/ours_novel.webp"
+        },
+        {
+          "id": "simfoundry",
+          "label": "SimFoundry",
+          "source": "assets/gallery/main/scene-05/simfoundry_source.webp",
+          "novel": "assets/gallery/main/scene-05/simfoundry_novel.webp"
+        },
+        {
+          "id": "rest3d",
+          "label": "REST3D",
+          "source": "assets/gallery/main/scene-05/rest3d_source.webp",
+          "novel": "assets/gallery/main/scene-05/rest3d_novel.webp"
+        },
+        {
+          "id": "sc",
+          "label": "SceneConductor",
+          "source": "assets/gallery/main/scene-05/sc_source.webp",
+          "novel": "assets/gallery/main/scene-05/sc_novel.webp"
+        },
+        {
+          "id": "viga",
+          "label": "VIGA",
+          "source": "assets/gallery/main/scene-05/viga_source.webp",
+          "novel": "assets/gallery/main/scene-05/viga_novel.webp"
+        }
+      ],
+      "input": "assets/gallery/main/scene-05/input.webp"
+    },
+    {
+      "id": "main-scene-06",
+      "sourceId": "scene-06",
+      "title": "Scene 06",
+      "category": "Everyday scenes",
+      "group": "main",
+      "methods": [
+        {
+          "id": "ours",
+          "label": "SceneRig",
+          "source": "assets/gallery/main/scene-06/ours_source.webp",
+          "novel": "assets/gallery/main/scene-06/ours_novel.webp"
+        },
+        {
+          "id": "simfoundry",
+          "label": "SimFoundry",
+          "source": "assets/gallery/main/scene-06/simfoundry_source.webp",
+          "novel": "assets/gallery/main/scene-06/simfoundry_novel.webp"
+        },
+        {
+          "id": "rest3d",
+          "label": "REST3D",
+          "source": "assets/gallery/main/scene-06/rest3d_source.webp",
+          "novel": "assets/gallery/main/scene-06/rest3d_novel.webp"
+        },
+        {
+          "id": "sc",
+          "label": "SceneConductor",
+          "source": "assets/gallery/main/scene-06/sc_source.webp",
+          "novel": "assets/gallery/main/scene-06/sc_novel.webp"
+        },
+        {
+          "id": "viga",
+          "label": "VIGA",
+          "source": "assets/gallery/main/scene-06/viga_source.webp",
+          "novel": "assets/gallery/main/scene-06/viga_novel.webp"
+        }
+      ],
+      "input": "assets/gallery/main/scene-06/input.webp"
+    },
+    {
+      "id": "main-scene-07",
+      "sourceId": "scene-07",
+      "title": "Scene 07",
+      "category": "Generated scenes",
+      "group": "main",
+      "methods": [
+        {
+          "id": "ours",
+          "label": "SceneRig",
+          "source": "assets/gallery/main/scene-07/ours_source.webp",
+          "novel": "assets/gallery/main/scene-07/ours_novel.webp"
+        },
+        {
+          "id": "simfoundry",
+          "label": "SimFoundry",
+          "source": "assets/gallery/main/scene-07/simfoundry_source.webp",
+          "novel": "assets/gallery/main/scene-07/simfoundry_novel.webp"
+        },
+        {
+          "id": "rest3d",
+          "label": "REST3D",
+          "source": "assets/gallery/main/scene-07/rest3d_source.webp",
+          "novel": "assets/gallery/main/scene-07/rest3d_novel.webp"
+        },
+        {
+          "id": "sc",
+          "label": "SceneConductor",
+          "source": "assets/gallery/main/scene-07/sc_source.webp",
+          "novel": "assets/gallery/main/scene-07/sc_novel.webp"
+        },
+        {
+          "id": "viga",
+          "label": "VIGA",
+          "source": "assets/gallery/main/scene-07/viga_source.webp",
+          "novel": "assets/gallery/main/scene-07/viga_novel.webp"
+        }
+      ],
+      "input": "assets/gallery/main/scene-07/input.webp"
+    },
+    {
+      "id": "main-scene-08",
+      "sourceId": "scene-08",
+      "title": "Scene 08",
+      "category": "Generated scenes",
+      "group": "main",
+      "methods": [
+        {
+          "id": "ours",
+          "label": "SceneRig",
+          "source": "assets/gallery/main/scene-08/ours_source.webp",
+          "novel": "assets/gallery/main/scene-08/ours_novel.webp"
+        },
+        {
+          "id": "simfoundry",
+          "label": "SimFoundry",
+          "source": "assets/gallery/main/scene-08/simfoundry_source.webp",
+          "novel": "assets/gallery/main/scene-08/simfoundry_novel.webp"
+        },
+        {
+          "id": "rest3d",
+          "label": "REST3D",
+          "source": "assets/gallery/main/scene-08/rest3d_source.webp",
+          "novel": "assets/gallery/main/scene-08/rest3d_novel.webp"
+        },
+        {
+          "id": "sc",
+          "label": "SceneConductor",
+          "source": "assets/gallery/main/scene-08/sc_source.webp",
+          "novel": "assets/gallery/main/scene-08/sc_novel.webp"
+        },
+        {
+          "id": "viga",
+          "label": "VIGA",
+          "source": "assets/gallery/main/scene-08/viga_source.webp",
+          "novel": "assets/gallery/main/scene-08/viga_novel.webp"
+        }
+      ],
+      "input": "assets/gallery/main/scene-08/input.webp"
+    },
+    {
+      "id": "main-scene-09",
+      "sourceId": "scene-09",
+      "title": "Scene 09",
+      "category": "Rooms & furniture",
+      "group": "main",
+      "methods": [
+        {
+          "id": "ours",
+          "label": "SceneRig",
+          "source": "assets/gallery/main/scene-09/ours_source.webp",
+          "novel": "assets/gallery/main/scene-09/ours_novel.webp"
+        },
+        {
+          "id": "simfoundry",
+          "label": "SimFoundry",
+          "source": "assets/gallery/main/scene-09/simfoundry_source.webp",
+          "novel": "assets/gallery/main/scene-09/simfoundry_novel.webp"
+        },
+        {
+          "id": "rest3d",
+          "label": "REST3D",
+          "source": "assets/gallery/main/scene-09/rest3d_source.webp",
+          "novel": "assets/gallery/main/scene-09/rest3d_novel.webp"
+        },
+        {
+          "id": "sc",
+          "label": "SceneConductor",
+          "source": "assets/gallery/main/scene-09/sc_source.webp",
+          "novel": "assets/gallery/main/scene-09/sc_novel.webp"
+        },
+        {
+          "id": "viga",
+          "label": "VIGA",
+          "source": "assets/gallery/main/scene-09/viga_source.webp",
+          "novel": "assets/gallery/main/scene-09/viga_novel.webp"
+        }
+      ],
+      "input": "assets/gallery/main/scene-09/input.webp"
+    },
+    {
+      "id": "main-scene-10",
+      "sourceId": "scene-10",
+      "title": "Scene 10",
+      "category": "Rooms & furniture",
+      "group": "main",
+      "methods": [
+        {
+          "id": "ours",
+          "label": "SceneRig",
+          "source": "assets/gallery/main/scene-10/ours_source.webp",
+          "novel": "assets/gallery/main/scene-10/ours_novel.webp"
+        },
+        {
+          "id": "simfoundry",
+          "label": "SimFoundry",
+          "source": "assets/gallery/main/scene-10/simfoundry_source.webp",
+          "novel": "assets/gallery/main/scene-10/simfoundry_novel.webp"
+        },
+        {
+          "id": "rest3d",
+          "label": "REST3D",
+          "source": "assets/gallery/main/scene-10/rest3d_source.webp",
+          "novel": "assets/gallery/main/scene-10/rest3d_novel.webp"
+        },
+        {
+          "id": "sc",
+          "label": "SceneConductor",
+          "source": "assets/gallery/main/scene-10/sc_source.webp",
+          "novel": "assets/gallery/main/scene-10/sc_novel.webp"
+        },
+        {
+          "id": "viga",
+          "label": "VIGA",
+          "source": "assets/gallery/main/scene-10/viga_source.webp",
+          "novel": "assets/gallery/main/scene-10/viga_novel.webp"
+        }
+      ],
+      "input": "assets/gallery/main/scene-10/input.webp"
+    },
+    {
+      "id": "main-scene-11",
+      "sourceId": "scene-11",
+      "title": "Scene 11",
+      "category": "Everyday scenes",
+      "group": "main",
+      "methods": [
+        {
+          "id": "ours",
+          "label": "SceneRig",
+          "source": "assets/gallery/main/scene-11/ours_source.webp",
+          "novel": "assets/gallery/main/scene-11/ours_novel.webp"
+        },
+        {
+          "id": "simfoundry",
+          "label": "SimFoundry",
+          "source": "assets/gallery/main/scene-11/simfoundry_source.webp",
+          "novel": "assets/gallery/main/scene-11/simfoundry_novel.webp"
+        },
+        {
+          "id": "rest3d",
+          "label": "REST3D",
+          "source": "assets/gallery/main/scene-11/rest3d_source.webp",
+          "novel": "assets/gallery/main/scene-11/rest3d_novel.webp"
+        },
+        {
+          "id": "sc",
+          "label": "SceneConductor",
+          "source": "assets/gallery/main/scene-11/sc_source.webp",
+          "novel": "assets/gallery/main/scene-11/sc_novel.webp"
+        },
+        {
+          "id": "viga",
+          "label": "VIGA",
+          "source": "assets/gallery/main/scene-11/viga_source.webp",
+          "novel": "assets/gallery/main/scene-11/viga_novel.webp"
+        }
+      ],
+      "input": "assets/gallery/main/scene-11/input.webp"
+    },
+    {
+      "id": "main-scene-12",
+      "sourceId": "scene-12",
+      "title": "Scene 12",
+      "category": "Artwork",
+      "group": "main",
+      "methods": [
+        {
+          "id": "ours",
+          "label": "SceneRig",
+          "source": "assets/gallery/main/scene-12/ours_source.webp",
+          "novel": "assets/gallery/main/scene-12/ours_novel.webp"
+        },
+        {
+          "id": "simfoundry",
+          "label": "SimFoundry",
+          "source": "assets/gallery/main/scene-12/simfoundry_source.webp",
+          "novel": "assets/gallery/main/scene-12/simfoundry_novel.webp"
+        },
+        {
+          "id": "rest3d",
+          "label": "REST3D",
+          "source": "assets/gallery/main/scene-12/rest3d_source.webp",
+          "novel": "assets/gallery/main/scene-12/rest3d_novel.webp"
+        },
+        {
+          "id": "sc",
+          "label": "SceneConductor",
+          "source": "assets/gallery/main/scene-12/sc_source.webp",
+          "novel": "assets/gallery/main/scene-12/sc_novel.webp"
+        },
+        {
+          "id": "viga",
+          "label": "VIGA",
+          "source": "assets/gallery/main/scene-12/viga_source.webp",
+          "novel": "assets/gallery/main/scene-12/viga_novel.webp"
+        }
+      ],
+      "input": "assets/gallery/main/scene-12/input.webp"
+    },
+    {
+      "id": "main-scene-13",
+      "sourceId": "scene-13",
+      "title": "Scene 13",
+      "category": "Robot workspaces",
+      "group": "main",
+      "methods": [
+        {
+          "id": "ours",
+          "label": "SceneRig",
+          "source": "assets/gallery/main/scene-13/ours_source.webp",
+          "novel": "assets/gallery/main/scene-13/ours_novel.webp"
+        },
+        {
+          "id": "simfoundry",
+          "label": "SimFoundry",
+          "source": "assets/gallery/main/scene-13/simfoundry_source.webp",
+          "novel": "assets/gallery/main/scene-13/simfoundry_novel.webp"
+        },
+        {
+          "id": "rest3d",
+          "label": "REST3D",
+          "source": "assets/gallery/main/scene-13/rest3d_source.webp",
+          "novel": "assets/gallery/main/scene-13/rest3d_novel.webp"
+        },
+        {
+          "id": "sc",
+          "label": "SceneConductor",
+          "source": "assets/gallery/main/scene-13/sc_source.webp",
+          "novel": "assets/gallery/main/scene-13/sc_novel.webp"
+        },
+        {
+          "id": "viga",
+          "label": "VIGA",
+          "source": "assets/gallery/main/scene-13/viga_source.webp",
+          "novel": "assets/gallery/main/scene-13/viga_novel.webp"
+        }
+      ],
+      "input": "assets/gallery/main/scene-13/input.webp"
+    },
+    {
+      "id": "main-scene-14",
+      "sourceId": "scene-14",
+      "title": "Scene 14",
+      "category": "Robot workspaces",
+      "group": "main",
+      "methods": [
+        {
+          "id": "ours",
+          "label": "SceneRig",
+          "source": "assets/gallery/main/scene-14/ours_source.webp",
+          "novel": "assets/gallery/main/scene-14/ours_novel.webp"
+        },
+        {
+          "id": "simfoundry",
+          "label": "SimFoundry",
+          "source": "assets/gallery/main/scene-14/simfoundry_source.webp",
+          "novel": "assets/gallery/main/scene-14/simfoundry_novel.webp"
+        },
+        {
+          "id": "rest3d",
+          "label": "REST3D",
+          "source": "assets/gallery/main/scene-14/rest3d_source.webp",
+          "novel": "assets/gallery/main/scene-14/rest3d_novel.webp"
+        },
+        {
+          "id": "sc",
+          "label": "SceneConductor",
+          "source": "assets/gallery/main/scene-14/sc_source.webp",
+          "novel": "assets/gallery/main/scene-14/sc_novel.webp"
+        },
+        {
+          "id": "viga",
+          "label": "VIGA",
+          "source": "assets/gallery/main/scene-14/viga_source.webp",
+          "novel": "assets/gallery/main/scene-14/viga_novel.webp"
+        }
+      ],
+      "input": "assets/gallery/main/scene-14/input.webp"
+    },
+    {
+      "id": "main-scene-15",
+      "sourceId": "scene-15",
+      "title": "Scene 15",
+      "category": "Robot workspaces",
+      "group": "main",
+      "methods": [
+        {
+          "id": "ours",
+          "label": "SceneRig",
+          "source": "assets/gallery/main/scene-15/ours_source.webp",
+          "novel": "assets/gallery/main/scene-15/ours_novel.webp"
+        },
+        {
+          "id": "simfoundry",
+          "label": "SimFoundry",
+          "source": "assets/gallery/main/scene-15/simfoundry_source.webp",
+          "novel": "assets/gallery/main/scene-15/simfoundry_novel.webp"
+        },
+        {
+          "id": "rest3d",
+          "label": "REST3D",
+          "source": "assets/gallery/main/scene-15/rest3d_source.webp",
+          "novel": "assets/gallery/main/scene-15/rest3d_novel.webp"
+        },
+        {
+          "id": "sc",
+          "label": "SceneConductor",
+          "source": "assets/gallery/main/scene-15/sc_source.webp",
+          "novel": "assets/gallery/main/scene-15/sc_novel.webp"
+        },
+        {
+          "id": "viga",
+          "label": "VIGA",
+          "source": "assets/gallery/main/scene-15/viga_source.webp",
+          "novel": "assets/gallery/main/scene-15/viga_novel.webp"
+        }
+      ],
+      "input": "assets/gallery/main/scene-15/input.webp"
+    },
+    {
+      "id": "main-scene-16",
+      "sourceId": "scene-16",
+      "title": "Scene 16",
+      "category": "Simulator scenes",
+      "group": "main",
+      "methods": [
+        {
+          "id": "ours",
+          "label": "SceneRig",
+          "source": "assets/gallery/main/scene-16/ours_source.webp",
+          "novel": "assets/gallery/main/scene-16/ours_novel.webp"
+        },
+        {
+          "id": "simfoundry",
+          "label": "SimFoundry",
+          "source": "assets/gallery/main/scene-16/simfoundry_source.webp",
+          "novel": "assets/gallery/main/scene-16/simfoundry_novel.webp"
+        },
+        {
+          "id": "rest3d",
+          "label": "REST3D",
+          "source": "assets/gallery/main/scene-16/rest3d_source.webp",
+          "novel": "assets/gallery/main/scene-16/rest3d_novel.webp"
+        },
+        {
+          "id": "sc",
+          "label": "SceneConductor",
+          "source": "assets/gallery/main/scene-16/sc_source.webp",
+          "novel": "assets/gallery/main/scene-16/sc_novel.webp"
+        },
+        {
+          "id": "viga",
+          "label": "VIGA",
+          "source": "assets/gallery/main/scene-16/viga_source.webp",
+          "novel": "assets/gallery/main/scene-16/viga_novel.webp"
+        }
+      ],
+      "input": "assets/gallery/main/scene-16/input.webp"
+    },
+    {
+      "id": "main-scene-17",
+      "sourceId": "scene-17",
+      "title": "Scene 17",
+      "category": "Simulator scenes",
+      "group": "main",
+      "methods": [
+        {
+          "id": "ours",
+          "label": "SceneRig",
+          "source": "assets/gallery/main/scene-17/ours_source.webp",
+          "novel": "assets/gallery/main/scene-17/ours_novel.webp"
+        },
+        {
+          "id": "simfoundry",
+          "label": "SimFoundry",
+          "source": "assets/gallery/main/scene-17/simfoundry_source.webp",
+          "novel": "assets/gallery/main/scene-17/simfoundry_novel.webp"
+        },
+        {
+          "id": "rest3d",
+          "label": "REST3D",
+          "source": "assets/gallery/main/scene-17/rest3d_source.webp",
+          "novel": "assets/gallery/main/scene-17/rest3d_novel.webp"
+        },
+        {
+          "id": "sc",
+          "label": "SceneConductor",
+          "source": "assets/gallery/main/scene-17/sc_source.webp",
+          "novel": "assets/gallery/main/scene-17/sc_novel.webp"
+        },
+        {
+          "id": "viga",
+          "label": "VIGA",
+          "source": "assets/gallery/main/scene-17/viga_source.webp",
+          "novel": "assets/gallery/main/scene-17/viga_novel.webp"
+        }
+      ],
+      "input": "assets/gallery/main/scene-17/input.webp"
+    },
+    {
+      "id": "main-scene-18",
+      "sourceId": "scene-18",
+      "title": "Scene 18",
+      "category": "Simulator scenes",
+      "group": "main",
+      "methods": [
+        {
+          "id": "ours",
+          "label": "SceneRig",
+          "source": "assets/gallery/main/scene-18/ours_source.webp",
+          "novel": "assets/gallery/main/scene-18/ours_novel.webp"
+        },
+        {
+          "id": "simfoundry",
+          "label": "SimFoundry",
+          "source": "assets/gallery/main/scene-18/simfoundry_source.webp",
+          "novel": "assets/gallery/main/scene-18/simfoundry_novel.webp"
+        },
+        {
+          "id": "rest3d",
+          "label": "REST3D",
+          "source": "assets/gallery/main/scene-18/rest3d_source.webp",
+          "novel": "assets/gallery/main/scene-18/rest3d_novel.webp"
+        },
+        {
+          "id": "sc",
+          "label": "SceneConductor",
+          "source": "assets/gallery/main/scene-18/sc_source.webp",
+          "novel": "assets/gallery/main/scene-18/sc_novel.webp"
+        },
+        {
+          "id": "viga",
+          "label": "VIGA",
+          "source": "assets/gallery/main/scene-18/viga_source.webp",
+          "novel": "assets/gallery/main/scene-18/viga_novel.webp"
+        }
+      ],
+      "input": "assets/gallery/main/scene-18/input.webp"
+    },
+    {
+      "id": "main-scene-19",
+      "sourceId": "scene-19",
+      "title": "Scene 19",
+      "category": "Simulator scenes",
+      "group": "main",
+      "methods": [
+        {
+          "id": "ours",
+          "label": "SceneRig",
+          "source": "assets/gallery/main/scene-19/ours_source.webp",
+          "novel": "assets/gallery/main/scene-19/ours_novel.webp"
+        },
+        {
+          "id": "simfoundry",
+          "label": "SimFoundry",
+          "source": "assets/gallery/main/scene-19/simfoundry_source.webp",
+          "novel": "assets/gallery/main/scene-19/simfoundry_novel.webp"
+        },
+        {
+          "id": "rest3d",
+          "label": "REST3D",
+          "source": "assets/gallery/main/scene-19/rest3d_source.webp",
+          "novel": "assets/gallery/main/scene-19/rest3d_novel.webp"
+        },
+        {
+          "id": "sc",
+          "label": "SceneConductor",
+          "source": "assets/gallery/main/scene-19/sc_source.webp",
+          "novel": "assets/gallery/main/scene-19/sc_novel.webp"
+        },
+        {
+          "id": "viga",
+          "label": "VIGA",
+          "source": "assets/gallery/main/scene-19/viga_source.webp",
+          "novel": "assets/gallery/main/scene-19/viga_novel.webp"
+        }
+      ],
+      "input": "assets/gallery/main/scene-19/input.webp"
+    },
+    {
+      "id": "main-scene-20",
+      "sourceId": "scene-20",
+      "title": "Scene 20",
+      "category": "Simulator scenes",
+      "group": "main",
+      "methods": [
+        {
+          "id": "ours",
+          "label": "SceneRig",
+          "source": "assets/gallery/main/scene-20/ours_source.webp",
+          "novel": "assets/gallery/main/scene-20/ours_novel.webp"
+        },
+        {
+          "id": "simfoundry",
+          "label": "SimFoundry",
+          "source": "assets/gallery/main/scene-20/simfoundry_source.webp",
+          "novel": "assets/gallery/main/scene-20/simfoundry_novel.webp"
+        },
+        {
+          "id": "rest3d",
+          "label": "REST3D",
+          "source": "assets/gallery/main/scene-20/rest3d_source.webp",
+          "novel": "assets/gallery/main/scene-20/rest3d_novel.webp"
+        },
+        {
+          "id": "sc",
+          "label": "SceneConductor",
+          "source": "assets/gallery/main/scene-20/sc_source.webp",
+          "novel": "assets/gallery/main/scene-20/sc_novel.webp"
+        },
+        {
+          "id": "viga",
+          "label": "VIGA",
+          "source": "assets/gallery/main/scene-20/viga_source.webp",
+          "novel": "assets/gallery/main/scene-20/viga_novel.webp"
+        }
+      ],
+      "input": "assets/gallery/main/scene-20/input.webp"
+    },
+    {
+      "id": "main-scene-22",
+      "sourceId": "scene-22",
+      "title": "Scene 22",
+      "category": "Simulator scenes",
+      "group": "main",
+      "methods": [
+        {
+          "id": "ours",
+          "label": "SceneRig",
+          "source": "assets/gallery/main/scene-22/ours_source.webp",
+          "novel": "assets/gallery/main/scene-22/ours_novel.webp"
+        },
+        {
+          "id": "simfoundry",
+          "label": "SimFoundry",
+          "source": "assets/gallery/main/scene-22/simfoundry_source.webp",
+          "novel": "assets/gallery/main/scene-22/simfoundry_novel.webp"
+        },
+        {
+          "id": "rest3d",
+          "label": "REST3D",
+          "source": "assets/gallery/main/scene-22/rest3d_source.webp",
+          "novel": "assets/gallery/main/scene-22/rest3d_novel.webp"
+        },
+        {
+          "id": "sc",
+          "label": "SceneConductor",
+          "source": "assets/gallery/main/scene-22/sc_source.webp",
+          "novel": "assets/gallery/main/scene-22/sc_novel.webp"
+        },
+        {
+          "id": "viga",
+          "label": "VIGA",
+          "source": "assets/gallery/main/scene-22/viga_source.webp",
+          "novel": "assets/gallery/main/scene-22/viga_novel.webp"
+        }
+      ],
+      "input": "assets/gallery/main/scene-22/input.webp"
+    },
+    {
+      "id": "main-scene-23",
+      "sourceId": "scene-23",
+      "title": "Scene 23",
+      "category": "Simulator scenes",
+      "group": "main",
+      "methods": [
+        {
+          "id": "ours",
+          "label": "SceneRig",
+          "source": "assets/gallery/main/scene-23/ours_source.webp",
+          "novel": "assets/gallery/main/scene-23/ours_novel.webp"
+        },
+        {
+          "id": "simfoundry",
+          "label": "SimFoundry",
+          "source": "assets/gallery/main/scene-23/simfoundry_source.webp",
+          "novel": "assets/gallery/main/scene-23/simfoundry_novel.webp"
+        },
+        {
+          "id": "rest3d",
+          "label": "REST3D",
+          "source": "assets/gallery/main/scene-23/rest3d_source.webp",
+          "novel": "assets/gallery/main/scene-23/rest3d_novel.webp"
+        },
+        {
+          "id": "sc",
+          "label": "SceneConductor",
+          "source": "assets/gallery/main/scene-23/sc_source.webp",
+          "novel": "assets/gallery/main/scene-23/sc_novel.webp"
+        },
+        {
+          "id": "viga",
+          "label": "VIGA",
+          "source": "assets/gallery/main/scene-23/viga_source.webp",
+          "novel": "assets/gallery/main/scene-23/viga_novel.webp"
+        }
+      ],
+      "input": "assets/gallery/main/scene-23/input.webp"
+    },
+    {
+      "id": "main-scene-24",
+      "sourceId": "scene-24",
+      "title": "Scene 24",
+      "category": "Simulator scenes",
+      "group": "main",
+      "methods": [
+        {
+          "id": "ours",
+          "label": "SceneRig",
+          "source": "assets/gallery/main/scene-24/ours_source.webp",
+          "novel": "assets/gallery/main/scene-24/ours_novel.webp"
+        },
+        {
+          "id": "simfoundry",
+          "label": "SimFoundry",
+          "source": "assets/gallery/main/scene-24/simfoundry_source.webp",
+          "novel": "assets/gallery/main/scene-24/simfoundry_novel.webp"
+        },
+        {
+          "id": "rest3d",
+          "label": "REST3D",
+          "source": "assets/gallery/main/scene-24/rest3d_source.webp",
+          "novel": "assets/gallery/main/scene-24/rest3d_novel.webp"
+        },
+        {
+          "id": "sc",
+          "label": "SceneConductor",
+          "source": "assets/gallery/main/scene-24/sc_source.webp",
+          "novel": "assets/gallery/main/scene-24/sc_novel.webp"
+        },
+        {
+          "id": "viga",
+          "label": "VIGA",
+          "source": "assets/gallery/main/scene-24/viga_source.webp",
+          "novel": "assets/gallery/main/scene-24/viga_novel.webp"
+        }
+      ],
+      "input": "assets/gallery/main/scene-24/input.webp"
+    },
+    {
+      "id": "gpt6-scene-21",
+      "sourceId": "scene-21",
+      "title": "Scene 21",
+      "category": "Simulator scenes",
+      "group": "gpt6",
+      "methods": [
+        {
+          "id": "ours",
+          "label": "SceneRig",
+          "source": "assets/gallery/gpt6/scene-21/ours_source.webp",
+          "novel": "assets/gallery/gpt6/scene-21/ours_novel.webp"
+        },
+        {
+          "id": "viga",
+          "label": "VIGA",
+          "source": "assets/gallery/gpt6/scene-21/viga_source.webp",
+          "novel": "assets/gallery/gpt6/scene-21/viga_novel.webp"
+        },
+        {
+          "id": "codex",
+          "label": "Codex",
+          "source": "assets/gallery/gpt6/scene-21/codex_source.webp",
+          "novel": "assets/gallery/gpt6/scene-21/codex_novel.webp"
+        }
+      ],
+      "input": "assets/gallery/gpt6/scene-21/input.webp"
+    },
+    {
+      "id": "gpt6-scene-01",
+      "sourceId": "scene-01",
+      "title": "Scene 01",
+      "category": "Everyday scenes",
+      "group": "gpt6",
+      "methods": [
+        {
+          "id": "ours",
+          "label": "SceneRig",
+          "source": "assets/gallery/gpt6/scene-01/ours_source.webp?v=edited-input",
+          "novel": "assets/gallery/gpt6/scene-01/ours_novel.webp?v=edited-input"
+        },
+        {
+          "id": "viga",
+          "label": "VIGA",
+          "source": "assets/gallery/gpt6/scene-01/viga_source.webp?v=edited-input",
+          "novel": "assets/gallery/gpt6/scene-01/viga_novel.webp?v=edited-input"
+        },
+        {
+          "id": "codex",
+          "label": "Codex",
+          "source": "assets/gallery/gpt6/scene-01/codex_source.webp?v=edited-input",
+          "novel": "assets/gallery/gpt6/scene-01/codex_novel.webp?v=edited-input"
+        }
+      ],
+      "input": "assets/gallery/gpt6/scene-01/input.webp?v=edited-input"
+    },
+    {
+      "id": "gpt6-scene-02",
+      "sourceId": "scene-02",
+      "title": "Scene 02",
+      "category": "Robot workspaces",
+      "group": "gpt6",
+      "methods": [
+        {
+          "id": "ours",
+          "label": "SceneRig",
+          "source": "assets/gallery/gpt6/scene-02/ours_source.webp",
+          "novel": "assets/gallery/gpt6/scene-02/ours_novel.webp"
+        },
+        {
+          "id": "viga",
+          "label": "VIGA",
+          "source": "assets/gallery/gpt6/scene-02/viga_source.webp",
+          "novel": "assets/gallery/gpt6/scene-02/viga_novel.webp"
+        },
+        {
+          "id": "codex",
+          "label": "Codex",
+          "source": "assets/gallery/gpt6/scene-02/codex_source.webp",
+          "novel": "assets/gallery/gpt6/scene-02/codex_novel.webp"
+        }
+      ],
+      "input": "assets/gallery/gpt6/scene-02/input.webp"
+    },
+    {
+      "id": "gpt6-scene-03",
+      "sourceId": "scene-03",
+      "title": "Scene 03",
+      "category": "Robot workspaces",
+      "group": "gpt6",
+      "methods": [
+        {
+          "id": "ours",
+          "label": "SceneRig",
+          "source": "assets/gallery/gpt6/scene-03/ours_source.webp",
+          "novel": "assets/gallery/gpt6/scene-03/ours_novel.webp"
+        },
+        {
+          "id": "viga",
+          "label": "VIGA",
+          "source": "assets/gallery/gpt6/scene-03/viga_source.webp",
+          "novel": "assets/gallery/gpt6/scene-03/viga_novel.webp"
+        },
+        {
+          "id": "codex",
+          "label": "Codex",
+          "source": "assets/gallery/gpt6/scene-03/codex_source.webp",
+          "novel": "assets/gallery/gpt6/scene-03/codex_novel.webp"
+        }
+      ],
+      "input": "assets/gallery/gpt6/scene-03/input.webp"
+    },
+    {
+      "id": "gpt6-scene-04",
+      "sourceId": "scene-04",
+      "title": "Scene 04",
+      "category": "Robot workspaces",
+      "group": "gpt6",
+      "methods": [
+        {
+          "id": "ours",
+          "label": "SceneRig",
+          "source": "assets/gallery/gpt6/scene-04/ours_source.webp",
+          "novel": "assets/gallery/gpt6/scene-04/ours_novel.webp"
+        },
+        {
+          "id": "viga",
+          "label": "VIGA",
+          "source": "assets/gallery/gpt6/scene-04/viga_source.webp",
+          "novel": "assets/gallery/gpt6/scene-04/viga_novel.webp"
+        },
+        {
+          "id": "codex",
+          "label": "Codex",
+          "source": "assets/gallery/gpt6/scene-04/codex_source.webp",
+          "novel": "assets/gallery/gpt6/scene-04/codex_novel.webp"
+        }
+      ],
+      "input": "assets/gallery/gpt6/scene-04/input.webp"
+    },
+    {
+      "id": "gpt6-scene-05",
+      "sourceId": "scene-05",
+      "title": "Scene 05",
+      "category": "Everyday scenes",
+      "group": "gpt6",
+      "methods": [
+        {
+          "id": "ours",
+          "label": "SceneRig",
+          "source": "assets/gallery/gpt6/scene-05/ours_source.webp",
+          "novel": "assets/gallery/gpt6/scene-05/ours_novel.webp"
+        },
+        {
+          "id": "viga",
+          "label": "VIGA",
+          "source": "assets/gallery/gpt6/scene-05/viga_source.webp",
+          "novel": "assets/gallery/gpt6/scene-05/viga_novel.webp"
+        },
+        {
+          "id": "codex",
+          "label": "Codex",
+          "source": "assets/gallery/gpt6/scene-05/codex_source.webp",
+          "novel": "assets/gallery/gpt6/scene-05/codex_novel.webp"
+        }
+      ],
+      "input": "assets/gallery/gpt6/scene-05/input.webp"
+    },
+    {
+      "id": "gpt6-scene-06",
+      "sourceId": "scene-06",
+      "title": "Scene 06",
+      "category": "Everyday scenes",
+      "group": "gpt6",
+      "methods": [
+        {
+          "id": "ours",
+          "label": "SceneRig",
+          "source": "assets/gallery/gpt6/scene-06/ours_source.webp",
+          "novel": "assets/gallery/gpt6/scene-06/ours_novel.webp"
+        },
+        {
+          "id": "viga",
+          "label": "VIGA",
+          "source": "assets/gallery/gpt6/scene-06/viga_source.webp",
+          "novel": "assets/gallery/gpt6/scene-06/viga_novel.webp"
+        },
+        {
+          "id": "codex",
+          "label": "Codex",
+          "source": "assets/gallery/gpt6/scene-06/codex_source.webp",
+          "novel": "assets/gallery/gpt6/scene-06/codex_novel.webp"
+        }
+      ],
+      "input": "assets/gallery/gpt6/scene-06/input.webp"
+    },
+    {
+      "id": "gpt6-scene-07",
+      "sourceId": "scene-07",
+      "title": "Scene 07",
+      "category": "Generated scenes",
+      "group": "gpt6",
+      "methods": [
+        {
+          "id": "ours",
+          "label": "SceneRig",
+          "source": "assets/gallery/gpt6/scene-07/ours_source.webp",
+          "novel": "assets/gallery/gpt6/scene-07/ours_novel.webp"
+        },
+        {
+          "id": "viga",
+          "label": "VIGA",
+          "source": "assets/gallery/gpt6/scene-07/viga_source.webp",
+          "novel": "assets/gallery/gpt6/scene-07/viga_novel.webp"
+        },
+        {
+          "id": "codex",
+          "label": "Codex",
+          "source": "assets/gallery/gpt6/scene-07/codex_source.webp",
+          "novel": "assets/gallery/gpt6/scene-07/codex_novel.webp"
+        }
+      ],
+      "input": "assets/gallery/gpt6/scene-07/input.webp"
+    },
+    {
+      "id": "gpt6-scene-08",
+      "sourceId": "scene-08",
+      "title": "Scene 08",
+      "category": "Generated scenes",
+      "group": "gpt6",
+      "methods": [
+        {
+          "id": "ours",
+          "label": "SceneRig",
+          "source": "assets/gallery/gpt6/scene-08/ours_source.webp",
+          "novel": "assets/gallery/gpt6/scene-08/ours_novel.webp"
+        },
+        {
+          "id": "viga",
+          "label": "VIGA",
+          "source": "assets/gallery/gpt6/scene-08/viga_source.webp",
+          "novel": "assets/gallery/gpt6/scene-08/viga_novel.webp"
+        },
+        {
+          "id": "codex",
+          "label": "Codex",
+          "source": "assets/gallery/gpt6/scene-08/codex_source.webp",
+          "novel": "assets/gallery/gpt6/scene-08/codex_novel.webp"
+        }
+      ],
+      "input": "assets/gallery/gpt6/scene-08/input.webp"
+    },
+    {
+      "id": "gpt6-scene-09",
+      "sourceId": "scene-09",
+      "title": "Scene 09",
+      "category": "Rooms & furniture",
+      "group": "gpt6",
+      "methods": [
+        {
+          "id": "ours",
+          "label": "SceneRig",
+          "source": "assets/gallery/gpt6/scene-09/ours_source.webp",
+          "novel": "assets/gallery/gpt6/scene-09/ours_novel.webp"
+        },
+        {
+          "id": "viga",
+          "label": "VIGA",
+          "source": "assets/gallery/gpt6/scene-09/viga_source.webp",
+          "novel": "assets/gallery/gpt6/scene-09/viga_novel.webp"
+        },
+        {
+          "id": "codex",
+          "label": "Codex",
+          "source": "assets/gallery/gpt6/scene-09/codex_source.webp",
+          "novel": "assets/gallery/gpt6/scene-09/codex_novel.webp"
+        }
+      ],
+      "input": "assets/gallery/gpt6/scene-09/input.webp"
+    },
+    {
+      "id": "gpt6-scene-10",
+      "sourceId": "scene-10",
+      "title": "Scene 10",
+      "category": "Rooms & furniture",
+      "group": "gpt6",
+      "methods": [
+        {
+          "id": "ours",
+          "label": "SceneRig",
+          "source": "assets/gallery/gpt6/scene-10/ours_source.webp",
+          "novel": "assets/gallery/gpt6/scene-10/ours_novel.webp"
+        },
+        {
+          "id": "viga",
+          "label": "VIGA",
+          "source": "assets/gallery/gpt6/scene-10/viga_source.webp",
+          "novel": "assets/gallery/gpt6/scene-10/viga_novel.webp"
+        },
+        {
+          "id": "codex",
+          "label": "Codex",
+          "source": "assets/gallery/gpt6/scene-10/codex_source.webp",
+          "novel": "assets/gallery/gpt6/scene-10/codex_novel.webp"
+        }
+      ],
+      "input": "assets/gallery/gpt6/scene-10/input.webp"
+    },
+    {
+      "id": "gpt6-scene-11",
+      "sourceId": "scene-11",
+      "title": "Scene 11",
+      "category": "Everyday scenes",
+      "group": "gpt6",
+      "methods": [
+        {
+          "id": "ours",
+          "label": "SceneRig",
+          "source": "assets/gallery/gpt6/scene-11/ours_source.webp",
+          "novel": "assets/gallery/gpt6/scene-11/ours_novel.webp"
+        },
+        {
+          "id": "viga",
+          "label": "VIGA",
+          "source": "assets/gallery/gpt6/scene-11/viga_source.webp",
+          "novel": "assets/gallery/gpt6/scene-11/viga_novel.webp"
+        },
+        {
+          "id": "codex",
+          "label": "Codex",
+          "source": "assets/gallery/gpt6/scene-11/codex_source.webp",
+          "novel": "assets/gallery/gpt6/scene-11/codex_novel.webp"
+        }
+      ],
+      "input": "assets/gallery/gpt6/scene-11/input.webp"
+    },
+    {
+      "id": "gpt6-scene-12",
+      "sourceId": "scene-12",
+      "title": "Scene 12",
+      "category": "Artwork",
+      "group": "gpt6",
+      "methods": [
+        {
+          "id": "ours",
+          "label": "SceneRig",
+          "source": "assets/gallery/gpt6/scene-12/ours_source.webp",
+          "novel": "assets/gallery/gpt6/scene-12/ours_novel.webp"
+        },
+        {
+          "id": "viga",
+          "label": "VIGA",
+          "source": "assets/gallery/gpt6/scene-12/viga_source.webp",
+          "novel": "assets/gallery/gpt6/scene-12/viga_novel.webp"
+        },
+        {
+          "id": "codex",
+          "label": "Codex",
+          "source": "assets/gallery/gpt6/scene-12/codex_source.webp",
+          "novel": "assets/gallery/gpt6/scene-12/codex_novel.webp"
+        }
+      ],
+      "input": "assets/gallery/gpt6/scene-12/input.webp"
+    },
+    {
+      "id": "gpt6-scene-13",
+      "sourceId": "scene-13",
+      "title": "Scene 13",
+      "category": "Robot workspaces",
+      "group": "gpt6",
+      "methods": [
+        {
+          "id": "ours",
+          "label": "SceneRig",
+          "source": "assets/gallery/gpt6/scene-13/ours_source.webp",
+          "novel": "assets/gallery/gpt6/scene-13/ours_novel.webp"
+        },
+        {
+          "id": "viga",
+          "label": "VIGA",
+          "source": "assets/gallery/gpt6/scene-13/viga_source.webp",
+          "novel": "assets/gallery/gpt6/scene-13/viga_novel.webp"
+        },
+        {
+          "id": "codex",
+          "label": "Codex",
+          "source": "assets/gallery/gpt6/scene-13/codex_source.webp",
+          "novel": "assets/gallery/gpt6/scene-13/codex_novel.webp"
+        }
+      ],
+      "input": "assets/gallery/gpt6/scene-13/input.webp"
+    },
+    {
+      "id": "gpt6-scene-14",
+      "sourceId": "scene-14",
+      "title": "Scene 14",
+      "category": "Robot workspaces",
+      "group": "gpt6",
+      "methods": [
+        {
+          "id": "ours",
+          "label": "SceneRig",
+          "source": "assets/gallery/gpt6/scene-14/ours_source.webp",
+          "novel": "assets/gallery/gpt6/scene-14/ours_novel.webp"
+        },
+        {
+          "id": "viga",
+          "label": "VIGA",
+          "source": "assets/gallery/gpt6/scene-14/viga_source.webp",
+          "novel": "assets/gallery/gpt6/scene-14/viga_novel.webp"
+        },
+        {
+          "id": "codex",
+          "label": "Codex",
+          "source": "assets/gallery/gpt6/scene-14/codex_source.webp",
+          "novel": "assets/gallery/gpt6/scene-14/codex_novel.webp"
+        }
+      ],
+      "input": "assets/gallery/gpt6/scene-14/input.webp"
+    },
+    {
+      "id": "gpt6-scene-15",
+      "sourceId": "scene-15",
+      "title": "Scene 15",
+      "category": "Robot workspaces",
+      "group": "gpt6",
+      "methods": [
+        {
+          "id": "ours",
+          "label": "SceneRig",
+          "source": "assets/gallery/gpt6/scene-15/ours_source.webp",
+          "novel": "assets/gallery/gpt6/scene-15/ours_novel.webp"
+        },
+        {
+          "id": "viga",
+          "label": "VIGA",
+          "source": "assets/gallery/gpt6/scene-15/viga_source.webp",
+          "novel": "assets/gallery/gpt6/scene-15/viga_novel.webp"
+        },
+        {
+          "id": "codex",
+          "label": "Codex",
+          "source": "assets/gallery/gpt6/scene-15/codex_source.webp",
+          "novel": "assets/gallery/gpt6/scene-15/codex_novel.webp"
+        }
+      ],
+      "input": "assets/gallery/gpt6/scene-15/input.webp"
+    },
+    {
+      "id": "gpt6-scene-16",
+      "sourceId": "scene-16",
+      "title": "Scene 16",
+      "category": "Simulator scenes",
+      "group": "gpt6",
+      "methods": [
+        {
+          "id": "ours",
+          "label": "SceneRig",
+          "source": "assets/gallery/gpt6/scene-16/ours_source.webp",
+          "novel": "assets/gallery/gpt6/scene-16/ours_novel.webp"
+        },
+        {
+          "id": "viga",
+          "label": "VIGA",
+          "source": "assets/gallery/gpt6/scene-16/viga_source.webp",
+          "novel": "assets/gallery/gpt6/scene-16/viga_novel.webp"
+        },
+        {
+          "id": "codex",
+          "label": "Codex",
+          "source": "assets/gallery/gpt6/scene-16/codex_source.webp",
+          "novel": "assets/gallery/gpt6/scene-16/codex_novel.webp"
+        }
+      ],
+      "input": "assets/gallery/gpt6/scene-16/input.webp"
+    },
+    {
+      "id": "gpt6-scene-17",
+      "sourceId": "scene-17",
+      "title": "Scene 17",
+      "category": "Simulator scenes",
+      "group": "gpt6",
+      "methods": [
+        {
+          "id": "ours",
+          "label": "SceneRig",
+          "source": "assets/gallery/gpt6/scene-17/ours_source.webp",
+          "novel": "assets/gallery/gpt6/scene-17/ours_novel.webp"
+        },
+        {
+          "id": "viga",
+          "label": "VIGA",
+          "source": "assets/gallery/gpt6/scene-17/viga_source.webp",
+          "novel": "assets/gallery/gpt6/scene-17/viga_novel.webp"
+        },
+        {
+          "id": "codex",
+          "label": "Codex",
+          "source": "assets/gallery/gpt6/scene-17/codex_source.webp",
+          "novel": "assets/gallery/gpt6/scene-17/codex_novel.webp"
+        }
+      ],
+      "input": "assets/gallery/gpt6/scene-17/input.webp"
+    },
+    {
+      "id": "gpt6-scene-18",
+      "sourceId": "scene-18",
+      "title": "Scene 18",
+      "category": "Simulator scenes",
+      "group": "gpt6",
+      "methods": [
+        {
+          "id": "ours",
+          "label": "SceneRig",
+          "source": "assets/gallery/gpt6/scene-18/ours_source.webp",
+          "novel": "assets/gallery/gpt6/scene-18/ours_novel.webp"
+        },
+        {
+          "id": "viga",
+          "label": "VIGA",
+          "source": "assets/gallery/gpt6/scene-18/viga_source.webp",
+          "novel": "assets/gallery/gpt6/scene-18/viga_novel.webp"
+        },
+        {
+          "id": "codex",
+          "label": "Codex",
+          "source": "assets/gallery/gpt6/scene-18/codex_source.webp",
+          "novel": "assets/gallery/gpt6/scene-18/codex_novel.webp"
+        }
+      ],
+      "input": "assets/gallery/gpt6/scene-18/input.webp"
+    },
+    {
+      "id": "gpt6-scene-19",
+      "sourceId": "scene-19",
+      "title": "Scene 19",
+      "category": "Simulator scenes",
+      "group": "gpt6",
+      "methods": [
+        {
+          "id": "ours",
+          "label": "SceneRig",
+          "source": "assets/gallery/gpt6/scene-19/ours_source.webp",
+          "novel": "assets/gallery/gpt6/scene-19/ours_novel.webp"
+        },
+        {
+          "id": "viga",
+          "label": "VIGA",
+          "source": "assets/gallery/gpt6/scene-19/viga_source.webp",
+          "novel": "assets/gallery/gpt6/scene-19/viga_novel.webp"
+        },
+        {
+          "id": "codex",
+          "label": "Codex",
+          "source": "assets/gallery/gpt6/scene-19/codex_source.webp",
+          "novel": "assets/gallery/gpt6/scene-19/codex_novel.webp"
+        }
+      ],
+      "input": "assets/gallery/gpt6/scene-19/input.webp"
+    },
+    {
+      "id": "gpt6-scene-20",
+      "sourceId": "scene-20",
+      "title": "Scene 20",
+      "category": "Simulator scenes",
+      "group": "gpt6",
+      "methods": [
+        {
+          "id": "ours",
+          "label": "SceneRig",
+          "source": "assets/gallery/gpt6/scene-20/ours_source.webp",
+          "novel": "assets/gallery/gpt6/scene-20/ours_novel.webp"
+        },
+        {
+          "id": "viga",
+          "label": "VIGA",
+          "source": "assets/gallery/gpt6/scene-20/viga_source.webp",
+          "novel": "assets/gallery/gpt6/scene-20/viga_novel.webp"
+        },
+        {
+          "id": "codex",
+          "label": "Codex",
+          "source": "assets/gallery/gpt6/scene-20/codex_source.webp",
+          "novel": "assets/gallery/gpt6/scene-20/codex_novel.webp"
+        }
+      ],
+      "input": "assets/gallery/gpt6/scene-20/input.webp"
+    },
+    {
+      "id": "gpt6-scene-22",
+      "sourceId": "scene-22",
+      "title": "Scene 22",
+      "category": "Simulator scenes",
+      "group": "gpt6",
+      "methods": [
+        {
+          "id": "ours",
+          "label": "SceneRig",
+          "source": "assets/gallery/gpt6/scene-22/ours_source.webp",
+          "novel": "assets/gallery/gpt6/scene-22/ours_novel.webp"
+        },
+        {
+          "id": "viga",
+          "label": "VIGA",
+          "source": "assets/gallery/gpt6/scene-22/viga_source.webp",
+          "novel": "assets/gallery/gpt6/scene-22/viga_novel.webp"
+        },
+        {
+          "id": "codex",
+          "label": "Codex",
+          "source": "assets/gallery/gpt6/scene-22/codex_source.webp",
+          "novel": "assets/gallery/gpt6/scene-22/codex_novel.webp"
+        }
+      ],
+      "input": "assets/gallery/gpt6/scene-22/input.webp"
+    },
+    {
+      "id": "gpt6-scene-23",
+      "sourceId": "scene-23",
+      "title": "Scene 23",
+      "category": "Simulator scenes",
+      "group": "gpt6",
+      "methods": [
+        {
+          "id": "ours",
+          "label": "SceneRig",
+          "source": "assets/gallery/gpt6/scene-23/ours_source.webp",
+          "novel": "assets/gallery/gpt6/scene-23/ours_novel.webp"
+        },
+        {
+          "id": "viga",
+          "label": "VIGA",
+          "source": "assets/gallery/gpt6/scene-23/viga_source.webp",
+          "novel": "assets/gallery/gpt6/scene-23/viga_novel.webp"
+        },
+        {
+          "id": "codex",
+          "label": "Codex",
+          "source": "assets/gallery/gpt6/scene-23/codex_source.webp",
+          "novel": "assets/gallery/gpt6/scene-23/codex_novel.webp"
+        }
+      ],
+      "input": "assets/gallery/gpt6/scene-23/input.webp"
+    },
+    {
+      "id": "gpt6-scene-24",
+      "sourceId": "scene-24",
+      "title": "Scene 24",
+      "category": "Simulator scenes",
+      "group": "gpt6",
+      "methods": [
+        {
+          "id": "ours",
+          "label": "SceneRig",
+          "source": "assets/gallery/gpt6/scene-24/ours_source.webp",
+          "novel": "assets/gallery/gpt6/scene-24/ours_novel.webp"
+        },
+        {
+          "id": "viga",
+          "label": "VIGA",
+          "source": "assets/gallery/gpt6/scene-24/viga_source.webp",
+          "novel": "assets/gallery/gpt6/scene-24/viga_novel.webp"
+        },
+        {
+          "id": "codex",
+          "label": "Codex",
+          "source": "assets/gallery/gpt6/scene-24/codex_source.webp",
+          "novel": "assets/gallery/gpt6/scene-24/codex_novel.webp"
+        }
+      ],
+      "input": "assets/gallery/gpt6/scene-24/input.webp"
+    }
+  ]
+}
