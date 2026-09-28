@@ -150,7 +150,17 @@ section[id] {
   line-height: 1.19;
   letter-spacing: -1.4px;
   font-weight: 550;
-  margin-top: 15px;
+  margin: 18px auto 0;
+  max-width: 1000px;
+  text-wrap: balance;
+}
+.hero-subtitle > span {
+  display: block;
+}
+@media (max-width: 600px) {
+  .hero-subtitle > span {
+    display: inline;
+  }
 }
 .paper-title {
   font-size: 12px;
