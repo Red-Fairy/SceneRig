@@ -1,13 +1,4 @@
-"""Novel-view pipeline, production default: SHARP 3DGS render -> GPT polish.
-
-The ``sharp_gpt`` backend renders each camera with SHARP and asks GPT-Image-2 to
-polish the result without a hole mask. The legacy ``gpt_splat`` backend instead
-renders the MoGE point cloud and asks GPT to fill masked disocclusion holes.
-
-    python -m lib.tools.geometry.novel_view \
-        --moge-dir <out_dir>/moge --image <source.png> --out-dir <dir> \
-        --pose-file pose.npy
-"""
+""
 
 from __future__ import annotations
 
@@ -41,9 +32,6 @@ from lib.tools.geometry.pseudo_gt_contract import (
 )
 from lib.tools.geometry.render_pointcloud import _parse_pose, render_view
 
-# gpt-polish input cap (the API works near 1 MP; bigger uploads only cost time) and
-# the observed-content drift level above which a completed view gets flagged as a
-# suspected re-imagining (31/168 views crossed it in the 2026-07-29 sweep).
 _POLISH_MAX_SIDE = 2048
 _DRIFT_FLAG = 25.0
 
@@ -104,13 +92,7 @@ def _rot_axis(axis: np.ndarray, deg: float) -> np.ndarray:
 
 
 def _moge_up(R) -> np.ndarray:
-    """Orbit/up axis in the MoGE OpenCV frame: the MAIN-SUPPORT plane normal (gravity up), so
-    azimuth swings about true vertical and elevation tilts about the true ground-horizontal.
-
-    ``g_world`` (the chosen root surface's normal, with ``R @ g_world = +Z``) is the third row
-    of ``R``. The fixed MoGE->GRASE permutation is ``M:(x,y,z)->(-x,-z,-y)``, so the gravity up
-    expressed back in the MoGE frame is ``M @ g_world = (-g0, -g2, -g1)``. Falls back to the
-    legacy camera up ``(0,-1,0)`` (i.e. assume the camera is level) when gravity is unknown."""
+    ""
     if R is None:
         return _MOGE_UP
     g = np.asarray(R, dtype=np.float64)[2]  # g_world = main-support normal
@@ -240,14 +222,6 @@ def novel_view_cameras(moge_dir: str, R=None, T=None) -> list[dict]:
     d0 = float(np.linalg.norm(back0)) or 1.0
     out: list[dict] = []
     for az, el in NOVEL_VIEWS_AZ_EL:
-        # Compose the orbit rotation Q, then rotate the FULL reference pose (position AND
-        # orientation) about the pivot: the (0, 0) member is then EXACTLY the source camera
-        # (cam2world = identity) and every novel view is a true orbit of it. The previous
-        # construction re-AIMED each orbit position at the pivot, so whenever the pivot sat
-        # closer than the camera-axis/table hit (grazing cap -> mask centroid) even "(0, 0)"
-        # pitched down by the aim difference (~18 deg on 0708_iso_gpt1): agents comparing
-        # that render against the real photo saw a phantom "camera moved" mismatch, and the
-        # L2 yaw anchor unprojected the support mask through the wrong direction.
         Q = _rot_axis(up, az)  # swing horizontally
         # Horizontal tilt axis oriented so +elevation raises the camera (looks DOWN at the
         # scene) and -elevation lowers it: cross(back, up), not cross(up, back).
@@ -381,18 +355,7 @@ def build_pseudo_gt(
     point_radius: int = 1,
     backend: str = "gpt_splat",
 ) -> str:
-    """Build the pseudo-GT view set. ``backend='sharp_gpt'`` uses a SHARP render plus
-    maskless GPT polish (the production runner default); ``backend='gpt_splat'`` uses
-    the legacy MoGE splat plus masked hole completion. The reference view (0, 0) is
-    the source image itself. Writes ``<out_dir>/<tag>/completed.png`` per view plus
-    ``cameras.json`` (camera params + pseudo-GT path), and returns ``out_dir``.
-
-    GPT completion is retried (``_GPT_ATTEMPTS``) before degrading: if every attempt fails,
-    that view's ``completed.png`` falls back to the raw splat render (so the pre-compute never
-    hard-fails on the external image API) AND a ``gpt_fallback.txt`` marker is written. The
-    camera is marked untrusted, preserving the artifact for inspection while withholding it
-    from the agent as a reference.
-    """
+    ""
     out = Path(out_dir)
     out.mkdir(parents=True, exist_ok=True)
     cams = novel_view_cameras(moge_dir, R, T)

@@ -193,12 +193,6 @@ tool_configs: list[dict[str, object]] = [
                         "additionalProperties": False,
                     },
                 },
-                # edit_suggestion is NOT required: it has no natural content when
-                # APPROVING, so the model reliably omits it there — and a required
-                # field it drops made pydantic reject the whole `end` call, losing
-                # the real verdict and defaulting to not-approved (0715 abc4
-                # composition spuriously rejected this way). Same for the other
-                # narrative/list fields, which already default in the handler.
                 "required": [
                     "visual_difference",
                     "approved",

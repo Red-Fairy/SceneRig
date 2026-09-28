@@ -89,37 +89,6 @@ def read_body_speeds(prim) -> dict:
     }
 
 
-# P5 — isaac_yam's contact cushion (rest_offset 0.002, contact_offset 0.02) was
-# implemented, probed and REMOVED 2026-08-26. It is not a knob worth carrying:
-# a positive rest offset lifts EVERY object by exactly that offset (measured
-# median +2.00 mm, +6 mm where bodies stack), which is 4x the 0.5 mm
-# table-landing tolerance the GT-depth loop validated -- and GRASE's settle
-# output IS the deliverable, so the lift is a metric regression by construction.
-# Drift did not improve to pay for it (bridge_1 got 10x worse). Upstream applies
-# it CONDITIONALLY for grasp datagen, to soften lift-off/set-down pop; that is a
-# manipulation cushion, not a settling setting.
-#
-# Deleted rather than left gated because the harm is mechanical, not
-# regime-dependent: no scene set would make a systematic 2 mm float acceptable
-# here. Contrast PHYSX_SCENE_TUNING above, which measured NEUTRAL and still has an
-# untested regime, so it stays. Full numbers in CHANGELOG 2026-08-26.
-
-# ------------------------------------------------------------ scene tuning --
-#: PhysX *scene* settings, mirroring isaac_yam's ``PHYSX_EVAL_TUNING``.
-#:
-#: These matter because GRASE runs high-hull colliders: CoACD gives objects up to
-#: 16 parts and SUPPORTS up to 64 (escalating to 128), which is the regime
-#: isaac_yam documents as flinging bodies off the table at stock settings —
-#: ``min_position_iteration_count`` defaults to 1, and the GPU buffers default to
-#: sizes meant for simple colliders, overflowing SILENTLY by dropping contacts
-#: (which reads as objects falling through the table).
-#:
-#: These are *clamps* on per-actor counts, so the minimum is what raises them.
-#:
-#: ``enable_ccd`` is deliberately ABSENT. isaac_yam's own note: isaaclab_physx
-#: computes ``enable_ccd = cfg.enable_ccd and not is_gpu``, so on a cuda device
-#: the flag never actually enables CCD. Setting it here would be a no-op that
-#: reads like a change; step rate is what protects thin colliders.
 PHYSX_SCENE_TUNING: dict[str, Any] = {
     "solver_type": 1,  # TGS
     "min_position_iteration_count": 32,
@@ -130,8 +99,6 @@ PHYSX_SCENE_TUNING: dict[str, Any] = {
     "gpu_temp_buffer_capacity": 2**30,
 }
 
-#: Env gate. Unset/0 keeps stock PhysX defaults so a run can be compared against
-#: every settle recorded before 2026-08-26; 1 applies the tuning above.
 TUNING_ENV_VAR = "GRASE_PHYSX_TUNED"
 
 
@@ -140,22 +107,7 @@ def tuning_enabled() -> bool:
 
 
 def apply_scene_tuning(stage, *, force: bool = False) -> dict[str, Any]:
-    """Apply :data:`PHYSX_SCENE_TUNING` to the stage's PhysicsScene.
-
-    Call this after ``World(...)`` and BEFORE ``world.reset()``: the scene prim
-    already exists at construction (probe 2026-08-26 read stock
-    ``minPos=1``/``gpuStack=2**26`` there), and values authored before reset
-    persist through reset and stepping. Returns the settings actually written
-    (``{}`` when the gate is off) so a caller can log what it ran with.
-
-    Args:
-        stage: live USD stage carrying exactly one ``UsdPhysics.Scene``.
-        force: apply regardless of the env gate.
-
-    Raises:
-        RuntimeError: no PhysicsScene on the stage — applying nothing silently
-            would leave the caller believing a tuned run was tuned.
-    """
+    ""
     if not (force or tuning_enabled()):
         return {}
 

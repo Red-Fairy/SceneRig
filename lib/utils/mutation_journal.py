@@ -84,5 +84,5 @@ def append_mutation_journal(path: str | Path, row: dict) -> None:
             if written <= 0:
                 raise OSError("mutation journal append made no progress")
             remaining = remaining[written:]
-        if durable_fsync_enabled():  # 2026-09-15: see lib/utils/durability.py
+        if durable_fsync_enabled():
             os.fsync(fd)

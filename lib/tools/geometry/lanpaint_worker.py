@@ -28,16 +28,6 @@ def main() -> None:  # pragma: no cover - subprocess entry
     from lanpaint_pipeline.registry import create_adapter
 
     adapter = create_adapter("qwen", device="cuda", model_id=None)
-    # Official LanPaint operating point (scraed/LanPaint simple KSampler, "Image
-    # First" mode), landed 2026-07-30 after the vendored defaults (n_steps=2,
-    # lambda=8, cfg_big=1.0) were found to run at half the official coupling with an
-    # UNGUIDED x0_BIG estimate — the root of unstable outpaints (gray strips, seams,
-    # invented objects; logs/border_prompt_probe_0729 grid_{monitor,box}_official,
-    # grid_v4offB: 9/9 usable, ~30% faster). Constraints:
-    # - cfg_big must equal the request guidance ("Image First"); every caller uses
-    #   guidance=4.0 today — if guidance ever varies per request, mirror it here.
-    # - n_steps=1 is CORRECT at this coupling for Qwen-Image-Edit (matches the
-    #   official Edit-2509 workflow); 2+ over-thinks into seams/inventions.
     lp = LanPaintInpaintPipeline(
         adapter,
         config=LanPaintConfig(

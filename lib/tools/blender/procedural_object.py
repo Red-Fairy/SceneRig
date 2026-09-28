@@ -1249,7 +1249,7 @@ def build_procedural_capture_script(
 
 
 def _capture_part_name_map(capture: Mapping[str, Any]) -> list[dict[str, str]]:
-    """Validate optional descriptive part names without changing legacy captures."""
+    ""
     parts = capture.get("parts")
     mapping = capture.get("part_name_map")
     if "part_name_map" not in capture and (
@@ -1316,16 +1316,7 @@ def _capture_part_name_map(capture: Mapping[str, Any]) -> list[dict[str, str]]:
 
 
 def format_part_name_map(capture: Mapping[str, Any], *, max_parts: int = 12) -> str:
-    """Return bounded repeat-edit guidance, or empty text for a legacy capture.
-
-    Args:
-        capture: Validated procedural capture with optional descriptive part names.
-        max_parts: Maximum number of complete name-mapping rows to present.
-
-    Returns:
-        Human-readable labels and their current canonical Blender names. Complete
-        mappings remain in ``capture['part_name_map']`` and labels persist on children.
-    """
+    ""
     if isinstance(max_parts, bool) or not isinstance(max_parts, int) or max_parts <= 0:
         raise ValueError("max_parts must be a positive integer")
     rows = _capture_part_name_map(capture)

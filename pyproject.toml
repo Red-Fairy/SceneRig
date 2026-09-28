@@ -146,9 +146,6 @@ url = "https://download.pytorch.org/whl/cu128"
 explicit = true
 
 [tool.pytest.ini_options]
-# SceneRig runs its own suite (parent pyprojects should ignore this tree, and without this table pytest
-# used to climb to kuma's config: python_files="*test.py", which never collected the five
-# *_checks.py harness-contract modules — ~190 tests ran only when named; audit 2026-09-15).
 testpaths = ["lib", "isaac", "scripts"]
 python_files = ["*_test.py", "*_checks.py"]
 norecursedirs = ["third_party", ".venv", "output", "outputs", "audits", "dataset", "logs", "run_logs", "*_dist", "__pycache__", "node_modules", ".git"]

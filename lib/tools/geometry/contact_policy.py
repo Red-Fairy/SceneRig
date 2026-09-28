@@ -4,29 +4,24 @@ Every penetration consumer (the Blender rules gate, ``nudge_object`` acceptance,
 composition hull gate) reads its numbers from here — never a second table elsewhere,
 the same way provider branching lives only in ``common.provider_of``.
 
-Measured basis (0911_tableverse_1, CHANGELOG 2026-09-11): PhysX cooks each part as a
-64-vertex convex hull that is ~1 mm fatter than the visual mesh, so ANY resolved contact
+PhysX cooks each part as a 64-vertex convex hull that is slightly fatter than the visual mesh, so resolved contact
 shows ~1 mm of visual overlap per body; a jammed same-support cluster (eggs in a bowl)
 is delivered with 3-5 mm of residual solver penetration that composition's hull gate
-already forgives (8 mm floor, 20 mm for siblings). The initializer used to flag 0.25 mm
-on top of an AABB proxy that overstated depth 2-4x; it now measures the real separating
-translation and forgives by contact class.
+forgives by contact class.
 """
 
 from __future__ import annotations
 
 from typing import Optional, Sequence
 
-# Numerical contact: a translation this small must actually clear the mesh
-# intersection before the pair counts as touching at all. Also the probe's eps.
 CONTACT_TOLERANCE_M = 0.00025
-PHYSICAL_REPAIR_MAX_M = 0.20  # 2026-09-15 owner: 20 mm was too small to clear a real overlap
+PHYSICAL_REPAIR_MAX_M = 0.20
 PHYSICAL_REPAIR_MAX_TRANSACTIONS = 16
 
 # Visual-mesh allowances (the Blender gate), by contact class.
 OBJECT_OBJECT_TOL_M = 0.001  # unrelated objects: ~cooking-inflation floor per body
 LATERAL_SIBLING_TOL_M = 0.006  # side-by-side on the same support (leaning eggs, bottles)
-RESTING_ON_SUPPORT_TOL_M = 0.005  # an object sunk into its own declared support (2026-09-15 owner: 3 mm
+RESTING_ON_SUPPORT_TOL_M = 0.005
 # was below the PhysX rest depth — v5accept rule checks flagged 26/35 resting pairs at 3.4-4.9 mm, a
 # depth every re-settle reproduces, so fruit_bottle_bluebin exhausted its initializer budget on 3.6 mm)
 OBJECT_SURFACE_TOL_M = 0.001  # an object crossing a FOREIGN surface (wall, other slab)
@@ -62,10 +57,6 @@ def contact_class(
     support: Optional[dict] = None,
     direction: Optional[Sequence[float]] = None,
 ) -> str:
-    """Classify a penetrating pair from the support map and the measured separating
-    direction (unit vector, from the probe). With NO support map every object pair is
-    ``object_object`` and every object-surface pair ``object_surface`` — the strictest
-    classes — so a missing scene graph never loosens the gate."""
     support = support or {}
     oa, ob = _is_obj(a), _is_obj(b)
     if oa and ob:

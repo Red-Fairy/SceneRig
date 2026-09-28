@@ -95,17 +95,7 @@ def signed_volume(points, counts, indices):
 
 
 def orient_faces_outward(mesh):
-    """Reverse an inside-out static mesh's winding, in place. Returns True if flipped.
-
-    PhysX triangle-mesh collision is ONE-SIDED: winding picks the solid side, and USD
-    ``doubleSided`` only affects rendering. A support slab exported inside-out therefore
-    renders perfectly while objects fall straight through its top face and rest on its
-    inner face, one slab-thickness low (airoa_moma_005_row1379, 2026-08-15).
-
-    Rendering is preserved: every faceVarying attribute is reversed on the SAME per-face
-    slice as the indices, so each vertex keeps its own normal/UV. Only the winding — which
-    nothing but collision reads here — changes.
-    """
+    ""
     counts = mesh.GetFaceVertexCountsAttr().Get()
     indices = mesh.GetFaceVertexIndicesAttr().Get()
     points = mesh.GetPointsAttr().Get()
@@ -314,13 +304,6 @@ def apply_body_overrides(body, ov):
         local = p @ inv[:3, :3].T + inv[:3, 3]
         mass_api.CreateCenterOfMassAttr(Gf.Vec3f(*local))
         if "diagonal_inertia" in ov:
-            # the CoM override's mandatory companion: without a matching inertia
-            # tensor the body is self-inconsistent and can LAUNCH on edge contact
-            # (0720_compfix_real8219 plush; downstream this once cascaded to
-            # kinematic:true via the auto-stabilize escalation). principal_axes is
-            # a WORLD-frame [x,y,z,w] quaternion (solve_com works on world-frame
-            # colliders); MassAPI expects the body's LOCAL frame, so rotate it by
-            # the body's inverse world rotation (orthonormal part).
             mass_api.CreateDiagonalInertiaAttr(
                 Gf.Vec3f(*[float(v) for v in ov["diagonal_inertia"]])
             )

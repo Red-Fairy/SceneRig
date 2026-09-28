@@ -118,9 +118,6 @@ def _prepare_live_blend(parser: argparse.ArgumentParser, args: dict) -> None:
 
 async def main() -> int:
     """Run the dual-agent interactive framework."""
-    # Own the shared Isaac settle server ONLY when launched standalone (rerun scripts):
-    # under runners/static_scene.py the var is already set to the runner's pid, which
-    # outlives us. setdefault, never overwrite. See physics.RUN_OWNER_PID_ENV.
     os.environ.setdefault("GRASE_RUN_OWNER_PID", str(os.getpid()))
     parser = argparse.ArgumentParser(description="Staged static-scene agent")
     parser.add_argument("--model", default="claude-opus-5", help="VLM model")
@@ -171,7 +168,6 @@ async def main() -> int:
             default=None,
             help=f"Max tool-call rounds for the {_stage} {_role}",
         )
-    # --memory-length removed 2026-08-07 with the legacy sliding window (append-only view).
     parser.add_argument(
         "--init-code-path", default=None, help="Path to initial code file"
     )

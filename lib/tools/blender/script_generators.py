@@ -49,14 +49,9 @@ for _root_name in _pipeline_names:
         continue
     _graph_id = _root.get("grase_graph_id")
     if not isinstance(_graph_id, str) or not _graph_id.strip():
-        # Pipeline names exist in every profile.  The backend-owned graph binding
-        # distinguishes the new canonical representation from a legacy/helper Empty.
         continue
     _descendants = tuple(_root.children_recursive)
     if not _descendants or any(child.type != "MESH" for child in _descendants):
-        # Never partially aggregate a malformed hierarchy.  Valid procedural roots
-        # are guaranteed to contain only mesh primitives; legacy/helper hierarchies
-        # keep their prior per-object behavior.
         continue
     _parts = tuple(
         sorted(
@@ -90,10 +85,6 @@ def _logical_target_name(mesh):
 
 
 def _resolve_target_parts(name):
-    # Exact names win.  Only an EMPTY explicitly named by the pipeline expands into
-    # a logical multipart object; unrelated helper empties are never inferred as one.
-    # Keep the legacy all-datablocks lookup for ordinary Mesh targets.  Empty-tree
-    # expansion itself remains active-scene-only via _pipeline_empty_parts above.
     exact = bpy.data.objects.get(name)
     parts = _target_parts(exact)
     if parts:
@@ -142,22 +133,7 @@ def _world_bbox(parts):
 
 
 def coverage_id_plan(names):
-    """Plan for the coverage render's id-colour assignment (pure; unit-tested).
-
-    The id channel encodes a surface as red level ``i * 28/255``, so only
-    ``COVERAGE_ID_SLOTS`` surfaces can be graded in one render. A surface past that
-    used to keep Blender's default colour ``(1, 1, 1, 1)``, which passes the readback's
-    ``blue >= 0.5`` surface test and decodes as ``round(255/28) == 9`` — so its pixels
-    were counted as surface #9, inflating that surface's coverage while the overflow
-    surface itself was never graded (2026-08-14, F5). Overflow is now painted
-    object-dark, so it occludes like any other body instead of aliasing.
-
-    ``names``: the ordered gradeable root-surface meshes (``obj_*`` and wall detail
-    children are already excluded by the caller). Returns ``(ids, overflow)`` —
-    ``ids`` = ``{{slot: name}}`` 1-based, ``overflow`` = names that cannot be graded.
-
-    ``generate_coverage_script`` mirrors this rule (it can't import this module: it runs
-    inside Blender from a bare ``--python`` invocation)."""
+    ""
     names = list(names)
     ids = {i + 1: n for i, n in enumerate(names[:COVERAGE_ID_SLOTS])}
     return ids, names[COVERAGE_ID_SLOTS:]
@@ -284,8 +260,6 @@ for obj in _scene_objs:
                 if _material_name not in _material_slots:
                     _material_slots.append(_material_name)
     else:
-        # Preserve the legacy per-slot list (including duplicate slots) for every
-        # ordinary mesh/helper object.
         _material_slots = [s.material.name for s in
                            getattr(obj, "material_slots", []) if s.material]
     _entry = {{
@@ -296,9 +270,6 @@ for obj in _scene_objs:
         "scale": [round(x, 2) for x in obj.scale],
         "visible": not (obj.hide_viewport or obj.hide_render),
         "bbox": bbox,
-        # Which material each object actually carries. Without this the materials list
-        # below is a flat set of datablocks with no owner, so "read this root surface's
-        # material" could only be guessed from the desk_mat/wall_mat naming convention.
         "material_slots": _material_slots,
     }}
     if _logical_parts:
@@ -515,19 +486,7 @@ def _anchored_built_wall(
     dist_tol: float = 0.15,
     ang_tol_deg: float = 25.0,
 ) -> bool:
-    """Does built wall B still sit ON its measured (gravity-plumbed) scene-graph plane?
-    True only when the graph carries a usable plane (world_center + normal passing
-    ``plane_is_reliable`` — planar enough AND large enough in frame — and NOT in
-    ``plumb_plane``'s ambiguous band), the built body's centre lies within ``dist_tol``
-    of it, and the built PCA normal agrees within ``ang_tol_deg``. The angle gate rejects
-    a bogus plane (e.g. a floor normal on a 'wall' from a grazing monocular fit,
-    0719_comp2_abc1's wall#2) so such pairs fall back to the unanchored fix.
-
-    The sg normal is PLUMBED before both gates (2026-08-06): the initializer prompt gives
-    the agent the plumbed plane to build on, so a compliant wall extended past its mask
-    centroid (floor-to-ceiling) used to read |offset|*|nz| off the RAW tilted fit and
-    lose its anchor — reversing who-moves toward pushing the measured wall. An ambiguous
-    tilt means the prompt gave NO plane to follow -> genuinely unanchored."""
+    ""
     from lib.tools.geometry.scene_graph import plane_is_reliable, plumb_plane
 
     if not sg_entry:
@@ -589,12 +548,7 @@ def _far_edge_margin(objs: list, A: dict, out: list) -> Optional[float]:
 
 
 def _relationship_enforcement(rel: dict) -> str:
-    """Return schema-v3 authority, failing closed on missing/mismatched fields.
-
-    There is deliberately no legacy default-hard path.  Production initialization
-    consumes digest-validated compiled constraints, while standalone geometry callers
-    must supply the same atomic source verdict as preprocessing.
-    """
+    ""
     from lib.tools.geometry.surface_relations import relationship_schema_is_valid
 
     if not relationship_schema_is_valid(rel):
@@ -602,25 +556,10 @@ def _relationship_enforcement(rel: dict) -> str:
     return str(rel["enforcement"]).strip().lower()
 
 
-# LEGACY OFFLINE-REPLAY HELPERS -------------------------------------------------
-# These functions preserve historical trace/test decoding only.  The initializer
-# executor does not import or call them after the compiled-yaw cutover.  In
-# particular, their PCA eccentricity ladder has no runtime authority; current source
-# evidence is produced by main_support_yaw_observation + yaw_constraints.
 def wall_yaw_candidates(
     nodes: list, relationships: list, main_id: str, max_nz: float = 0.3
 ) -> list[dict]:
-    """Return every relationship-associated measured-wall yaw candidate.
-
-    Unlike the historical :func:`wall_prior_run`, this preserves the exact
-    relationship and wall identity, preprocessing status/enforcement, reliability
-    metrics, and rejection reason.  Only a ``hard AGAINST`` relationship backed by a
-    reliable measured vertical plane is usable as a hard POSE anchor.  A hard
-    ``PERPENDICULAR`` relationship still owns contact/form, but its wall run is only
-    advisory for the support's free in-plane yaw.  Keeping rejected candidates in the
-    record is intentional: audit/replay must be able to explain why a tempting wall was
-    *not* selected.
-    """
+    ""
     from lib.tools.geometry.scene_graph import plane_is_reliable, plumb_plane
     from lib.tools.geometry.surface_relations import surface_build_name
 
@@ -1070,20 +1009,7 @@ def _required_yaw_feasible_set(
 
 
 def pin_yaw_delta(delta: float, prev: Optional[float]) -> float:
-    """Keep the reported main-support yaw correction on the SAME side of the mod-90
-    fold as the previous round's (2026-07-31, 0731_rls_ladle_pot).
-
-    ``_yaw_delta_deg`` folds into [-45,+45], so ONE stable target line is reported as
-    +44 from a built yaw of -8 and as -39 after rotating to -15 — the agent read that
-    as a 90 deg flip, called the gate corrupted, and BYPASSED a real failure. When the
-    new delta has the OPPOSITE sign and the two magnitudes sum to ~90 (i.e. they are
-    two representatives of the same line), re-express it on the previous side.
-
-    Deliberately NOT done by tracking absolute angles: a run is a sign-free LINE, so
-    ``atan2`` can jump 180 deg between rounds when the PCA vector flips — an earlier
-    attempt did that and emitted a nonsensical "+180 deg" correction live. Working
-    only with the folded delta is immune. A genuinely different line (small |delta|,
-    or signs differing without summing to ~90) passes through unchanged."""
+    ""
     if prev is None or delta == 0.0 or (delta > 0) == (prev > 0):
         return delta
     if abs(delta) + abs(prev) <= 75.0:
@@ -1116,13 +1042,7 @@ def _point_hull_distance_xy(point: list[float], hull: Optional[list]) -> Optiona
 
 
 def _finite_hull_xy(body: dict, hull_key: str = "hull") -> Optional[list[list[float]]]:
-    """Return a body's finite XY footprint, with its AABB as an explicit fallback.
-
-    Runtime relationship checks must never certify contact from an infinite plane
-    alone.  The penetration dump normally supplies a convex world-space hull; the
-    AABB fallback keeps legacy dumps finite (albeit conservative) instead of silently
-    turning a missing optional channel into an infinite surface.
-    """
+    ""
     hull = body.get(hull_key)
     if hull and len(hull) >= 3:
         try:
@@ -1259,26 +1179,7 @@ def surface_geometry_report(
     canonical_plane_offset_tol: float = 0.05,
     canonical_plane_angle_tol_deg: float = 5.0,
 ) -> tuple[bool, str]:
-    """Require positive transforms and one canonical reliable-wall plane contract.
-
-    Plane-distance anchoring alone cannot distinguish two finite wall segments on opposite
-    half-lines of the same infinite plane. This check uses the penetration dump's exact
-    world-space XY hull and Z bounds, while retaining the existing reliability predicate so
-    noisy/sliver wall measurements remain visual rather than hard-gated.
-
-    LEVEL & PLUMB (2026-08-14, F7): the initializer is told to build every wall VERTICAL
-    and every floor/ground LEVEL, but nothing measured it — tilt was only ever checked as
-    a side effect of a listed ``corner`` (>=85deg) or ``perpendicular`` (>=88deg)
-    relationship, and 96 walls across 1870 archived scenes carry NO relationship at all
-    (in 46 scenes no wall does). Those could be built at any tilt and pass every rule.
-    The check keys on the graph CATEGORY, not on the measured plane, so a sliver wall
-    whose own fit is untrusted is still held to being plumb, and it uses the SHARED
-    ``plumb_plane`` bands (a wall may lean ~17.5deg, a floor ~45.6deg) — deliberately
-    loose, to catch the gross case without inventing new failures on compliant builds.
-    The built normal is the penetration dump's PCA smallest-variance axis, which is the
-    face normal for a SLAB; a body with no normal, or one too chunky for that axis to
-    mean anything (``_is_slab``), is skipped rather than failed.
-    """
+    ""
     import math
 
     from lib.tools.geometry.scene_graph import (
@@ -1424,39 +1325,7 @@ def relationship_report(
     check_against_yaw: bool = True,
     evidence_out: Optional[list] = None,
 ) -> tuple[bool, str]:
-    """Rule: the proposer's surface RELATIONSHIPS must actually hold in the built scene.
-
-    Matches each scene-graph surface id to its built body — by exact build name first,
-    otherwise by the nearest body on its plumbed plane — then
-    enforces ``against`` (A flush to B and NOT crossing it: the signed nearest-corner distance to
-    B's plane is in ``[-against_pen, against_gap]`` — neither floating off B nor penetrating it;
-    and, when A's footprint is RECTANGULAR — ``_rect_ratio >= rect_min`` — its edge must run
-    PARALLEL to B within ``against_yaw_deg``, checked before the flush distance, since "against"
-    pins a rectangular table's free yaw to the wall's photo-anchored run; out-of-plane face
-    orientation remains the ``perpendicular`` rule's job), ``under`` (A's top meets B's
-    underside within ``under_gap``, with xy overlap), and ``corner`` (two walls ~perpendicular:
-    acute normal angle >= ``corner_angle_deg``; extending past the corner is tolerated because
-    it hides behind the other wall). ``perpendicular`` (one horizontal + one vertical surface, e.g.
-    table/wall or floor/wall) enforces that their surface normals are ~90° apart — acute normal
-    angle >= ``perp_angle_deg`` — and that the finite bodies meet within
-    ``finite_contact_gap``. The corner angle is lenient since two-wall PCA normals are noisy;
-    perpendicular is strict since one surface is a clean gravity-plumbed level plane.
-
-    ``sg_surfaces``: ``id -> {"world_center", "normal"}`` (anchored surfaces). ``bodies`` /
-    ``surface_normals``: the penetration script's per-body AABBs + PCA normals. ``main_name``:
-    the MAIN SUPPORT's build-name — its normal is overridden to +Z (its top is ENFORCED level at
-    z=0 by the main-support rule, whereas the PCA normal of a FULL-piece table body — top + base —
-    is the body's thinnest axis, often horizontal and meaningless for the angle checks). Hard
-    relationships are finite contracts: AGAINST additionally requires overlap with the root
-    wall's finite run and vertical span; UNDER requires finite XY overlap plus vertical contact;
-    and PERPENDICULAR requires finite 3-D proximity as well as its right angle. Missing or invalid
-    finite geometry fails closed instead of allowing an infinite-plane-only success.
-    ``check_against_yaw=False`` is used by the explicit constraint evaluator: the
-    edge-parallel obligation is checked once at POSE, while this legacy helper then
-    owns only AGAINST finite contact at CONTACT. ``corner_reach_gap`` separates the
-    generated-scene tolerance from noisy source-mask adjudication.
-
-    Returns ``(all_enforced_pass, message)``."""
+    ""
     try:
         from lib.tools.geometry.surface_relations import surface_build_name
     except Exception:  # noqa: BLE001 - keep the rule importable outside the package
@@ -1586,13 +1455,7 @@ def relationship_report(
         return [-n[1] / h, n[0] / h, 0.0] if h > 1e-8 else None
 
     def _is_wall_endpoint(sid, body):
-        """Whether a relationship endpoint denotes a wall/root vertical plane.
-
-        Prefer the graph's semantic category and plumbed plane, with the stable build
-        name as a legacy fallback.  This selects the root-slab geometry channel for
-        finite relationship evidence without treating furniture children as wall
-        extent merely because a grouped PCA happened to be vertical.
-        """
+        ""
         entry = sg_surfaces.get(sid) or {}
         category = str(entry.get("category") or "").strip().lower()
         if "wall" in re.split(r"[^a-z0-9]+", category):
@@ -1609,11 +1472,6 @@ def relationship_report(
         body_name = str((body or {}).get("name") or "")
         return built_name.startswith("wall_") or body_name.startswith("wall_")
 
-    # Cached legacy graphs may contain several hard AGAINST wall runs that no
-    # rectangular main-support edge family can satisfy.  Detect the impossible set
-    # before emitting per-wall rotate hints, otherwise successive checks alternate
-    # between mutually exclusive targets.  Axisless/non-rectangular tops have no
-    # parallel-edge requirement and are intentionally excluded.
     main_id = next(
         (sid for sid in sg_surfaces if surface_build_name(sid) == main_name), None
     )
@@ -1690,11 +1548,6 @@ def relationship_report(
             )
             continue
         if a == b:
-            # B2 (2026-08-10): two graph ids resolving to the SAME built body would
-            # self-compare (corner at 0°, against at -thickness/2) — an unfixable
-            # FAIL. Upstream _merge_coplanar_walls rewrites most of these away;
-            # this guards the residual drift-match case and fails closed because one
-            # built body cannot certify a hard relationship between two root ids.
             ok = False
             evidence["runtime_status"] = "unverified"
             evidence["reasons"].append("both ids resolved to the same built body")
@@ -1706,13 +1559,6 @@ def relationship_report(
             continue
         A, B = built[a], built[b]
         if t == "against":
-            # 'against' is DIRECTIONAL: B is the reference PLANE, A the body measured
-            # against it — so B must be the more VERTICAL surface. Proposers sometimes
-            # emit the pair reversed ("cabinet#0 against counter#0"): with B the main
-            # support, its +Z-overridden plane makes the flush metric ill-posed — a tall
-            # vertical surface always "penetrates" the counter's mid-plane by ~half its
-            # height and NO translation changes it (0725 tableverse: constant 61.6cm
-            # phantom burned every initializer round). Swap so the vertical side is B.
             nA_eff, nB_eff = _unit(A.get("plane_n")), _unit(B.get("plane_n"))
             if (
                 not r.get("_compiled_constraint")
@@ -1867,11 +1713,6 @@ def relationship_report(
                     + ")"
                 )
                 continue
-            # For a RECTANGULAR A, "against" physically means an EDGE lies in B's plane — which
-            # pins A's free yaw to B's run (mod 90°). Checked FIRST: the flush distance is a
-            # nearest-corner number and is meaningless until the edge is parallel (a 30°-yawed
-            # table used to PASS by kissing the wall with one corner, leaving yaw unconstrained).
-            # Skipped for non-rectangular footprints (a disc has no edge to align).
             delta = _yaw_delta_deg(A.get("run"), runB)
             rect = _rect_ratio(A.get("run_hull"), A.get("run"))
             evidence["measurements"].update(
@@ -1920,16 +1761,6 @@ def relationship_report(
             else:
                 ok = False
                 evidence["runtime_status"] = "fail"
-                # WHO MOVES: prefer the body whose offending extent is a FREE parameter.
-                # When B (the wall) still sits ON its MEASURED plane and translating A
-                # cannot slide the table out from under a frozen object (clearance-gated
-                # below), the fix targets A — the old always-move-B fix pushed a measured
-                # wall 24.5cm off its plane to meet a table the agent simply built too deep
-                # (0719_comp2_abc1). B yields only when it is unanchored or the settled
-                # objects genuinely pin A (then the measured plane is inconsistent with the
-                # objects and must give way). The clearance gate is what makes move-A safe:
-                # the UNGATED move-A fix is the one that historically slid the table out
-                # from under its objects and oscillated against the coverage level.
                 out = _out_dir(A["c"], cB, nB)
                 pen = not pen_ok
                 state = (
@@ -2157,9 +1988,6 @@ def relationship_report(
                     finite_contact_tolerance_m=finite_contact_gap,
                 )
                 if corner is None:
-                    # Legacy/unanchored hard CORNER rows have no trustworthy
-                    # infinite-plane intersection.  Certify the finite built root
-                    # slabs instead; angle-only success would let remote walls pass.
                     if xy_gap is None or z_gap is None:
                         ok = False
                         evidence["runtime_status"] = "unverified"
@@ -2423,17 +2251,7 @@ def _relationship_pose_constraint_report_v1(
     rect_min: float = 0.9,
     evidence_out: Optional[list] = None,
 ) -> tuple[bool, str]:
-    """LEGACY TEST-ONLY pre-intersection POSE evaluator.
-
-    Production calls the later public ``relationship_pose_constraint_report``;
-    this frozen implementation remains solely for archived behavior comparison.
-
-    This function deliberately does not inspect relationship rows.  A compiled hard
-    AGAINST contributes one ``edge_parallel_to_surface`` obligation; the ordinary
-    photo-PCA yaw path remains independent and is supplied only for joint-feasibility
-    detection.  Canonical references are frozen to source geometry, while live-root
-    references are resolved from the current Blender dump on every call.
-    """
+    ""
     try:
         from lib.tools.geometry.scene_graph import plane_is_reliable, plumb_plane
         from lib.tools.geometry.surface_relations import surface_build_name
@@ -3309,7 +3127,6 @@ def relationship_contact_constraint_report(
             params,
         )
         ok = ok and constraint_ok
-        # Strip the legacy aggregate header; retain its detailed repair guidance.
         detail = message.split("\n      - ", 1)[-1]
         lines.append(f"{cid}: {detail}")
     head = "PASS" if ok else "FAIL"
@@ -3555,31 +3372,7 @@ def resolve_yaw_anchor(
     ecc_gate: float = 1.5,
     ecc_gate_no_anchor: float = 1.15,
 ):
-    """LEGACY TEST-ONLY yaw ladder; never consumed by initializer runtime.
-
-    The historical main support yaw-anchor ladder returns
-    ``(anchor_run | None, source | None)``.
-
-    1. ``against(main, wall)`` -> the WALL RUN unconditionally ("against" pins the
-       support's yaw to its wall; ``wall_prior_run`` now excludes sliver walls, whose
-       measured run is noise). NOT a guarantee that POSE and CONTACT agree, as this
-       comment once claimed: L3 checks EVERY built wall, so a scene with several
-       ``against`` walls can still deadlock (0801_rdj_push_t_random: POSE -14 off one
-       wall vs L3 +14 and +21 off two others, with NO table yaw satisfying all three).
-    2. Strong mask PCA (``ecc >= ecc_gate``) -> PCA (direct photo evidence; gate
-       raised to 1.5 after gpt1's bogus -30deg shipped at 1.35).
-    3. Any wall run (perpendicular partner) -> wall run.
-    4. NO wall anchor at all: accept a LOW-CONFIDENCE PCA down to
-       ``ecc_gate_no_anchor`` — reachable only when the scene has no meaningful yaw
-       rule, where the alternative is an entirely UNGATED yaw (0709_eval5_raw3: no
-       table<->wall relationship + ecc 1.23 -> the check silently skipped and the
-       agent eyeballed the table diagonal wrong; its weak PCA pointed right).
-       ADVISORY ONLY: ``coverage_report`` renders a "pca-low" violation as a
-       CAUTION, never a FAIL — on distorted wall-less inputs the visible-footprint
-       PCA misfires and a hard gate forces the wrong rotation (0722_bulk_groot3/5).
-    5. Nothing -> (None, None); the coverage report flags the yaw as UNVERIFIED.
-
-    ``source`` in {"against-wall", "pca", "wall", "pca-low"} (for messages/logs)."""
+    ""
     if built_run is None:
         return None, None
     if main_against and wall_run is not None:
@@ -3606,12 +3399,7 @@ def resolve_yaw_evidence(
     ecc_gate_no_anchor: float = 1.15,
     photo_border_evidence: Optional[dict] = None,
 ) -> dict:
-    """LEGACY TEST-ONLY runtime-selector record.
-
-    This is retained only to decode archived tests/traces.  It is not imported by the
-    initializer executor and cannot grant current authority.  Current decisions come
-    from the digest-bound preprocessor artifact and :func:`bind_compiled_yaw_evidence`.
-    """
+    ""
     status = str((applicability or {}).get("status") or "unknown")
     reason = str((applicability or {}).get("reason") or "applicability_missing")
     geometry_source = str(
@@ -4174,12 +3962,6 @@ def coverage_report(
                     f"no usable photo mask, so detailed size grading is skipped)"
                 )
             elif is_floor:
-                # A floor/ceiling with no photo mask exists for PHYSICAL SUPPORT (the
-                # initializer mandates a floor under the main support's base), and being
-                # hidden under the table is its normal state — never demand visibility
-                # and never advise removing it (0709_oc3_gpt1: a name-only floor root +
-                # a failing main got the remove advice; the agent obeyed, leaving the
-                # desk base resting on nothing).
                 lines.append(
                     f"{tag}: PASS (floor/ceiling support helper with no photo mask — "
                     f"visibility not required)"
@@ -4218,11 +4000,6 @@ def coverage_report(
                 )
             continue
         lo, hi = main_band if name == main_name else other_band
-        # NONLINEAR tolerance: a small photo mask makes the area ratio numerically
-        # wild (mask noise alone moves it ~1x at a few percent of frame), so the
-        # band widens smoothly below a 25%-of-frame pivot: x1 at >=25%, ~x1.9 at 7%
-        # (0709_eval3_wendy1 whiteboard 3.2x now passes), capped at x2.5. Masks
-        # under ``skip_photo_below`` are skipped entirely above.
         g = min(2.5, max(1.0, (0.25 / p["frac"]) ** 0.5))
         lo, hi = lo / g, hi * g
         was_ok = ok
@@ -4236,15 +4013,6 @@ def coverage_report(
                 )
                 continue
             if p["frac"] < waive_visibility_below:
-                # ASYMMETRIC skip for sliver masks (2-5% of frame): don't DEMAND
-                # visibility — under a steep top-down camera such a surface can be
-                # legitimately unprojectable at its physically-correct pose (the
-                # robolab wall strip: the CONTACT rule wants it flush behind the
-                # table where it projects out of frame — jointly unsatisfiable;
-                # 0722_gatefix_robodepth2 attempt 1 burned all 10 rounds on it).
-                # The SIZE checks below still judge these surfaces whenever they
-                # DO render (0721_perffix2_real8226: a wall built 9x oversized vs
-                # a 3% sliver was a real catch — a flat skip would have missed it).
                 lines.append(
                     f"{tag}: PASS (renders {r['frac']:.1%} vs {p['frac']:.0%} in the "
                     f"photo — visibility not demanded for a sliver mask (<"
@@ -4289,9 +4057,6 @@ def coverage_report(
                         "required contacts and the photo's visible wall span)"
                     )
                 else:
-                    # An unanchored oversized wall is usually too close.  The generic
-                    # "shrink per side" advice made agents cut wall height below the
-                    # photo's visible extent (0709_eval3_bridge2).
                     lines.append(
                         f"{tag}: FAIL (covers {r['frac']:.0%} of the reference frame vs "
                         f"{p['frac']:.0%} in the photo ({ratio:.1f}x too LARGE) — the wall is "
@@ -4299,13 +4064,6 @@ def coverage_report(
                         f"do NOT reduce its height below the photo's visible extent)"
                     )
             elif name == main_name and main_form == "table" and p["frac"] < 0.15:
-                # SUSPECT REFERENCE (0709_eval5_raw2): a form="table" main support is
-                # built as the FULL piece (top + base to the floor), but a small photo
-                # mask often covers ONLY the top face (SAM3 grabbed the cooktop, not
-                # the kitchen unit) — the ratio then indicts the mask, not the build.
-                # A hard shrink demand here loops the agent (shrink -> objects don't
-                # fit -> grow -> shrink); pass with a loud caution instead and let the
-                # visual verifier judge the full unit.
                 lines.append(
                     f"{tag}: PASS with CAUTION (covers {r['frac']:.0%} vs {p['frac']:.0%} "
                     f"in the photo, {ratio:.1f}x — but the photo mask is SMALL and may "
@@ -4419,8 +4177,6 @@ def coverage_report(
                 and main_yaw_src == "wall"
                 and (main_yaw_anchor or {}).get("enforcement") == "advisory"
             ):
-                # Legacy offline-replay rendering only; production emits
-                # source-advisory above and never selects PERPENDICULAR/wall here.
                 surface = (main_yaw_anchor or {}).get("surface") or "related wall"
                 relationship = (
                     (main_yaw_anchor or {}).get("relationship") or "relationship"
@@ -4437,17 +4193,6 @@ def coverage_report(
                 and main_yaw_src == "pca-low"
                 and abs(main_yaw_delta) > yaw_tol_deg
             ):
-                # Legacy offline-replay rendering only. pca-low's only evidence is
-                # a low-confidence footprint PCA
-                # (wall-less scene, ecc under the confident gate) — advisory, never a
-                # rotation demand (0722_bulk_groot3/5 shipped skewed tables obeying one).
-                # Fold ambiguity + diagonal bias (0809 workdesk/foodpacking traces):
-                # the delta is fold(anchor-built) in [-45,45], so delta and delta-+90
-                # name the SAME alignment; and on a corner-on/near-square mask the PCA
-                # axis can be the DIAGONAL (~45° off both edge families), printing a
-                # phantom caution forever. Small-step probes sample non-equivalent
-                # midpoints and falsely refute correct hints; the message now demands
-                # full-step probes, accepts analytic dismissal, and is once-per-attempt.
                 d2 = main_yaw_delta - 90.0 if main_yaw_delta > 0 else main_yaw_delta + 90.0
                 unv = (
                     f"; CAUTION — weak photo evidence suggests its edge MAY run "
@@ -4536,11 +4281,6 @@ def directional_pull_depth(
     return max(hi_other - lo_mover, 0.0)
 
 
-# Overhang allowance (2026-08-10, audits/OVERHANG_FOLD_FIX_PLAN_2026_08_10.md): objects
-# the photo shows overhanging an edge (a bin on the table's edge) are legitimate at
-# partial containment; the full-hull 2cm margin applies only to essentially-contained
-# objects — preserving the 2026-08-09 airoa_moma_005_row1493 corner-clearance fix.
-# Physics safety is owned by settle + composition-certify, not this 2D check.
 INBOARD_FRAC_CONTAINED = 0.97
 INBOARD_FRAC_OVERHANG_OK = 0.65
 
@@ -4682,13 +4422,6 @@ def objects_on_direct_supports_report(
         )
         fraction = _containment_fraction(footprint, support_poly)
         if on_object:
-            # 2026-09-15 (owner): an OBJECT support (rack, stand, coaster) is barely larger
-            # than its cargo, so the 2 cm inward margin — written for tables (07-09 yawed
-            # desk, 08-09 airoa_moma box corner, 08-10 overhanging bin) — failed correctly
-            # seated toast slices in a rack's end slot while an actual overhang passed
-            # (v5accept toast random burned its initializer budget on it). Teetering on an
-            # object is already caught by the settle and the resting rule; here only the
-            # footprint share counts.
             if fraction >= INBOARD_FRAC_OVERHANG_OK:
                 if fraction < INBOARD_FRAC_CONTAINED:
                     tolerated[name] = (support, fraction)
@@ -4780,12 +4513,6 @@ if cam is not None:
             # arbitrary child name consumes a gradeable root-surface id.
             o.color = (0.15, 0.15, 0.15, 1.0)
         elif o.parent is not None and o.parent.type == "MESH" and not o.parent.name.startswith("obj_"):
-            # B1 (2026-08-10, wall structure): a wall's DETAIL CHILD must never
-            # consume one of the 9 id slots nor alias onto slot 9 as default-white
-            # overflow (10th+ mesh keeps color (1,1,1,1), which decodes as sid 9 —
-            # corrupting that surface's frac while itself escaping judgment).
-            # Paint it like an object: its pixels occlude the parent's frac exactly
-            # as an object standing in front of the wall does.
             o.color = (0.15, 0.15, 0.15, 1.0)
         elif i < 9:
             # id-channel encoding: red levels spaced 28/255 apart so the sRGB write/read
@@ -4794,12 +4521,6 @@ if cam is not None:
             o.color = (i * 28.0 / 255.0, 0.0, 1.0, 1.0)
             surf_ids[i] = o.name
         else:
-            # OVERFLOW (2026-08-14, F5): only 9 red levels survive the round trip. The
-            # 10th+ surface used to keep Blender's default (1,1,1,1), which passes the
-            # blue>=0.5 surface test and decodes as sid 9 — silently inflating THAT
-            # surface's frac while itself escaping judgment. Paint it object-dark, the
-            # same treatment detail children get, so it occludes instead of aliasing,
-            # and report it. Mirrored by coverage_id_plan (unit-tested).
             o.color = (0.15, 0.15, 0.15, 1.0)
             id_overflow.append(o.name)
     # keep the scene's aspect ratio (a square render would change the FOV and skew the
@@ -4854,28 +4575,9 @@ if cam is not None:
         objects = (~surf) & (arr[:, :, 0] > 0.05)  # dim-gray objects; world is ~0
         names = _np.array([surf_ids.get(i, "") for i in range(10)], dtype=object)
         _np.savez("{output_path}_ids.npz", ids=ids, names=names, objects=objects)
-        # matching BEAUTY pass (best-effort): same camera/state/resolution as the id
-        # map, textured Workbench shading — the coverage-mismatch visual overlays the
-        # tint on THIS render (a real image of the build, not an id schematic), and
-        # sharing the pass guarantees pixel-exact alignment with ``ids``.
-        # RESTORE the per-object viewport colors the id pass overwrote, and studio
-        # lighting: without this the beauty render draws every ROOT SURFACE in its
-        # flat id color (table_0 -> (0.11, 0, 1)) under FLAT shading, which reads as
-        # uniform gray-blue — the coverage-mismatch composite then showed objects
-        # floating with NO table at all while the id map recorded table_0 covering
-        # 45.6% of the frame (0731_rls_foodpacking_1bin_1box_1can, 2026-07-31).
         for _o in scene.objects:
             if _o.type == "MESH" and _o.name in _orig_colors:
                 _o.color = _orig_colors[_o.name]
-        # 2026-09-15 (owner): the beauty pass is a silhouette-vs-mask aid, not a
-        # photometric comparison, so it renders in Workbench STUDIO with textures —
-        # ~2 s. Rendering it on the scene's own engine cost 25-55 s per check:
-        # every check is a fresh Blender process, and both Cycles (scene sync +
-        # kernel load) and EEVEE (per-process shader compile, ~25 s measured on the
-        # toast scene, driver cache or not) pay that on their first frame, while the
-        # measurement itself (id pass + readback) is ~1 s. Studio + TEXTURE keeps the
-        # lit-wood-vs-gray-slab readability that motivated the scene-engine pass
-        # (0731_init_foodpack) without its cost. Both harnesses share this script.
         sh.light = "STUDIO"
         sh.show_shadows = True
         sh.color_type = "TEXTURE"
@@ -4902,40 +4604,7 @@ def generate_penetration_script(
     eps: float = CONTACT_TOLERANCE_M,
     sections: str = "full",
 ) -> str:
-    """Generate a READ-ONLY script that reports interpenetrating body pairs (with depth).
-
-    Each object's own multi-part meshes are grouped (by shared root ancestor) into ONE
-    body, so only DISTINCT bodies are tested against each other. A pair is reported when
-    their world-space meshes actually intersect (BVHTree.overlap), AABB-prefiltered, deeper
-    than ``eps``. A genuine resting contact (one body sitting on another) is tangent and does
-    not register. EVERY pair is emitted — object<->object, object<->surface, AND
-    surface<->surface — each with its ``depth``; the CALLER applies the reporting policy:
-    object<->surface and object<->object always, and surface<->surface
-    only when one side is the main support beyond its initializer-stage tolerance. The same
-    read-only dump includes each object's exact projected XY convex hull and each surface's
-    top-face hull for the initializer's main-support coverage check.
-
-    Args:
-        output_path: Path where the JSON pair list will be saved.
-        main_name: build-name of the main support; when given, the object's mesh loose-parts
-            (top slab + each leg) are decomposed into connected islands and each island's world
-            AABB is emitted as ``main_support_islands`` (for the "parts connected" rule).
-        eps: Numerical contact tolerance. AABB separation is a conservative early-out;
-            otherwise imported-object pairs are measured for their real separating
-            translation (bisection over 9 directions, cap 50 mm; ``depth_source``
-            ``mesh_mtd``, with ``separation_direction`` and the AABB proxy kept as
-            ``aabb_bound``). Suggested translations still require support validation.
-
-        sections: ``"full"`` (default; what ``check_rules_enforced`` needs) or
-            ``"transaction"`` — the before/authored/after dumps of a typed transaction,
-            which read only ``penetrating_pairs``, ``object_integrity``, ``bodies`` and
-            ``surface_geometry``; the surface plane fits, XY hulls, runs and determinants
-            are emitted empty (2026-09-15 owner: 5 s of an 11.6 s dump on a 320k-vertex
-            scene, read by nobody on that path).
-
-    Returns:
-        Blender Python script as a string.
-    """
+    ""
     head = f'''import bpy
 import hashlib
 import json
@@ -5010,10 +4679,6 @@ def aabb_overlap(a, b, eps=1e-6):
 keys = list(groups.keys())
 trees, boxes, label, verts, polys = {{}}, {{}}, {{}}, {{}}, {{}}
 for k in keys:
-    # A procedural object's canonical obj_* identity is its top-level EMPTY, which is
-    # deliberately absent from this MESH-only group. Label the whole descendant tree by
-    # that exact root instead of leaking an arbitrary primitive-child name. Legacy mesh
-    # roots keep the same label because their group key is already their own name.
     label[k] = (
         k
         if k in _pipeline_empty_root_names
@@ -5031,13 +4696,6 @@ def _is_obj(k):
 
 
 def _small_clearance_candidates(ka, kb):
-    # Real separating translation, not an AABB proxy. For each candidate direction
-    # (+Z, +/-X, +/-Y, +/-horizontal centroid axis, +/-3D centroid axis) bisect the
-    # smallest shift of the SMALLER object body that clears the BVH overlap, up to
-    # _MTD_CAP. Below {eps} in any direction = numerical contact (early return, one
-    # tree build). Pairs deeper than _MTD_CAP in every direction return [] and the
-    # caller keeps the AABB bound, labelled as such. Measured cost: +0.15 s per gate
-    # call on a 16-body scene (CHANGELOG 2026-09-11).
     _MTD_CAP = 0.05
     mover, other = (ka, kb) if len(verts[ka]) <= len(verts[kb]) else (kb, ka)
     if not _is_obj(mover):
@@ -5081,16 +4739,6 @@ _NEST_RISE_M = 0.010     # the other must rise this far above the mover's base
 
 
 def _nested(ka, kb):
-    # (mover, other) when the smaller OBJECT body sits INSIDE the other body's footprint
-    # with the other rising well above the mover's base: an object in a tray / drawer /
-    # bowl, or one sunk deep into a slab. For such pairs the global separating
-    # translation is the distance to lift the mover OUT of the container (every lateral
-    # direction stays blocked by the walls), not a penetration depth (0916 61c73825: a
-    # hammer resting in a drawer tray read 44 mm and the agent undid the whole cabinet).
-    # Nested pairs are measured with _inside_depth instead. (None, None) otherwise.
-    # The nested body is the one whose footprint fits inside the other's (a vertex
-    # count says nothing here: an authored drawer cabinet has fewer vertices than the
-    # hammer lying in it). Try both orderings; on a tie take the smaller footprint.
     def _fits(mover, other):
         if not _is_obj(mover):
             return False
@@ -5495,10 +5143,6 @@ def _world_semantics(root):
             evaluated = o.evaluated_get(depsgraph)
             mesh = evaluated.to_mesh()
             try:
-                # 2026-09-15: numpy digests of the same rounded world coordinates and
-                # topology (was per-vertex Python lists serialised to JSON: 6 s of an
-                # 11.6 s dump on a 320k-vertex scene). Equality semantics unchanged:
-                # world coordinates rounded to 5 decimals, -0.0 folded to 0.0.
                 world_digest, topo_digest, uv_layers, n_verts, n_edges, n_polys = (
                     _mesh_digests(mesh, evaluated.matrix_world, world=True)
                 )
@@ -5590,8 +5234,6 @@ def _object_integrity(root):
             "modifiers": sorted([m.name, m.type, bool(m.show_render)] for m in o.modifiers),
         }}
         if o.type == "MESH" and o.data is not None:
-            # 2026-09-15: numpy digests of the local mesh (exact float32 coordinates,
-            # full topology, UVs) instead of per-vertex JSON — same equality, 25x faster.
             v_digest, t_digest, uv_layers, n_v, n_e, n_p = _mesh_digests(
                 o.data, o.matrix_world, world=False
             )
@@ -5724,7 +5366,7 @@ os._exit(0)
         return head + rules + tail
     if sections != "transaction":
         raise ValueError(f"unknown penetration dump sections {sections!r}")
-    stub = f'''# 2026-09-15: a TRANSACTION dump (before / authored / after) skips the rules-ladder
+    stub = f'''
 # geometry — surface plane fits, XY hulls, runs, determinants — that only
 # check_rules_enforced reads; on a 320k-vertex scene it was 5 s of an 11.6 s dump.
 _main_name = {main_name!r}
@@ -5817,7 +5459,6 @@ if not camera:
 # preprocessed obj_* meshes can have their poses baked into vertices, while a new
 # procedural object's canonical Empty pivot need not be at its geometry center.
 if len(target_meshes) == 1:
-    # Preserve the legacy arithmetic exactly for every ordinary Mesh target.
     target_obj = target_meshes[0]
     target_pos = sum(
         (target_obj.matrix_world @ Vector(c) for c in target_obj.bound_box), Vector()
@@ -5827,9 +5468,6 @@ else:
 camera_pos = camera.matrix_world.translation
 distance = (camera_pos - target_pos).length
 
-# Aim by writing the rotation directly. A TRACK_TO constraint cannot point at a bbox
-# center (it tracks an object's ORIGIN), and a stale constraint from an earlier focus
-# would silently override the rotation — remove any.
 for c in list(camera.constraints):
     if c.type == 'TRACK_TO':
         camera.constraints.remove(c)
@@ -5909,11 +5547,6 @@ if not camera:
     else:
         raise ValueError("No camera found in scene")
 
-# Drop any TRACK_TO left by a previous `investigate focus`. A TRACK_TO OVERRIDES
-# rotation_euler at evaluation time, so without this the requested rotation below is
-# silently discarded and the camera keeps aiming at the old focus target — while the
-# camera_info sidecar (read off the raw property) reports the rotation that was asked
-# for. Measured on 24 calls across 23 verifier sessions before this fix.
 for _c in list(camera.constraints):
     camera.constraints.remove(_c)
 
@@ -6059,7 +5692,6 @@ if not camera:
 # Calculate new camera position around the union WORLD-SPACE BBOX CENTER (same rule
 # as focus: neither a baked mesh origin nor an authored Empty pivot is the center).
 if len(target_meshes) == 1:
-    # Preserve the legacy arithmetic exactly for every ordinary Mesh target.
     target_obj = target_meshes[0]
     target_pos = sum(
         (target_obj.matrix_world @ Vector(c) for c in target_obj.bound_box), Vector()

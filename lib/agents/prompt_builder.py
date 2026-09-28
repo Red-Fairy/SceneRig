@@ -178,12 +178,7 @@ def _main_support_target_mask_anchors(
 
 
 def scene_graph_revision(graph: Any) -> int:
-    """Return the active graph's monotonic revision, including legacy revision zero.
-
-    Preprocessing graphs written before initializer root registration have no revision
-    field. Treating those as revision zero gives ``build_root_surface`` a stable first
-    successor without making old runs invalid.
-    """
+    ""
     if not isinstance(graph, dict):
         return 0
     raw = graph.get("scene_graph_revision", graph.get("graph_revision", 0))
@@ -195,7 +190,7 @@ def scene_graph_revision(graph: Any) -> int:
 
 
 def root_surface_build_name(node: Any) -> Optional[str]:
-    """Return a registered root's exact build name, with legacy-id fallback."""
+    ""
     if not isinstance(node, dict):
         return None
     explicit = node.get("build_name")
@@ -354,9 +349,6 @@ def _resolve_prompt_images(
 # The object-state table parses them back out of memory; keep in sync with the emitters.
 _INV_VISIT = re.compile(r"Investigated .*?\(visit ([^)]*)\)")
 _BUDGET_SUFFIX = re.compile(r"(?<!\d)(\d+)\s*/\s*(\d+)\s*$")
-# score BEFORE IoU (uniform-frontend order, 2026-08-21): score leads every paired
-# emission; the score group is optional because a score-less measurement still
-# emits its raw IoU.
 _INV_IOU = re.compile(r"- (\S+): (?:score (-?\d+\.\d+), )?silhouette IoU (\d+\.\d+)")
 _MOVE_DELTA = re.compile(
     r"moved (\S+) along (\w+): score (-?\d+\.\d+) -> (-?\d+\.\d+), IoU (\d+\.\d+) -> (\d+\.\d+)"
@@ -375,19 +367,7 @@ _MOVE_NOOP = re.compile(
     r" \(IoU stays (\d+\.\d+)\)"
 )
 _MOVE_BUDGET = re.compile(r"\(Move budget: (\d+)/(\d+) used on (\S+?)\.\)")
-# Mirrors exec.py Executor.move_cap (fixed 5). The per-move "(Move budget: ...)"
-# sentence was REMOVED from move feedback 2026-07-31 (pure repetition of this
-# table); moves-used is now COUNTED from move rounds in the ledger itself. The
-# _MOVE_BUDGET / _MOVE_CAP_HIT texts still override when present (older
-# transcripts, and the cap-refusal error message which remains).
 _MOVE_CAP_DEFAULT = 5
-# Pending-size channel (owner-approved 2026-07-31, cluttershelf pomegranate#1): the
-# investigate-time size hint/deferral opens a PENDING marker; the failed-move
-# "SIZE PENDING for X" note re-asserts it; an applied-move re-measure that still
-# flags re-opens it. Cleared by a matched re-measure, an improved scale move, or an
-# applied rotation/rotate_180 (which invalidates the measurement — _HINT_STALE).
-# While pending and scale UNTRIED, the object is excluded from CONVERGED: an
-# untried, measured aspect is an open improvement path.
 _SIZE_PENDING_OPEN = re.compile(
     r"SIZE HINT for (\S+?):|\(size for (\S+?): a mismatch also measured"
     r"|SIZE PENDING for (\S+?):"
@@ -399,10 +379,6 @@ _SIZE_REMEASURE_MATCH = re.compile(
 _MOVE_CAP_HIT = re.compile(
     r"move rejected: '(\S+)' has used its full move budget \((\d+)/(\d+)\)"
 )
-# The four outcomes the table used to be blind to. Without them an exhausted aspect
-# read as "never tried": the clamp retry costs a move-budget slot AND a full
-# optimize_axis search before re-emitting the same refusal, and a re-flip costs a
-# generator round (the one-shot guard returns before the budget increment).
 _MOVE_CLAMPED = re.compile(
     r"(\S+) (\w+): the search found (?:an|a fine-yaw) improvement but the move "
     r"was rejected pre-physics"
@@ -448,29 +424,8 @@ _EDIT_EVIDENCE_PAIRS = re.compile(
 )
 
 
-# --------------------------------------------------------------------------- #
-# Image aging in the window — COMPOSITION ONLY since 2026-08-07                #
-# --------------------------------------------------------------------------- #
-# Aging (ex-"W2") and block truncation (ex-"W1") now exist only on composition's
-# ledger path. The other stages send their memory verbatim — see
-# build_memory_append_only and audits/WINDOW_SIMPLIFICATION_DESIGN_2026_08_07.md:
-# per-round aging rewrote the very message the sliding cache breakpoint lands on,
-# so those stages paid up to 60% cache-WRITE (multiplier 0.80 vs composition's 0.32)
-# for a truncation that measurably never fired (texture median 0 cuts).
-# Caption prefixes that classify an image by the text part immediately before it.
-# These strings are emitted by our own tools (exec.py / investigator.py), so the
-# match is a contract, not a heuristic — tool_schema_test pins the tool side.
-# Composition's collapse cadence: the boundary advances in blocks of this many rounds,
-# so the ledger/gsi/visible-rounds bytes are frozen between cuts. Was GRASE_COMP_BLOCK,
-# defaulting to GRASE_MEMORY_BLOCK; both knobs are gone (one logic, no modes).
 COMP_BLOCK_K = 4
 
-# Runaway guard for the append-only view (build_memory_append_only). NOT a context
-# policy: it exists so an unbounded trajectory degrades instead of failing the request
-# on a context overflow. Sized in TOKENS, not rounds — a round costs ~7.3-10.6k on these
-# stages depending on how many images it carries, so a round count cannot bound it
-# (audits/WINDOW_SIMPLIFICATION_DESIGN_2026_08_07.md §3.1). Headroom left for the 32k
-# output reservation (common.py) plus system + tool schemas.
 MAX_VIEW_TOKENS = 120_000
 
 _W2_SCALAR_KINDS = {
@@ -512,27 +467,7 @@ def age_window_images(
     protected: int,
     frozen_from: Optional[int] = None,
 ) -> list[dict[str, Any]]:
-    """Replace superseded window images with one-line text stubs. COMPOSITION ONLY.
-
-    Build-time transform on the VIEW only — stored memory is never modified
-    (copy-on-write on the messages it edits). Policy per kind: full-scene renders /
-    reference-view / alternate-camera shots keep exactly the NEWEST of their kind,
-    older ones become a stub carrying the original file path (the model can re-render
-    or re-read if it truly needs the old evidence); pseudo-GT pairings and crop-style
-    messages keep the newest MESSAGE of their kind atomically; paired copies of the
-    head target photo are always stubbed (duplicates of the head anchor). Never aged:
-    the protected head, and everything before the first assistant turn (stage-entry
-    context — e.g. composition's preseeded scene-state message after the default
-    2-message head). Idempotent and deterministic.
-
-    ``frozen_from`` is CUT-ALIGNED aging and is now the only mode: messages at index >=
-    frozen_from are neither aged nor considered for keep-newest, so the
-    fresh-since-last-cut segment keeps its bytes stable and ages at the next cut —
-    which is what keeps the request prefix append-only between cuts for the prompt
-    cache. The per-round mode (and its GRASE_W2 / GRASE_W2_MODE levers) was removed
-    2026-08-07 with the non-composition window; the caller passes frozen_from=None only
-    when the fresh segment is empty (a cut boundary), where the two modes coincide.
-    """
+    ""
     first_assistant = next(
         (i for i, m in enumerate(view) if m.get("role") == "assistant"), len(view)
     )
@@ -715,14 +650,6 @@ def build_object_state_table(memory: list[dict[str, Any]]) -> str:
             and ridx + 1 < len(rounds)
             and (_round_tool_name(rounds[ridx + 1]) == "undo_last_step")
         )
-        # Budget counting (2026-07-31, replaces the removed "(Move budget: ...)"
-        # sentence): every move round that got past the early refusals consumes one
-        # budget unit — including rejected/no-gain moves and undone ones (exec
-        # increments BEFORE the search; undo never refunds). Early refusals and a
-        # strict infrastructure failure with a verified transactional restore
-        # ("move rejected: ...", a repeated rotate_180, the retained-flip guard —
-        # "move blocked: a retained rotate_180 has stale measurements ...") return
-        # before the increment or explicitly refund it.
         if tool == "move":
             tcs = grp[0].get("tool_calls") or []
             try:
@@ -802,9 +729,6 @@ def build_object_state_table(memory: list[dict[str, Any]]) -> str:
             if not undone:
                 for name, aspect, _s0, _s1, _i0, _i1 in _MOVE_DELTA.findall(t):
                     if aspect in ("rotation", "scale"):
-                        # rotation invalidates the measurement (_HINT_STALE);
-                        # a landed scale acted on it — the same text's re-measure
-                        # below re-opens if it still flags.
                         obj(name)["size_pending"] = False
                     if _SIZE_REMEASURE_STILL.search(t):
                         obj(name)["size_pending"] = True
@@ -828,8 +752,6 @@ def build_object_state_table(memory: list[dict[str, Any]]) -> str:
     if not state:
         return ""
 
-    # Explicit budget text (old transcripts / the cap-refusal error) wins; else the
-    # counted move rounds fill the column at the mirrored default cap.
     for s in state.values():
         if s["moves"] is None and s["moves_n"]:
             n = min(s["moves_n"], _MOVE_CAP_DEFAULT)
@@ -849,11 +771,6 @@ def build_object_state_table(memory: list[dict[str, Any]]) -> str:
         counts = budget_counts(v)
         return counts is not None and counts[0] >= counts[1]
 
-    # The DONE bar stays RAW silhouette IoU (uniform frontend, 2026-08-21). This is
-    # the one direction the authority framing allows: a HIGH raw IoU is good
-    # sufficiency evidence. The other direction belongs to the prompt's
-    # READING-IoU paragraph — a low or dropped IoU is evidence, not a verdict; the
-    # crops and the per-axis measurements are the authority on what to change.
     done_bar = float(os.environ.get("GRASE_POSE_IOU_DONE", "0.85"))
 
     def _status(s: dict, stale: bool, pending_active: bool = False) -> str:
@@ -865,16 +782,6 @@ def build_object_state_table(memory: list[dict[str, Any]]) -> str:
         if _capped(s["inv"]) and _capped(s["moves"]):
             return "EXHAUSTED"
 
-        # CONVERGED: the optimizer itself reported no open improvement path — every
-        # attempted aspect's LATEST outcome is terminal (no-improve / physics-REJECTED
-        # / BLOCKED / LOCKED / SPENT). Any "improved" as an aspect's latest outcome
-        # keeps the object workable — and so does a PENDING size mismatch on an
-        # untried scale (2026-07-31, pomegranate#1: one no-gain 'xy' flipped it to
-        # CONVERGED and the table then steered the agent away from the very move the
-        # measurement recommended, for 32 rounds). Two refusals are NON-terminal by
-        # contract: a refunded flip still owns its sanctioned free retry (F6a), and a
-        # yaw-gate refusal explicitly routes to a placement fix first — calling either
-        # CONVERGED would steer the agent off the very action the feedback prescribed.
         def _terminal(o: str) -> bool:
             return (
                 not o.startswith("improved")
@@ -1158,13 +1065,7 @@ class PromptBuilder:
         ]
 
     def _main_support_overlay_parts(self) -> list[dict[str, Any]]:
-        """Initializer-only grounding image: the target photo with the MAIN support's GT
-        mask tinted (``masks/<build_name>_overlay.png``, written by preprocess). Added
-        2026-08-06 after the 0805/0806 redo_banana_left probes: the generator AND the
-        verifier both anchored the "table far edge" on the background desks' front edge —
-        a shared misperception that survived two rounds of instruction sharpening; the
-        tint disambiguates WHICH surface is the main support. Advisory, never a gate:
-        the mask is approximate and may be frame-cut."""
+        ""
         moge_dir = self.config.get("moge_dir")
         if not moge_dir:
             return []
@@ -1269,13 +1170,7 @@ class PromptBuilder:
     def _resolve_main_support(
         self, graph: dict[str, Any], moge_dir: str
     ) -> dict[str, Any]:
-        """Resolve the one support-chain vote winner for every prompt consumer.
-
-        Current artifacts carry both a graph-level id and exactly one matching node
-        flag. Legacy artifacts carrying neither may recompute the same voter from
-        ``masks/masks.json``. A partial or contradictory current contract is never
-        treated as legacy, and world z is diagnostic data only—not a selector.
-        """
+        ""
         nodes = [n for n in graph.get("nodes", []) if isinstance(n, dict)]
         by_id = {n.get("id"): n for n in nodes if n.get("id")}
         graph_id = graph.get("main_support_id")
@@ -1439,9 +1334,6 @@ class PromptBuilder:
         main_desc = main.get("description") or ""
         other = [s for s in surfaces if s is not main]
 
-        # --- world frame: camera pose from the canonical transform (R, T) ---
-        # Screen mapping at the reference view (replaces the old on-render axis gizmo): the gravity
-        # tilt is a pitch about world-X, so it holds even after alignment. Novel views rotate it.
         _screen = (
             "At the reference view, world +X is toward image-LEFT (-X right), -Y goes INTO "
             "the scene (away from the camera) and +Y toward it, +Z up; novel (orbited) views "
@@ -1558,10 +1450,6 @@ class PromptBuilder:
                 surface_id
             )
 
-        # A wall basis axis has no finite-side meaning. For measured corner pairs, give the
-        # agent the plane-intersection corner explicitly so it can choose the wall's extension
-        # sign from the wall's own measured point instead of silently coupling that sign to
-        # handedness (0811 robodojo_sweep_blocks_random moved both walls to the opposite side).
         corner_by_id: dict[str, list[tuple[str, tuple[float, float]]]] = {}
         for constraint in compiled_constraints:
             if constraint.get("kind") != "finite_wall_corner":
@@ -1894,11 +1782,6 @@ class PromptBuilder:
                 f"  - REQUIRED relationship `{relationship_id}`: " + " | ".join(checks)
             )
 
-        # Main-support measured numbers (2026-08-06, redol probe): span/centroid were
-        # always in scene_graph.json but withheld — the agent guessed sizes from the
-        # photo alone (redo_banana_left built 1.44 m vs a measured 1.11x1.20 m visible
-        # span). ADVISORY, with an explicit lower-bound caveat when the mask touches
-        # the frame border (harvest scenes: mask cut on 3 sides).
         main_geo = ""
         if main:
             try:
@@ -2051,9 +1934,6 @@ class PromptBuilder:
         rather than what is correct). The render itself is appended below via the
         execution block."""
         content = []
-        # V1 (2026-08-06): the initializer VERIFIER gets the same main-support
-        # mask-tinted overlay as the generator — its CALIBRATION tint-veto rule
-        # reads it. Empty list for other stages / missing artifacts.
         if self.config.get("root_stage_name") == "initializer":
             content.extend(self._main_support_overlay_parts())
             argument = prompts.get("argument")
@@ -2093,8 +1973,6 @@ class PromptBuilder:
                 content.append(
                     {
                         "type": "image_url",
-                        # Round attachment: agent-loop cap (768), the same as the head
-                        # since D3 (2026-07-28).
                         "image_url": {
                             "url": get_image_base64(image, max_edge=AGENT_VLM_EDGE)
                         },
@@ -2103,12 +1981,6 @@ class PromptBuilder:
                 content.append(
                     {
                         "type": "text",
-                        # root._verifier_scene_render only ever hands over a render whose
-                        # recorded view is (0,0) — the locked reference camera — so this
-                        # caption may state that unconditionally. Saying so stops the
-                        # verifier from spending its first round re-obtaining a view it
-                        # already holds (0729_noreseg_real8334_r2: every attempt opened
-                        # with a redundant render_reference_view).
                         "text": (
                             "Current scene render image loaded from local path: "
                             f"{display_path(image, self.config.get('scene_root'))}. "
@@ -2147,15 +2019,6 @@ class PromptBuilder:
         if len(rounds) <= window_rounds:
             return head + rest
 
-        # Cut-aligned cadence (cache parts 2-3, owner-approved 07-29): with K>0 the
-        # collapse boundary advances only in blocks of K rounds — between cuts the
-        # ledger text, the gsi block and the already-visible rounds are byte-frozen
-        # and the window grows append-only from ``window_rounds`` up to
-        # ``window_rounds + K - 1`` (never below ``window_rounds``: the stateless
-        # rule ((n-W)//K)*K <= n-W guarantees the floor). K is a CONSTANT since
-        # 2026-08-07: it used to default to GRASE_MEMORY_BLOCK, which no longer exists
-        # (the non-composition window that owned that knob is gone), and shipping one
-        # logic means no env lever here either.
         comp_k = COMP_BLOCK_K
         fresh_rounds = 0  # rounds appended since the last cut (aging leaves them alone)
         if comp_k > 0:
@@ -2216,19 +2079,6 @@ class PromptBuilder:
                         if isinstance(c, dict) and c.get("type") == "text"
                     )
 
-            # Ledger trim (old rounds only — the recent window keeps full text): drop EVERY
-            # advisory line — investigate HINTs, the FACING check, the post-flip FACING
-            # audit (a stale REVERSED verdict would outlive the fix — the N7 class), the
-            # weak-axis YAW reading (it carries "YAW" but not "HINT", so it needs its own prefix), the
-            # deferred-size notes ("(size …" and the size-locked "(a silhouette-size …"
-            # variant), the deferred-yaw note ("(yaw for …" — held back until placement is
-            # fixed), the lowercase "no measured hint for …" fallback (carries "hint" but
-            # not the "HINT" token), and the yaw-out-of-band note (all stale once acted on)
-            # — and keep only the leading clause of a move ("moved X: IoU a→b, score …" /
-            # "… but physics REJECTED it") — the trailing settle/size/placement detail is
-            # noise in a one-line summary. The yaw-oob "(note: … strongly rotated …)" line
-            # matched no pattern here and so persisted in the ledger forever, long after
-            # the rotation it described was fixed (HARNESS_AUDIT_2026_07_26 N7).
             def _trim(t: str) -> Optional[str]:
                 low = t.lstrip("- ").lower()
                 if (
@@ -2332,13 +2182,6 @@ class PromptBuilder:
             frozen_from = len(head) + len(flat) - n_fresh_msgs
         view = age_window_images(head + flat, len(head), frozen_from=frozen_from)
         if table:
-            # Cache part 1 (owner 07-29): the OBJECT STATE table is a per-round
-            # rollup, not chronology — it lives at the VOLATILE TAIL (right before
-            # the round-budget message the caller appends), so its per-round churn
-            # no longer invalidates the ledger/gsi/window prefix, and it stays
-            # fully fresh every round (no cut staleness). The native translator
-            # skips it (with the budget message) when placing the sliding cache
-            # breakpoint.
             view = view + [
                 {"role": "user", "content": [{"type": "text", "text": table}]}
             ]
@@ -2347,44 +2190,7 @@ class PromptBuilder:
     def build_memory_append_only(
         self, memory: list[dict[str, Any]], protected_head: int = 2
     ) -> list[dict[str, Any]]:
-        """The messages actually sent, verbatim. Used by every stage except composition.
-
-        APPEND-ONLY BY CONSTRUCTION, which is the prompt cache's prerequisite: a build
-        differs from the previous one only by the rounds appended since it. That is why
-        nothing is truncated and no image is aged here. Replaced W1 block truncation +
-        W2 per-round aging on 2026-08-07: per-round aging rewrote the message the
-        sliding cache breakpoint lands on, so initializer/texture/lighting paid a 0.53 /
-        0.80 / 0.70 effective input multiplier against composition's 0.32 — while the
-        truncation it broke the cache for measurably never fired (a cut needed >10 rounds
-        against a 12-round budget; texture median 0 cuts). Full evidence:
-        audits/TOKEN_COST_INIT_TEXTURE_2026_08_07.md and
-        audits/WINDOW_SIMPLIFICATION_DESIGN_2026_08_07.md.
-
-        The model therefore sees a SUPERSET of what it used to: rounds that used to be
-        dropped silently at cuts, and images that used to become path-bearing stubs, are
-        both retained.
-
-        Args:
-            memory: Full conversation memory list.
-            protected_head: ``memory[:protected_head]`` is never dropped by the guard.
-                Default 2 (system prompt + first user message).
-
-        Undone edits are still suppressed (an ``undo_last_step`` round erases itself and
-        the edit round before it, stack-wise). That is NOT per-round churn: it changes the
-        prefix once, at the undo, and undos are rare outside composition — 4% / 3% / 1% of
-        initializer / texture / lighting attempts in the 0806 fleet. Keeping it preserves a
-        behaviour that was deliberately fixed once (the matcher used to read
-        "undo-last-step" with hyphens, never fired, and undone edits leaked back into
-        context); dropping it to be literally verbatim would re-introduce that.
-
-        Returns:
-            A SHALLOW COPY of ``memory`` (same message dicts, fresh list). Never the
-            list itself: callers append per-round transients to the view they get back
-            (generator.run appends the [Round Budget] reminder), and an identity return
-            leaked every round's reminder into STORED memory — 2,530 stale budget
-            messages across the 0808 benchmark's memories before this was caught
-            (owner-reported as suspected artifact collision, 2026-08-08).
-        """
+        ""
         units = _group_rounds(memory[protected_head:])
         if any(
             m.get("role") == "tool" and m.get("name") == "undo_last_step"
@@ -2404,10 +2210,6 @@ class PromptBuilder:
             memory = memory[:protected_head] + [m for u in kept for m in u]
         if _est_view_tokens(memory) <= MAX_VIEW_TOKENS:
             return list(memory)
-        # Guard path only. Drop OLDEST whole round units: splitting a round would
-        # separate a tool_use from its tool_result, which the native API rejects with a
-        # 400 (the failure mode the old truncator's trailing-tool pop caused on every
-        # staged lane). Keep at least one unit so the request stays well-formed.
         head = memory[:protected_head]
         units = _group_rounds(
             memory[protected_head:]

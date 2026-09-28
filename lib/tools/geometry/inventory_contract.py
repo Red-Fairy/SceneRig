@@ -367,14 +367,7 @@ def validate_scene_graph_inventory(
     allow_runtime_additions: bool = True,
     runtime_inventory: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
-    """Validate lossless masks -> graph identity, semantics, and topology.
-
-    Without a runtime overlay, runtime additions retain their legacy restriction to
-    explicitly marked parentless root surfaces.  With an overlay, committed object
-    records may also materialize as marked graph nodes.  Neither form can replace a
-    source identity.  The returned report contains exact source/object/root id lists
-    rather than an opaque checksum.
-    """
+    ""
 
     expected = authoritative_inventory(masks)
     runtime_records = _runtime_records(runtime_inventory)
@@ -787,9 +780,6 @@ def _require_runtime_owned_path(
         errors.append(f"runtime object {record_id} has no nonempty {field}")
         return None
     path = _resolve_artifact_path(value, artifact_root)
-    # A source-revision record must use the exact immutable source mask path (checked
-    # by ``resolved_inventory``).  Historical staged scenes may point that mask at an
-    # earlier scene directory, so no additional containment rule is appropriate.
     if require_runtime_owned is None:
         return path
     required_root = (
@@ -1346,12 +1336,7 @@ def validate_object_materialization(
 def validate_blender_object_names(
     expected_by_id: Mapping[str, str], actual_pipeline_names: Iterable[str]
 ) -> None:
-    """Validate exact imported ``obj_*`` roots from a Blender inventory probe.
-
-    A GLB may import subordinate objects named ``<mesh_name>_1``, ``_2``, etc.  Those
-    are members of the one placement identity and are allowed; a Blender duplicate
-    root such as ``obj_mug_0.001`` or an unrelated ``obj_*`` name is not.
-    """
+    ""
 
     expected_names = set(expected_by_id.values())
     actual_names = {str(name) for name in actual_pipeline_names}
@@ -1379,13 +1364,7 @@ def validate_scene_artifacts(
     allow_runtime_inventory: bool | None = None,
     validate_runtime_physics: bool = False,
 ) -> dict[str, Any]:
-    """Load and validate the retained inventory across persisted scene artifacts.
-
-    Runtime overlays are denied by default so unprofiled/baseline callers cannot
-    silently inherit GPT-6 state. ``validate_runtime_physics=True`` remains an
-    intentional shorthand for the internal GPT-6 transaction boundary, whose legacy
-    call site predates the explicit overlay flag.
-    """
+    ""
 
     if allow_runtime_inventory is None:
         allow_runtime_inventory = validate_runtime_physics

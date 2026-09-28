@@ -94,18 +94,7 @@ def place_mesh_vertices(
     flip_euler=None,
     ext_diag=None,
 ) -> np.ndarray:
-    """Mesh vertices (N, 3) -> GRASE world, at the MoGE center/size.
-
-    ``backend='sam3d'``: SAM3D reconstructs in the (camera-tilted) view frame, so the
-    gravity rotation ``R`` is applied to make the object upright. ``flip_x=False`` (default)
-    uses ``sam3d_to_world`` as a PROPER rotation (det +1) that matches the reference camera,
-    so meshes keep the orientation they already have at the source view -- empirically
-    correct and deterministic (no per-object VLM flip needed). ``flip_x=True`` is the legacy
-    improper reflection (det -1), which can tip flat objects over; production leaves it off.
-    ``backend='canonical_y_up'``: the mesh is CANONICAL (gravity-aligned,
-    Y-up glTF), so ``R`` is ignored and an un-mirrored Y-up->Z-up map is used. ``flip_euler`` is an optional orientation override (a
-    discrete 180deg flip) baked in about the object centre; unused by default. The target
-    ``center`` is in the gravity-aligned world."""
+    ""
     if to_world:
         v = (
             sam3d_to_world(verts, flip_x=flip_x)
@@ -147,8 +136,7 @@ def _unpre_rotate_for_gltf(v: np.ndarray) -> np.ndarray:
 
 
 def apply_world_translation_to_glb(in_glb: str, out_glb: str, delta) -> dict:
-    """Translate an already-placed GLB by a world-space ``delta`` (x, y, z), preserving the
-    gltf-import pre-rotation. Used to bake the rest-on-support z-shift into the placed mesh."""
+    ""
     import os
 
     import trimesh
@@ -163,9 +151,7 @@ def apply_world_translation_to_glb(in_glb: str, out_glb: str, delta) -> dict:
 
 
 def apply_world_rotation_to_glb(in_glb: str, out_glb: str, R_world, center) -> dict:
-    """Rotate an already-placed GLB about a world-space ``center`` by the world rotation
-    ``R_world`` (3x3), preserving the gltf-import pre-rotation. Used to bake the physics
-    pitch/roll tilt into the placed mesh, keeping its MoGE center fixed."""
+    ""
     import os
 
     import trimesh

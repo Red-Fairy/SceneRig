@@ -1,15 +1,4 @@
-"""Compile adjudicated source relationships into initializer obligations.
-
-Relationships answer a source-scene question (for example, whether ``table#0`` is
-AGAINST ``wall#0``).  Constraints answer a different question: what the generated
-Blender scene must satisfy when that relationship is authoritative.  Keeping the two
-records separate prevents a failed build from mutating the source relationship verdict
-and gives the prompt and rules gate one immutable contract to consume.
-
-This module deliberately has no legacy adapter.  A caller must load a schema-v2
-artifact whose digests match both the active scene graph and immutable source-yaw
-observation, or regenerate preprocessing.
-"""
+""
 
 from __future__ import annotations
 

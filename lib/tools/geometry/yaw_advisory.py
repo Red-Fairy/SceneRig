@@ -467,8 +467,6 @@ def source_candidates_from_observation(observation: Any) -> list[dict[str, Any]]
     if not isinstance(observation, dict):
         return []
     if observation.get("extractor_version") == "observable_top_edges_v1":
-        # In-flight legacy runs remain readable, but their unfiltered robot boundaries
-        # cannot create a new mandatory two-direction completion requirement.
         return []
     candidates: list[dict[str, Any]] = []
     for raw in observation.get("segments") or []:

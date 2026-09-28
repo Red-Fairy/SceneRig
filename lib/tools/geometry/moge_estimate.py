@@ -44,7 +44,6 @@ class MoGeResult:
     normal_npy: Optional[str]
     mask_npy: Optional[str]
     depth_viz_png: str
-    # scene scale, from finite depths (metres); used to scale candidate poses.
     depth_min: float
     depth_median: float
     depth_max: float

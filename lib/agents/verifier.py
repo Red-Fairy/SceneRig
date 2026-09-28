@@ -140,12 +140,6 @@ class VerifierAgent:
             print("Reload scene...")
             await self.tool_client.call_tool("reload_scene", {})
         print("Build user message...")
-        # Newest reference-view image this attempt has seen. Seeded from the head attach
-        # (root only hands over (0,0) renders) and refreshed by every render_reference_view
-        # result, it is re-attached at the forced final review as redundancy insurance.
-        # Under the pre-2026-08-07 12-message window, the round-1 copy was usually
-        # evicted and the verifier could claim no reference render was available
-        # (0729_noreseg_real8334_r2 initializer attempt 1); memory is append-only now.
         self._last_ref_render = (user_message.get("argument") or {}).get(
             "current_scene_render"
         )
@@ -159,9 +153,6 @@ class VerifierAgent:
             print("Extend memory...")
             self.memory.extend(user_message)
         self.saved_memory.extend(user_message)
-        # Most verifier sessions used to spend their first LLM round calling
-        # get_scene_info. Seed it server-side when possible, then protect the complete
-        # session-entry prefix (including the user evidence even when seeding fails).
         await self._preseed_scene_info()
         self.protected_head = len(self.memory)
         print("Save memory...")
@@ -190,10 +181,6 @@ class VerifierAgent:
             response = get_model_response(
                 self.client,
                 chat_args,
-                # Verifier verdicts run at MEDIUM since 2026-08-07 (owner): verifier wall
-                # time measured ~100% LLM thinking (1-3 min/verdict at high) with zero
-                # verifier-initiated renders; the CALIBRATION protocol, not deliberation
-                # depth, carries verdict quality. GRASE_VERIFIER_EFFORT=high reverts.
                 effort=os.environ.get("GRASE_VERIFIER_EFFORT", "medium"),
             )
             message = response.choices[0].message
@@ -233,9 +220,6 @@ class VerifierAgent:
                 try:
                     tool_arguments = json.loads(tool_call.function.arguments)
                 except (TypeError, json.JSONDecodeError) as exc:
-                    # 2026-09-16: a truncated/runaway call's arguments crashed the
-                    # verifier attempt (55 of 297 attempts in the 0916 batch). Spend
-                    # the round with the same reminder the no-tool-call branch uses.
                     print(f"Tool {tool_name}: arguments are not valid JSON ({exc})")
                     note = (
                         f"Your previous {tool_name} call carried arguments that were not "
@@ -342,10 +326,6 @@ class VerifierAgent:
         response = get_model_response(
             self.client,
             chat_args,
-            # Verifier verdicts run at MEDIUM since 2026-08-07 (owner): verifier wall
-            # time measured ~100% LLM thinking (1-3 min/verdict at high) with zero
-            # verifier-initiated renders; the CALIBRATION protocol, not deliberation
-            # depth, carries verdict quality. GRASE_VERIFIER_EFFORT=high reverts.
             effort=os.environ.get("GRASE_VERIFIER_EFFORT", "medium"),
         )
         message = response.choices[0].message

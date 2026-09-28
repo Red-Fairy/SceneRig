@@ -29,13 +29,6 @@ import numpy as np
 # file -> world is (fx, -fz, fy).
 GLB_TO_WORLD = np.array([[1.0, 0.0, 0.0], [0.0, 0.0, -1.0], [0.0, 1.0, 0.0]])
 
-# Degenerate-cloud skip gate (2026-07-21, ICP_DEGENERATE_GUARD proposal): a quasi-1D or
-# tiny-area cloud cannot constrain the 4-DOF fit (a specular pan's MoGE depth collapsed
-# below the support plane; the z-clip left only its handle — a 4mm stripe the fit dragged
-# the whole pan onto). Thresholds calibrated on a 54-run sweep (310 accepted fits): the
-# gate blocks exactly the two observed pan failures (footprint 6.1%/11.8%) and nothing
-# else; nearest legit survivors are a spoon (footprint 20.9%) and the thin abc tray
-# (kept 6.3% but footprint 62-96%, cleared by the relaxed limb).
 MIN_FOOTPRINT_FRAC = 0.15  # cloud xy-hull area / mesh xy-hull area
 MIN_KEEP_FRAC = 0.20  # cloud pts / eroded mask px, gates only with the limb below
 RELAXED_FOOTPRINT_FRAC = 0.30

@@ -226,8 +226,6 @@ def validate_collision_source(exp: Path) -> dict:
                 f"Collision source method disagrees with authored identity: {name!r}"
             )
         low, high, vertices, triangles, part_count = collision[name]
-        # Authored roots publish one part child per source part (2026-09-17 per-part
-        # hull cook); 0 is a legacy union-only export, which the cook still accepts.
         allowed = {0, record.get("source_part_count")} if name in authored else {0}
         if part_count not in allowed:
             raise ValueError(
@@ -248,10 +246,6 @@ def validate_collision_source(exp: Path) -> dict:
         ):
             raise ValueError(f"Collision source {name!r} has invalid source_part_count")
         span = float(np.max(high - low))
-        # 0.1 mm floor: the authored-union seam retry (authored_root_local_geometry
-        # SEAM_RETRY_MAX_OFFSET_M = 0.06 mm) legitimately offsets the collider from the
-        # visual parts by that much; the check exists to catch swapped/stale assets, which
-        # disagree by centimetres (2026-09-17: 3 gpt6v1_0917 scenes failed the export here).
         tolerance = max(1e-4, span * 1e-5)
         visual_low, visual_high, _vertices, _triangles, _parts = visual[name]
         if (

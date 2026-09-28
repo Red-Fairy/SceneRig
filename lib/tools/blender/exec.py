@@ -124,11 +124,6 @@ _TYPED_INITIALIZER_MUTATION_KINDS = frozenset(
 
 _COMPOSITION_MESH_MUTATION_KIND = "composition_edit_object_mesh"
 
-# Tool models occasionally send both advertised rotation representations even
-# after choosing one in their reasoning.  Accept that redundancy only when the
-# two values describe the same rotation.  Six-decimal model quaternions have produced
-# up to 0.187 degree of conversion/rounding separation in live probes; 0.25 degree
-# admits that serialization residue while remaining far below a meaningful pose edit.
 _TYPED_POSE_DUAL_ROTATION_TOLERANCE_DEG = 0.25
 
 # Match the existing object-integrity pose tolerance.  This is used only as a
@@ -146,10 +141,8 @@ def _profile_capability_enabled(
 
     The profile name is an independent fail-closed guard: ambient configuration or a
     malformed manifest can never switch mutation behavior on for the baseline pipeline.
-    A missing manifest FAILS CLOSED (2026-09-15 owner decision): a caller that names
-    ``gpt6_v1`` without the resolved manifest gets no opt-in capability, so a withdrawn
-    tool can never be re-enabled by forgetting to pass the manifest. The normal CLI
-    always supplies the resolved manifest.
+    A missing manifest fails closed: naming ``gpt6_v1`` without a resolved manifest
+    does not enable optional capabilities.
     """
     if harness_profile != "gpt6_v1":
         return False
@@ -171,13 +164,7 @@ _PROCESS_DEATH_LINES = ("Segmentation fault", "Aborted", "Killed", "Bus error")
 
 
 def _python_exception_headline(*streams: str) -> Optional[str]:
-    """Last Python exception line (``XxxError: message``) or process-death line.
-
-    Blender prints "Error: script failed ... exiting." and "Blender quit" AFTER the
-    traceback, so the last line of captured output never names the real failure; the
-    2026-09-14 rollback census read 30 identical "Blender quit" lines for 30 distinct
-    guard rejections and read-only probes.
-    """
+    ""
     headline = None
     for stream in streams:
         for line in (stream or "").splitlines():
@@ -190,9 +177,7 @@ def _python_exception_headline(*streams: str) -> Optional[str]:
 
 
 def _strict_rejection_hint(reason: str) -> str:
-    """One concrete next step for a strict-physics rejection, keyed on the reason text
-    that composition_physics produces. The agent used to see only "rejected by physics"
-    and gave up (abc_1 croissants, 09-14); the reason plus a direction fixes that."""
+    ""
     r = str(reason or "").lower()
     if "inside" in r or "penetrat" in r:
         return (
@@ -223,7 +208,7 @@ def _strict_rejection_hint(reason: str) -> str:
 
 
 def _error_class(error: BaseException | str) -> str:
-    """Stable, census-friendly classifier for a rollback: exception name + first clause."""
+    ""
     text = str(error)
     headline = _python_exception_headline(text)
     if headline:
@@ -250,10 +235,6 @@ def _proc_text(stderr: str, stdout: str) -> str:
     return clip(stderr) + clip(stdout)
 
 
-# 2026-09-15 owner: relay the script's own print() output to the agent, capped at 1000
-# chars. Until then a SUCCESSFUL run returned only the render text, so agents read their
-# Blender-side measurements by `raise Exception(str(values))` — 10+ such scripts in the
-# v5accept batch, 6 of them initializer rollbacks journaled as "agent code failed".
 _SCRIPT_STDOUT_CAP = 1000
 _BLENDER_NOISE_PREFIXES = (
     "Blender ",
@@ -273,12 +254,7 @@ _BLENDER_NOISE_PREFIXES = (
 
 
 def _journal_composition_edit(executor, kind: str, status: str, details: dict) -> None:
-    """Audit-only journal row for a composition POSE edit — both harnesses (2026-09-15
-    owner). Until now only the initializer transactions and `edit_object_mesh` were
-    journaled; the stage with the most scene mutations (18 moves + 6 freeform edits in
-    v5accept online6) left no record and the census had to grep tool-result prose.
-    Not a write-ahead log: never fails the edit, no capability gate, string ids
-    (`composition_edit_N`) so `_next_runtime_mutation_id` keeps ignoring them."""
+    ""
     try:
         moge_dir = getattr(executor, "moge_dir", None)
         if not moge_dir or getattr(executor, "root_stage_name", None) != "composition":
@@ -560,10 +536,7 @@ def _exporter_rejection(blender_output: str) -> str:
 
 
 def _closest_current_lines(script: str, search: str, *, cutoff: float = 0.5) -> str:
-    """The current script lines that most resemble a SEARCH block that did not match —
-    numbered, so the agent's full-script resend edits the script it actually has.
-    2026-09-15 census: 76/76 SEARCH mismatches followed a SUCCESSFUL patch, i.e. the
-    agent anchored on text its own previous patch had already changed."""
+    ""
     lines = script.splitlines()
     wanted = [ln for ln in search.splitlines() if ln.strip()]
     if not lines or not wanted:
@@ -657,12 +630,6 @@ _NOVEL_VIEW_PARAMS: dict[str, object] = {
 }
 _NOVEL_VIEW_NOTE = NOVEL_VIEW_NOTE
 
-# Freeform-relocation prose. COMPOSITION + isaac ONLY — every clause below is false anywhere
-# else: move() exists only in composition's tool menu, _settle_after_edit() no-ops unless
-# the composition stage, and the freeform budget it mentions is only ever incremented
-# inside that same settle. It used to be appended unconditionally, so texture / lighting /
-# initializer read "prefer move()" (a tool they lack) and an invitation to RELOCATE objects that
-# their own scope forbids. Appended below only to execute_and_evaluate_composition_tool.
 _FREEFORM_SETTLE_NOTE = (
     "\n\nPOSE REFINEMENT: move() is the routine physics-gated tool for single-object "
     "position/rotation/scale — prefer it for ordinary fixes. But reach for "
@@ -1903,13 +1870,6 @@ class Executor:
         self._graph_history: list[Optional[bytes]] = []
         self._graph_base: Optional[bytes] = None
         self._edit_meta: list[dict] = []
-        # GPT-6 typed object mutations snapshot every non-Blend artifact they own.
-        # Kept as metadata on the chronological edit stack so legacy/default undo
-        # behavior and storage remain exactly unchanged.
-        # Coverage bypass (initializer): surfaces whose level-2 coverage the agent
-        # waived after judging the GT segmentation mask itself wrong (the groot2
-        # under-segmented curtain class). Only ids named in the CURRENT failure may
-        # be waived; persisted to tmp/coverage_bypass.json for the audit trail.
         self._coverage_bypassed: set = set()
         # main-support yaw: last reported CORRECTION per surface, so the mod-90 fold
         # cannot flip the reported sign between rounds (see pin_yaw_delta).
@@ -1957,8 +1917,6 @@ class Executor:
         self._last_undo_resolved_followup: Optional[dict] = None
         self._investigate_n = 0
         self.investigate_cap = 3
-        # 2026-09-15 final-settle repair round: the coverage gate is scoped to the
-        # objects the final free-settle moved (None = every eligible object).
         self.coverage_scope: set | None = None
         # Per-object move budget: every executed move call counts (accepted, dead,
         # or physics-rejected), except a strict infrastructure error whose pre-edit
@@ -1966,9 +1924,6 @@ class Executor:
         # only the cap-refusal reports it directly in move feedback.
         self._moved: dict[str, int] = {}
         self.move_cap = 5
-        # Committed edit_object_poses per object id (undo does not refund); the typed
-        # tool is the exception to move(), not a substitute (2026-09-14 census: 285 typed
-        # calls displaced ~47% of move() calls, 31% were rolled back or undone).
         self._typed_pose: dict[str, int] = {}
         self.typed_pose_cap = 2
         # Freeform-relocation budget: execute_and_evaluate relocations are physics-
@@ -1977,12 +1932,6 @@ class Executor:
         # it stays a fallback, not a way to churn around the disciplined move tool.
         self._freeform: dict[str, int] = {}
         self.freeform_cap = 3
-        # Eager physics warmup: the PoseSession + Isaac boot used to run lazily
-        # inside the FIRST investigate, stalling it for minutes while the opening
-        # render + LLM rounds had already idled by. Boot in a background thread at
-        # stage entry instead; _pose_session_get joins it before first use. All the
-        # work is subprocess-side (register server, Isaac, spawn cooks) — nothing
-        # here touches the main blender.
         self._warm_thread = None
         # Initializer object transactions use ONE immutable entry artifact and ONE
         # ledger across all generator attempts. The deterministic stage_dir paths let
@@ -2506,13 +2455,7 @@ class Executor:
             self._fsync_directory(path.parent)
 
     def _next_runtime_mutation_id(self) -> int:
-        """Allocate one scene-wide numeric id for durable object transactions.
-
-        Initializer and composition object mutations share the same transaction
-        directory namespace, so allocation must observe both stages.  UUID-based
-        legacy composition journal rows are ignored because they never own a
-        ``runtime_objects/transactions/tx_N`` directory.
-        """
+        ""
         next_id = int(self._initializer_ledger.get("next_transaction_id") or 1)
         for row in read_mutation_journal(self._mutation_journal_path()):
             raw_txid = row.get("transaction_id")
@@ -2842,8 +2785,6 @@ class Executor:
                 add_mask_artifacts(masks_payload)
         if self._has_capability("mutation_journal") and self.moge_dir:
             paths.append(self._mutation_journal_path())
-        # Keep one snapshot per canonical path if a future profile-owned artifact is
-        # also promoted into the legacy protected set.
         paths = list(dict.fromkeys(paths))
         return {
             path: (path.exists(), path.read_bytes() if path.exists() else b"")
@@ -2909,16 +2850,7 @@ class Executor:
 
     @staticmethod
     def _fsync_directory(path: Path) -> None:
-        """Make a recovery-file rename durable on the local filesystem.
-
-        2026-09-15 (owner): OFF unless ``GRASE_DURABLE_FSYNC=1``. The recovery
-        snapshots defend against power loss, but the failure this pipeline meets is
-        a process crash, which the page cache survives; ``os.replace`` alone keeps
-        every published file whole. On the Lustre mount an fsync costs 0.5-2.7 s
-        (measured), and one transaction's prepare + commit issue ~20-40 of them —
-        9-122 s per transaction in the toast runs, the largest fixed cost after
-        the physics itself.
-        """
+        ""
         if not durable_fsync_enabled():
             return
         fd = os.open(path, os.O_RDONLY | getattr(os, "O_DIRECTORY", 0))
@@ -3079,9 +3011,6 @@ class Executor:
                 "transaction_id": transaction_id,
                 "object_id": object_id,
                 "edit_token": edit_token,
-                # The code_diff base that describes the scene AFTER this edit; undo
-                # restores it so scene and script stay in step (2026-09-17: 54 patch
-                # failures in 40 scenes came from the base NOT following the undo).
                 "code_base": getattr(self, "_last_code", None),
                 **(
                     {"artifact_before": artifact_before}
@@ -3447,8 +3376,6 @@ class Executor:
                     "object, or undo_last_step for the exact flip."
                 ],
                 "required_followup": required,
-                # This guard exists only because an earlier retained flip is live.
-                # Preserve that fact through MCP/tool-client error normalization.
                 "scene_mutation": "committed",
             },
         }
@@ -3737,15 +3664,6 @@ class Executor:
         elevation: float,
         pair_reference: bool = True,
     ) -> dict[str, object]:
-        """Render the CURRENT scene from the (azimuth, elevation) pseudo-GT camera and pair
-        it with that view's reference only when the reference is marked trustworthy.
-        ``(azimuth, elevation)`` MUST be one of the pre-computed views.
-
-        ``pair_reference=False`` returns the render alone — used by a BARE
-        render_current_scene() call, which is documented (NOVEL_VIEW_NOTE_ON_REQUEST) to
-        pair a reference only when a view is explicitly passed. Routing bare calls here
-        (instead of the legacy wrapper render) keeps every agent-visible render on one
-        path/resolution (audit §12 workstream A)."""
         views = self._pseudo_gt_views()
         view = views.get((float(azimuth), float(elevation)))
         if view is None:
@@ -3798,18 +3716,6 @@ class Executor:
             and gt
             and os.path.isfile(gt)
         ):
-            # CT3 dedupe: the target photo is byte-identical on every pairing AND is
-            # guaranteed present in the conversation's protected head on every request,
-            # so NEVER re-attach it — point at the head copy instead (owner ruling
-            # 2026-07-29; the earlier attach-once-per-session anchor was judged
-            # redundant too). Pseudo-GT pairings below are NOT deduped: they are
-            # view-specific and ride ordinary round messages that slide out of the
-            # memory window, so a pointer to them could dangle. The pointer text is
-            # byte-stable across calls (cache-friendly). GRASE_DEDUP_REF=0 restores
-            # always-attach (the A/B lever). ``ref_deduped`` marks the response so the
-            # note composer (_image_feedback_instruction) describes it as a PAIRED
-            # comparison, not a lone unpaired render — counting images cannot tell
-            # those apart (that mislabel shipped in the first CT3 cut).
             if os.environ.get("GRASE_DEDUP_REF", "1") == "0":
                 imgs.append(gt)
                 texts.append(
@@ -4197,9 +4103,7 @@ for name, visibility in original_visibility.items():
 """
 
     def _name2id(self) -> dict:
-        """{Blender obj name -> scene-graph id 'category#index'} from placement.json,
-        used to stamp each object's exact id into get_scene_info. Best-effort ({} if the
-        placement table is missing/odd) and cached."""
+        ""
         if getattr(self, "_n2id_cache", None) is None:
             m = {}
             try:
@@ -4211,19 +4115,6 @@ for name, visibility in original_visibility.items():
                 m = {}
             self._n2id_cache = m
         return self._n2id_cache
-
-    # -- object naming at the agent boundary ----------------------------------------- #
-    # Two id spaces meet here: the scene graph the agent reasons about is keyed
-    # 'category#instance' (mug#0), while the Blender/Isaac bodies underneath are keyed by
-    # the slugified mesh name (obj_mug_0). move/investigate_objects accept ONLY the
-    # former (and exist ONLY in composition); code the agent writes in
-    # execute_and_evaluate addresses ONLY the latter. Everything below the tool layer
-    # speaks mesh names, so every agent-facing string converts HERE — pick the helper by
-    # what the agent must DO with the name (0726 dialect unification):
-    #   _oid    the fix is a TOOL CALL -> the id move/investigate take
-    #   _label  the fix is a CODE EDIT -> both, since the code needs the mesh name
-    #   _oids_in  an opaque reason string built downstream in the mesh dialect
-    # Surfaces and unplaced bodies have no scene-graph id; their build/mesh name stands.
 
     def _oid(self, name: str) -> str:
         """Scene-graph id for a Blender mesh name; the name unchanged when it has none."""
@@ -4301,23 +4192,7 @@ for name, visibility in original_visibility.items():
     def _prefer_move(
         self, a: str, b: str, centroids=None, main: Optional[str] = None, normals=None
     ) -> Optional[str]:
-        """Which body of a penetrating pair to move:
-        - OBJECT vs SURFACE -> the OBJECT if the surface was built from PROVIDED geometry (a
-          point/normal anchored to a MoGE plane = the fixed frame); else (a purely
-          visually-built surface) the SURFACE.
-        - two OBJECTS -> the LEAF, deeper in the support hierarchy (a descendant of the
-          other); siblings / same level -> None.
-        - SURFACE vs SURFACE (only MAIN-SUPPORT pairs reach here) -> the MAIN SUPPORT when the
-          other side is a VERTICAL anchored wall (the LEVEL support slides horizontally IN its
-          plane to escape, keeping its z=0 anchor; the wall can't move to help — an in-plane
-          slide never separates it, an out-of-plane slide breaks its point/normal); the OTHER
-          surface when that surface was a free visual guess; None for a HORIZONTAL anchored
-          surface (a floor the table's base dips through — no clean translation fix).
-        Object vs surface is told apart by the ``obj_`` name prefix; the object hierarchy and
-        the surface anchoring are read from the scene graph, not from geometry. ``centroids``
-        maps each surface's name -> its world AABB centre (from the penetration script), used
-        to match it back to its scene-graph root node by position; ``normals`` maps it -> its
-        PCA normal, used to tell a vertical wall (|nz| small) from a horizontal floor."""
+        ""
         a_obj, b_obj = a.startswith("obj_"), b.startswith("obj_")
         if a_obj != b_obj:  # object vs surface
             obj, surf = (a, b) if a_obj else (b, a)
@@ -4403,12 +4278,7 @@ for name, visibility in original_visibility.items():
 
     @staticmethod
     def _on_plane(centroid, wc, nrm, tol: float = 0.15) -> bool:
-        """Is ``centroid`` within ``tol`` PERPENDICULAR distance of the plane through
-        ``wc`` with normal ``nrm``? Perpendicular distance is deliberate: it is
-        invariant to the agent extending or sliding the surface IN-plane (a wall stays
-        on its plane even when enlarged). The plane is PLUMBED (2026-08-06) because the
-        prompt hands the agent the plumbed plane — against the RAW tilted fit a
-        compliant wall drifted |offset|*|nz| and lost its anchor."""
+        ""
         if not centroid:
             return True  # unmeasurable -> can't tell
         return (
@@ -4421,23 +4291,7 @@ for name, visibility in original_visibility.items():
         )
 
     def _surface_anchored(self, name: Optional[str], centroid) -> bool:
-        """Was this built root surface anchored to a MEASURED plane (so a penetration
-        must be fixed by moving the OTHER body), or was it a free visual guess?
-
-        Matched BY NAME since 2026-08-14 (F4). The old form took only a centroid and
-        returned True when it fell within 0.15 m of ANY anchored plane. The main
-        support's plumbed normal is [0,0,1] at z=0, so that distance collapses to
-        |centroid_z| — and the prompt's WALL EXTENT rule centres a wall's height at z=0
-        whenever the scene has no floor. A by-eye wall in a tabletop scene therefore
-        read as anchored *by the tabletop* and won every penetration fix against the
-        main support, which was then told to slide off its photo-matched pose (fighting
-        the POSE gate). 175 of 1870 archived scenes carry that geometry. The identity
-        match is available now because the initializer contract requires each registered
-        root to be built under its exact ``surface_build_name``.
-
-        Defaults to True (anchored -> move the object) only when genuinely
-        undeterminable: an unreadable scene graph, or a body with no measurable centroid.
-        """
+        ""
         by_name, listed = self._anchored_index()
         if not listed:
             return True  # no graph -> can't tell (safe default)
@@ -4472,8 +4326,6 @@ for name, visibility in original_visibility.items():
                 or self._load_initializer_constraint_artifact(sg)
             )
             for n in sg.get("nodes", []):
-                # main_support is the explicit marker (2026-07-31); ``form`` alone is the
-                # pre-redesign fallback for graphs written before it existed.
                 if n.get("kind") == "root_surface" and (
                     n.get("main_support") or n.get("form")
                 ):
@@ -4506,12 +4358,7 @@ for name, visibility in original_visibility.items():
     def _main_support_is_floor(
         self, main_name: Optional[str], scene_graph: Optional[dict] = None
     ) -> bool:
-        """Authoritative room-floor yaw routing, with a legacy name fallback.
-
-        Build names are arbitrary slugs (``room_floor_0`` is valid), so their first
-        token cannot define semantics. Prefer the matched main node's category/id;
-        only cached graphs without that metadata use the historical prefix rule.
-        """
+        ""
         if not main_name:
             return False
         try:
@@ -5047,7 +4894,6 @@ for name, visibility in original_visibility.items():
                 "build_name": node.get("build_name"),
                 "world_center": node.get("world_center"),
                 "plane": plane,
-                # Preserve the legacy flattened shape consumed by relationship_report.
                 "normal": plane.get("normal"),
                 "inlier_frac": plane.get("inlier_frac"),
                 "mask_frac": plane.get("mask_frac"),
@@ -5236,16 +5082,7 @@ for name, visibility in original_visibility.items():
     # compiled-constraint-only; this never falls back to relationship rows.
 
     def _related_surface_pairs(self) -> set:
-        """Build-name pairs whose compiled constraint GOVERNS their contact. Those
-        pairs are excluded from the penetration check: a table flush against a wall always
-        overlaps the wall's thickness, and 'against' already reports a table buried too deep
-        (with its own tolerance) — double-flagging gave the agent two opposite-direction fixes
-        to oscillate between. Angle-only relationships (``perpendicular``, ``corner``) do NOT
-        exclude: they do not own tolerated overlap/penetration, so their pairs must stay
-        penetration-checked
-        (0704_pm_real8210: a perpendicular-only table<->wall pair interpenetrated unflagged).
-        The strict artifact loader runs before this method in the initializer gate; no
-        raw-relationship or legacy fallback is permitted."""
+        ""
         pairs: set = set()
         try:
             from lib.tools.geometry.surface_relations import surface_build_name
@@ -5799,10 +5636,6 @@ for edit in edits:
         )
     )
 
-# Capture every source matrix before changing the scene, then assign parents before
-# their children.  This gives every exact/prefixed mesh part one shared world-space
-# rigid delta even when a previously prepared Blend already parents the parts.
-# Authored Empty plans assign ONLY the root; all parts inherit the delta once.
 assignments = [
     (part, rigid_delta @ old_world)
     for part_worlds, rigid_delta in plans
@@ -7022,8 +6855,6 @@ bpy.ops.wm.save_as_mainfile(filepath={os.path.abspath(save_path)!r})
                 shutil.copy(self.blender_save, self.edit_history[-1])
             for r in reports:
                 self._freeform[r["name"]] = self._freeform.get(r["name"], 0) + 1
-            # Keep the full physics diagnostics internal for audit/debugging. They are
-            # not an automatic verdict: the returned render is the keep/undo authority.
             return {"status": "settled", "reports": reports}
         except PhysicsSettlementRejected as exc:
             import sys as _sys
@@ -7135,21 +6966,6 @@ bpy.ops.wm.save_as_mainfile(filepath={os.path.abspath(save_path)!r})
                 # it on a yaw edit would un-fix the bridge_6 trap.
                 orientation_edit = False
                 for object_id in oids:
-                    # BASELINE: cur[oid] is the object's last recorded score, i.e. the
-                    # pre-edit one — and the re-measure below discards it. Without it the
-                    # agent is asked "did your edit worsen the match?" and handed only
-                    # absolutes: 0727_tl_e2e_abc4 undid a CORRECT +20deg stand rotation
-                    # because cup#4 read IoU 0.00, a permanent condition (the cup is
-                    # buried in the stand mesh — 0.00 at every measurement of the run,
-                    # before and after) that looked like fresh damage. It re-applied the
-                    # same edit 10 rounds later once it had gathered the baseline itself.
-                    # No better/worse VERDICT on purpose: that same rotation moved IoU
-                    # 0.58 -> 0.57 (the object is ~25% oversized, so containment flattens
-                    # IoU's response to yaw), and a "worse" label would have reinforced
-                    # the wrong undo. Numbers + baseline; the crops decide.
-                    # cur is wiped by the settle path's session rebuild, so fall
-                    # back to the pre-edit snapshot (_prepare_freeform_edit) —
-                    # either source is "the last measurement before this edit".
                     prev = session.cur.get(object_id) or (
                         getattr(self, "_pre_edit_cur", None) or {}
                     ).get(object_id)
@@ -7508,15 +7324,6 @@ bpy.ops.wm.save_as_mainfile(filepath={os.path.abspath(save_path)!r})
 
         lines: list[str] = []
         direct_pose_tool = self._direct_pose_tool_phrase()
-        # An EMPTY render silhouette VOIDS every measurement below (area_scale, the
-        # principal axis and the shift are all None), so report that instead of falling
-        # through to a bare no-hint line: "your object rendered nothing" is different
-        # information from "nothing was measurable about it". Usual cause is full occlusion
-        # by its own stacking ANCESTOR -- _isolate_iou renders the object visible and its
-        # ancestors as occluding HOLDOUTS while hiding every other body, so only an ancestor
-        # can do this -- or an off-frame / sunk pose. 40 of 11248 fleet rows, 31 objects;
-        # traced on 0802_bulk_misc_online5 pen#0 (support laptop#0). `.get` keeps pre-0803
-        # rows, which have no render_px, on the old path.
         if sh is not None and sh.get("render_px") == 0 and sh.get("mask_px"):
             lines.append(
                 f"- {o} rendered NO pixels: its silhouette measurements are UNAVAILABLE "
@@ -7533,16 +7340,6 @@ bpy.ops.wm.save_as_mainfile(filepath={os.path.abspath(save_path)!r})
         shift = sh.get("shift_px") if sh else None
         yaw = sh.get("yaw_deg") if sh else None
         yaw_aniso = sh.get("yaw_aniso") if sh else None
-        # a flagged flip on a STRONGLY elongated silhouette whose axis is also
-        # yawed vs the photo is unreliable (the stretched-crop DINO compare ran
-        # on non-comparable shapes — the 0721 abc2 fork FP); defer it behind the
-        # yaw fix instead of recommending it. No _YAW_HINT_MAX cap: the compfix
-        # abc2 knife FP measured 44.8 deg. See _FLIP_DEFER_ANISO_MIN.
-        # This is sound ONLY because the deferral's aniso floor IS the elongation
-        # tier of yaw_hint_fires: every deferred flip therefore has a firing
-        # YAW HINT below, so "fix the yaw first" always names a move that
-        # exists. Lower that floor below _FLIP_DEFER_ANISO_MIN and the two split
-        # apart again — the dead end this fixed (0724 roomval bottle#0 @57deg).
         flip_deferred = (
             flip_flagged
             and yaw is not None
@@ -7572,56 +7369,16 @@ bpy.ops.wm.save_as_mainfile(filepath={os.path.abspath(save_path)!r})
         yaw_axis_ok = (
             yaw is not None and yaw_aniso is not None and yaw_aniso >= _YAW_ANISO_MIN
         )
-        # PRECEDENCE: position outranks rotation while the object is DISPLACED. The rotation
-        # search scores on raw silhouette IoU, which is not translation-invariant — rotating
-        # about the object's own centre swings its extremities, so on a displaced object the
-        # score's preference between the two seeded directions is driven by "which way swings
-        # me onto the mask", not "which way aligns my axis". Measured on static_scene_eval:
-        # median gap 0.346 among the 6 landed rotations that made yaw WORSE vs 0.032 among the
-        # 4 that fixed it, and 4 of the 6 sat above _POS_HINT_GAP — i.e. POSITION had fired
-        # internally and was suppressed by rotation's precedence, in exactly the cases where
-        # the rotation search cannot work.
-        #
-        # The two moves are not symmetric: 'xy' works fine on a yawed object (IoU is strongly
-        # and monotonically sensitive to translation), while 'rotation' does not work on a
-        # displaced one. Order by which tolerates the other's error. `gap` is itself the
-        # yaw-robust estimate of how much translation can win, since centroid alignment
-        # factors translation out of the first term.
-        #
-        # The chain's original "a yawed silhouette distorts the position reading" rationale
-        # was written when the POSITION hint carried a ~Npx MAGNITUDE; that was removed
-        # 2026-07-26 and what survives is a direction (a sign with a 3px noise gate), which a
-        # modest yaw does not flip. The ordering was never revisited.
-        #
-        # Deliberately NOT folded into yaw_hint_fires, despite the one-predicate discipline:
-        # that predicate answers "is this a recommendable rotation?" for BOTH the hint and the
-        # search SEED, and a displaced object still wants the measured angle as its seed if it
-        # rotates for another reason. The search-side guarantee is the yaw-regression gate in
-        # optimize_axis, not this. See ROTATION_SIGN_DISPLACEMENT_PROPOSAL_2026_08_03.md.
-        # `position_fires` is computed FIRST so the rule below can yield to a hint that will
-        # ACTUALLY be emitted. Yielding on `gap` alone would drop the yaw into silence
-        # whenever the phase correlation failed (shift None) — suppressed by a position hint
-        # that never fires.
         position_fires = not flip and shift is not None and gap >= _POS_HINT_GAP
         # is this a recommendable rotation AT ALL, before precedence? Kept separate from
         # yaw_fires so the out-of-band note below keys off the GENUINE reason (a weak axis
         # past the fine range) and not off "was outranked this round".
         yaw_recommendable = yaw_hint_fires(yaw, yaw_aniso)
-        # EXCEPTION to the rule above: never yield when a flip is DEFERRED behind the yaw.
-        # flip_deferred's only actionable content is "fix the yaw first" (it exists to stop a
-        # rotate_180 firing on a corrupted compare), so if the yaw then yielded to position the
-        # agent would get two contradictory FIRSTs — precisely the dead end the 2026-07-26
-        # audit removed, and pinned by test_flip_deferred_never_co_recommends_a_position_fix.
-        # flip_deferred implies aniso >= 3, which is where the harm concentrates, so this leaves
-        # a residual path open — the yaw-regression gate in optimize_axis is what covers it.
         yaw_yields_to_position = position_fires and not flip_deferred
         yaw_fires = not flip and not yaw_yields_to_position and yaw_recommendable
         # a recommendable yaw held back by that rule — named on the POSITION line so the agent
         # knows it is QUEUED, not absent (the courtesy the chain already extends to size)
         yaw_deferred = bool(not flip and yaw_yields_to_position and yaw_recommendable)
-        # recorded-but-not-recommended: past the fine range on a WEAK axis, where the
-        # fleet says move('rotation') buys ~nothing (median IoU +0.01). A strongly
-        # elongated silhouette is recommendable at any yaw, so it never lands here.
         yaw_oob = (
             not flip and yaw_axis_ok and not yaw_recommendable and yaw > _YAW_HINT_MAX
         )
@@ -7751,21 +7508,6 @@ bpy.ops.wm.save_as_mainfile(filepath={os.path.abspath(save_path)!r})
             # constant (see its comment in register.py). The object has not moved yet, so
             # a number would steer to move('scale') when move('xy') is the right next call.
             du, dv = shift
-            # DIRECTION ONLY — the ~Npx magnitude was removed 2026-07-26. It was
-            # display-only (shift_px has no other consumer; move('xy') re-derives its
-            # own offset), and the 0715-0726 composition logs show it doing two kinds
-            # of harm. (1) Fabricated conversions: writing world-space code the agent
-            # invented a factor with no intrinsics or depth — "~9px is small, roughly
-            # 0.02-0.03m in world" then `location.x += 0.025`, ~3x the true shift on a
-            # 1500px frame. (2) Wrong triage: px is ABSOLUTE while significance is
-            # relative to object size (4px is 1% of a laptop, 13% of a fork), so the
-            # agent read gate-flagged objects as negligible — "the pear#0 is only ~18px
-            # off, small" — and moved on. `gap` already encodes relative significance
-            # (IoU is normalised by the object's own silhouette), and the hint only
-            # fires once it clears _POS_HINT_GAP, so every hint shown is significant by
-            # construction and needs no severity number. Direction survives: it is a
-            # sign, resolution-independent, and the agent maps it correctly to world
-            # axes. The 3px floor below is only a noise gate, not a tuned constant.
             dirs = [d for d, v in (("image-right", du), ("image-left", -du),
                                    ("down", dv), ("up", -dv)) if v >= 3]  # fmt: skip
             lines.append(
@@ -7821,12 +7563,6 @@ bpy.ops.wm.save_as_mainfile(filepath={os.path.abspath(save_path)!r})
             # smaller, not 50%).
             pct = abs(1 / area_s - 1) * 100
             small = area_s > 1
-            # 2D-projected size confounds true scale with DEPTH. The agent judges which
-            # from the crops (2026-07-25, replacing the unconditional depth-first
-            # steering); depth stays the tiebreak so move('scale') doesn't distort the
-            # (trusted) real-scale mesh. The mesh is authoritative: any residual after a
-            # correct placement+scale is accepted, never flagged as wrong (the extent
-            # metric is logged, never surfaced).
             lines.append(
                 f"- SIZE HINT for {o}: ~{pct:.0f}% too {'small' if small else 'large'} "
                 f"by 2D-projected silhouette — this confounds true size with depth. "
@@ -7849,13 +7585,6 @@ bpy.ops.wm.save_as_mainfile(filepath={os.path.abspath(save_path)!r})
                 "measurement, not a rotation_euler value.)"
             )
             recommended = True
-        # an in-band yaw on a WEAK axis (aniso < _YAW_ANISO_MIN) used to die in
-        # total silence — no rotation hint and no yaw_oob note (bridge_6 box#0:
-        # 27.9-33.8deg at aniso 1.11-1.19, three visits, shipped ~28deg wrong).
-        # The measurement is often still correct for exactly that class (square
-        # footprint, visually distinct faces), so surface it as a LEAD handed to
-        # the agent's eyes; the search is never seeded from it (reliability is
-        # the search's own gate). Mutually exclusive with yaw_oob (yaw_axis_ok).
         yaw_weak = (
             not flip
             and yaw is not None
@@ -8281,9 +8010,6 @@ bpy.ops.wm.save_as_mainfile(filepath={os.path.abspath(save_path)!r})
         for o in objects:
             mandatory_post_flip = pending is not None and o in required_ids
             orient = None
-            # Always attempted, spent one-shot or not — a consumed flip used to
-            # freeze the check at UNKNOWN forever; the per-pose freeze + landed-move
-            # invalidation in register.py already prevent recompute thrash.
             if orient_fn is not None:
                 try:
                     orient = orient_fn(o, prefix=f"inv{n}")
@@ -8347,8 +8073,6 @@ bpy.ops.wm.save_as_mainfile(filepath={os.path.abspath(save_path)!r})
                 "that object (two committed typed edits per object at most)."
             )
         elif self._has_capability("strict_post_edit_physics"):
-            # 2026-09-15 owner: the agent chooses the tool, but is reminded of both
-            # routes after every investigate so the code route is not forgotten.
             lines.append(
                 "Both pose routes are open to you now: execute_and_evaluate applies a "
                 "correction you can state yourself (world-space translation / yaw, one or "
@@ -8830,16 +8554,6 @@ bpy.ops.wm.save_as_mainfile(filepath={os.path.abspath(save_path)!r})
             b, a = res["before"], res["after"]
             ph = res.get("physics")
             if res["applied"]:
-                # deliberately NO IoU numbers: 0714_hr_abc1's agent flipped the
-                # spoon CORRECTLY, saw "0.26 -> 0.20", talked itself out of its
-                # own right judgment and tried to undo. The score is uninformative
-                # here by construction.
-                # The anti-undo steering states the real ASYMMETRY (undo restores
-                # the scene but never refunds the one-shot) instead of the old
-                # "there is no undo", which was simply false — the flip IS on the
-                # undo stack (_push_edit_snapshot above), so an agent that saw a
-                # genuinely bad flip was told it could not revert something it
-                # could (HARNESS_AUDIT_2026_07_26 T4).
                 txt = (
                     f"yaw-rotated {object} 180 deg about its center. Do NOT judge "
                     "this by IoU: a near-symmetric silhouette often scores the "
@@ -8886,9 +8600,6 @@ bpy.ops.wm.save_as_mainfile(filepath={os.path.abspath(save_path)!r})
                         )
                     )
                 txt += self._post_move_pending_note(session, object, "rotate_180")
-            # No per-move budget sentence (owner 2026-07-31): the OBJECT STATE table
-            # already carries moves-used per object; the table now COUNTS move rounds
-            # itself (build_object_state_table), so the sentence was pure repetition.
             fout: dict = {"text": [txt]}
             if required_followup is not None:
                 fout["required_followup"] = required_followup
@@ -8944,11 +8655,6 @@ bpy.ops.wm.save_as_mainfile(filepath={os.path.abspath(save_path)!r})
                     "resize on a displaced object can lower it; judge the size "
                     "re-measure and the post-move crop before any undo.)"
                 )
-            # Productive-repeat nudges (owner 07-29: after a LARGE gain the agent never
-            # re-tried the same aspect — placemat#0 stopped at 0.59 with budget left —
-            # while the failure paths' "do NOT retry" bled into a blanket norm). Only
-            # emitted when the BACKEND knows a repeat can reach further, and only with
-            # budget remaining.
             if self._moved.get(object, 0) < self.move_cap:
                 if res.get("clamped_frac") is not None:
                     txt += (
@@ -9067,9 +8773,6 @@ bpy.ops.wm.save_as_mainfile(filepath={os.path.abspath(save_path)!r})
                 "undo_last_step."
             )
         elif res.get("clamp_reason"):
-            # T3b: the feasibility clamp's verdict used to be swallowed — the
-            # agent got "looks already right" for a move that was BLOCKED by a
-            # neighbor, the one case where the right next action is knowable.
             if aspect == "rotation":
                 txt = (
                     f"{object} rotation: the search found a fine-yaw improvement but the "
@@ -9121,7 +8824,6 @@ bpy.ops.wm.save_as_mainfile(filepath={os.path.abspath(save_path)!r})
                 )
         if not res.get("applied"):
             txt += self._post_move_pending_note(session, object, aspect)
-        # No per-move budget sentence (owner 2026-07-31) — see the rotate_180 branch.
         out: dict = {"text": [txt]}
         img = self._move_region_crop(session)
         if img:
@@ -9139,13 +8841,8 @@ bpy.ops.wm.save_as_mainfile(filepath={os.path.abspath(save_path)!r})
         return {"status": "success", "output": out}
 
     def _post_move_pending_note(self, session, obj: str, failed_aspect: str) -> str:
-        """After a NON-applied move: re-surface the deferred SIZE mismatch from the
-        session cache (owner-approved 2026-07-31). The precedence chain defers size
-        behind position with "re-measured in the move feedback" — but that promise
-        was only redeemed by an ACCEPTED move, so a rejected/no-gain attempt stranded
-        the deferral (fleet 07-30: 15 of 60 deferrals never got a size-relevant move;
-        0730_fix_cluttershelf pomegranate#1 shipped 25% undersized after ONE no-gain
-        'xy'). The cache is current by construction here: a failed move reverted the
+        """After a non-applied move, surface the deferred size mismatch from the
+        session cache. The cache is current by construction: a failed move reverted the
         scene, an accepted rotation cleared the cache (_invalidate_hints), an
         accepted placement re-measured it (_post_move_size_note). Wording carries NO
         'HINT' substring: the whole move text collapses to a ledger line later, and
@@ -9407,12 +9104,7 @@ bpy.ops.wm.save_as_mainfile(filepath={os.path.abspath(save_path)!r})
     def _rule_objects_inboard(
         self, data: dict, main_name: Optional[str]
     ) -> tuple[bool, str]:
-        """POSE sub-rule: every object covered by its exact declared direct support.
-
-        One contract for both harnesses since 2026-09-16 (owner): the scene-graph
-        support edge decides which body an object is checked against; a missing or
-        unbuilt support fails closed with the exact binding to restore.
-        """
+        ""
         return objects_on_direct_supports_report(
             data.get("bodies", []),
             self._support_body_map(),
@@ -9475,13 +9167,6 @@ bpy.ops.wm.save_as_mainfile(filepath={os.path.abspath(save_path)!r})
         out_path = tmp_dir / f"{self.count}_{tag}.json"
         code_file = self.script_path / f"{self.count}_{tag}.py"
         target = os.path.abspath(blend_path) if blend_path else self.blender_file
-        # 2026-09-15 owner: ONE remembered dump, reused when the blend bytes it described
-        # are exactly the bytes about to be read (0.02 s sha256). The dump is a pure
-        # function of those bytes plus the two env values the script reads. Every
-        # transaction ran three of these 15-27 s passes and the after-dump of tx N is
-        # the before-dump of tx N+1 unless an undo / rollback / bake changed the file —
-        # which the hash catches (blind reuse would have fed the change detector a
-        # rejected candidate: 10 rollbacks and 25 undos in today's 19 initializers).
         key = None
         if not _typed_world_semantics:
             key = (
@@ -10417,16 +10102,7 @@ bpy.ops.wm.save_as_mainfile(filepath={os.path.abspath(save_path)!r})
         force_refresh: bool,
         final_expected_names: Optional[list[str]] = None,
     ) -> dict[str, dict]:
-        """Physics material/mass for EVERY object authored in one transaction.
-
-        2026-09-15 (owner): with several new objects the estimate ran per object —
-        one Blender render pass and one or two VLM calls each, ~35 s apiece (toast
-        random tx6: four slices, ~2.5 min). Now one ``estimate_scene`` prefetch
-        renders all of them in a single Blender pass and asks the VLM concurrently;
-        the per-object call below then finds its entry cached in physics_vlm.json
-        (``estimate_scene`` skips cached names), so every downstream record, manifest
-        and fallback path is exactly the single-object one.
-        """
+        ""
         names = [str(row["mesh_name"]) for row in rows]
         if len(rows) > 1:
             self._prefetch_runtime_physics_estimates(
@@ -10943,10 +10619,6 @@ bpy.ops.wm.save_as_mainfile(filepath={os.path.abspath(save_path)!r})
                 script, f"procedural_export_{int(transaction_id)}"
             )
         except RuntimeError as exc:
-            # 2026-09-15 (owner): the agent used to receive the whole Blender output
-            # (a 14-line traceback ending in "Blender quit") — the one line that names
-            # the failed watertightness check was buried; 32 rollbacks across the gpt6
-            # roots. Lead with that line and its remedy; keep the output for the journal.
             rejected = RuntimeError(_exporter_rejection(str(exc)))
             rejected.blender_output = str(exc)  # type: ignore[attr-defined]
             raise rejected from exc
@@ -10976,25 +10648,9 @@ bpy.ops.wm.save_as_mainfile(filepath={os.path.abspath(save_path)!r})
         declarations: dict,
         post: dict,
     ) -> dict:
-        """Which bodies the joint settle SIMULATES and writes back (2026-09-15 rule).
-
-        Owner rule: an execute_and_evaluate call that only builds or edits root surfaces
-        does not simulate at all; a call that adds, replaces, removes or moves objects
-        simulates exactly those objects' hierarchies — the authored objects plus every
-        body whose support chain (scene-graph edges in Blender body names) reaches an
-        authored or removed object — and every other object enters the simulation as a
-        STATIC obstacle (see initializer_physics.settle_initializer_candidate
-        dynamic_names). Changed support surfaces are deliberately NOT roots any more:
-        the 09-14 rule made a desk/wall rebuild simulate everything on it, and on online7
-        the shove out of an overlapping wall toppled a vase that stood on its own. An
-        unavailable support map falls back to simulating every body when anything was
-        authored, rather than risk leaving a dependent floating.
-        """
+        ""
         removed = set((declarations.get("removed_names") or {}).values())
         added = set((declarations.get("added_names") or {}).values())
-        # A same-name REPLACEMENT is in both maps: it is new geometry that must settle
-        # (audit F-H1: it used to be admitted static at its authored pose, never settled,
-        # and its cargo dropped onto it).
         authored = {name for name in touched if name not in removed or name in added}
         roots = authored | removed
         bodies = set(post.get("object_integrity") or {})
@@ -11022,16 +10678,7 @@ bpy.ops.wm.save_as_mainfile(filepath={os.path.abspath(save_path)!r})
     def _surface_overlap_notices(
         self, post: dict, changed_surfaces: set[str], authored: set[str]
     ) -> list[str]:
-        """Informational overlap notices for an initializer transaction (never a gate).
-
-        A penetrating pair is reported when one side is a surface whose geometry this
-        call added/changed, or an object this call authored, the pair is not
-        surface<->surface (owned by the relationships / main-support rules), and the
-        depth exceeds the pair's contact-class tolerance (the same ladder the
-        no-penetration rule applies). Each notice names both bodies and the depth; the
-        transaction commits regardless (owner rule: a wall build is neither simulated
-        nor rejected) and the no-penetration rule remains the only enforcement.
-        """
+        ""
         interesting = set(changed_surfaces) | set(authored)
         if not interesting:
             return []
@@ -11089,8 +10736,6 @@ bpy.ops.wm.save_as_mainfile(filepath={os.path.abspath(save_path)!r})
             report["pose_applied"] = "baked" if report.get("name") in baked else "static"
         result["baked"] = True
         result["baked_bodies"] = sorted(baked)
-        # Out-of-scope bodies were static obstacles in the sim (not simulated-and-
-        # restored as before 2026-09-15); the key name is kept for readers.
         result["restored_bodies"] = sorted(set(bodies) - baked)
         result["static_bodies"] = result["restored_bodies"]
         self._atomic_write_json(
@@ -12676,13 +12321,6 @@ np.savez(output_path, **arrays)
                             f"composition mesh transaction {txid} has terminal marker "
                             f"{state!r} without its journal decision"
                         )
-                    # A terminal marker with its journal decision is reconciled; the
-                    # committed artifact manifest is NOT re-verified here: later layout
-                    # edits and the final certify legitimately rewrite placement /
-                    # scene_graph, so a second composition session (the final-settle
-                    # repair round, 2026-09-15) could never start after a committed mesh
-                    # edit ("cannot recover composition mesh transaction",
-                    # v5accept robolab_clutter_shelf). Interrupted states below still verify.
                     tx_dir = self._runtime_transaction_dir(txid)
                     if (
                         marker.get("payloads_pruned") is not True
@@ -14636,8 +14274,6 @@ np.savez(output_path, **arrays)
                     runtime_transaction_id=txid,
                 )
                 staged.append((addition, object_id, name, mesh_path, capture, row))
-            # ONE physics estimate pass for every object authored in this call (2026-09-15
-            # owner): exports first, then a single render pass + concurrent VLM calls.
             physicals = (
                 self._estimate_runtime_physics_materials(
                     [item[5] for item in staged],
@@ -14731,13 +14367,6 @@ np.savez(output_path, **arrays)
             self._pose_dirty = True
             self._armed = set()
             changed_surfaces = _changed_surface_names(pre, post)
-            # Overlap NOTICE (2026-09-15, owner: a wall build is neither simulated nor
-            # rejected). A surface changed in this call, or an object authored in it,
-            # that intersects an existing object is REPORTED in the result and nothing
-            # more; the no-penetration rule in check_rules_enforced stays the only
-            # enforcement and the agent decides from the photo which side to move
-            # (online7: the wall the photo dictates passes through the vase's
-            # reconstruction; rejecting the wall sent the agent hunting vase poses).
             overlap_notice = self._surface_overlap_notices(
                 post, changed_surfaces, set(touched) - set(declarations["removed_names"].values())
             )
@@ -15008,9 +14637,6 @@ np.savez(output_path, **arrays)
             # this call is ambiguous, startup recovery inspects the durable frame;
             # the live replacement must not be compensated in-process.
             self._record_mutation_status(txid, kind, "committed", details=details)
-            # 2026-09-15 (owner): a replaced mesh is a new reconstruction — the coverage
-            # end-gate requires one more investigate of it (v5accept toast standard ended
-            # with toast#1's last reading taken before its replacement).
             self._replaced_uninvestigated = getattr(
                 self, "_replaced_uninvestigated", set()
             ) | {object_id}
@@ -15288,11 +14914,6 @@ np.savez(output_path, **arrays)
                 },
                 physical_material=physical,
                 visual_material=visual,
-                # 2026-09-16 (owner): a replacement keeps the SAME logical identity, so it
-                # inherits the original object's photo mask (tracked) — investigate_objects
-                # measures the new mesh against the photo and the coverage gate can list
-                # it until it is investigated once more. Initializer ADDITIONS stay
-                # maskless (excluded): they are new objects with no photo mask.
                 mask_policy="tracked",
                 runtime_inventory=inventory,
             )
@@ -15304,9 +14925,6 @@ np.savez(output_path, **arrays)
                 mesh_sha256=mesh_sha,
             )
 
-            # Keep the old physics authority and its geometry signatures: rebuilding
-            # only PoseSession lets settle_edited detect the changed target, force a
-            # fresh collider cook, and use its normal parent-first/dependent closure.
             session.rebuild()
             session.physics = self._physics_obj
             self._pose_dirty = False
@@ -15379,13 +14997,7 @@ np.savez(output_path, **arrays)
             yield value
 
     def _reserved_wall_indices(self, graph: dict) -> set[int]:
-        """All historically mentioned wall indices, not just retained nodes.
-
-        Pruned/merged masks and removed runtime roots keep their identities reserved,
-        so a newly added wall never impersonates an earlier wall#N.  Existing Blender
-        names/custom properties are checked again inside the trusted creation script.
-        This allocator is not an execute_and_evaluate name-policy filter.
-        """
+        ""
         indices: set[int] = set()
 
         def scan(payload) -> None:
@@ -15564,9 +15176,6 @@ np.savez(output_path, **arrays)
                 self._persist_initializer_ledger()
                 os.replace(staged, live)
             except Exception as exc:
-                # Blend replacement is the final commit point.  If it (or an earlier
-                # staged restore) fails, compensate graph+ledger back to the current
-                # transaction state so we never expose an old graph with a new blend.
                 compensation = []
                 try:
                     self._restore_scene_graph_bytes(graph_current)
@@ -15578,9 +15187,6 @@ np.savez(output_path, **arrays)
                 except Exception as ledger_exc:  # noqa: BLE001
                     compensation.append(f"ledger compensation failed: {ledger_exc}")
                 if not compensation and len(self.edit_history) > history_n:
-                    # Keep the chronological snapshots coherent with the compensated
-                    # NEW state.  A subsequent edit+undo must not restore the old ledger
-                    # merely because this failed rollback left the new blend committed.
                     if len(self._ledger_history) > ledger_history_n:
                         self._ledger_history[-1] = copy.deepcopy(ledger_current)
                     if len(getattr(self, "_graph_history", [])) > graph_history_n:
@@ -16426,10 +16032,6 @@ for current in reversed(todo):
         RELATIONSHIPS rule -- see _related_surface_pairs)."""
         grouped_centroids = data.get("surface_centroids", {}) or {}
         grouped_normals = data.get("surface_normals", {}) or {}
-        # Collision detection deliberately uses each complete grouped body, but repair
-        # ownership and push direction belong to the exact root surface.  A permitted
-        # frame/backdrop child must not move a canonical wall's centroid/PCA enough to
-        # make it look free or reverse the separating direction.
         centroids = dict(grouped_centroids)
         centroids.update(data.get("surface_plane_centroids", {}) or {})
         normals = dict(grouped_normals)
@@ -16440,10 +16042,6 @@ for current in reversed(todo):
             if self.root_stage_name == "initializer"
             else set()
         )
-        # Class-aware allowance from the ONE contact ladder (contact_policy): the
-        # probe's real separating depth vs the pair's class (resting on its support,
-        # lateral same-support sibling, unrelated object/surface). No support map ->
-        # strictest classes, never looser.
         support = self._support_body_map()
         reported, classes = [], {}
         for p in data.get("penetrating_pairs", []):
@@ -16574,10 +16172,6 @@ for current in reversed(todo):
                 continue
             if leaf:
                 line += f" — prefer moving {self._label(leaf)}"
-                # OBJECT penetrating a SURFACE: spell out a HORIZONTAL slide. The bare
-                # "prefer moving obj_x" let an agent clear a fork<->wall overlap by
-                # TILTING the fork into mid-air (0709_eval3_raw1) — floating passes
-                # every other check, so the advice must forbid lifting outright.
                 if leaf.startswith("obj_") and (
                     not a.startswith("obj_") or not b.startswith("obj_")
                 ):
@@ -16700,12 +16294,6 @@ for current in reversed(todo):
                 }
             return blocked
         try:
-            # Fast-fail: the composition end-gate also requires every object to have been
-            # investigated >= once. That check is in-memory, whereas the penetration check
-            # costs a Blender pass + an Isaac sync/contacts probe. If coverage already
-            # fails there is nothing to fix in the geometry yet, so report it now and skip
-            # the expensive penetration check (the agent must investigate first; penetration
-            # is re-checked once coverage passes).
             if self.root_stage_name == "composition":
                 cov_ok, cov_msg = self._rule_investigation_coverage()
                 if not cov_ok:
@@ -16787,9 +16375,6 @@ for current in reversed(todo):
                 f.write(script)
             if out_path.exists():
                 out_path.unlink()  # don't trust a stale result if the check fails
-            # persist_scene=False (2026-09-15): the check is read-only; the wrapper's
-            # trailing save rewrote the 26 MB blend with different bytes every time and
-            # spoiled the geometry-dump reuse for the next transaction.
             success, imgs, stdout, stderr = self._execute_blender(
                 str(code_file), persist_scene=False
             )
@@ -16857,10 +16442,6 @@ for current in reversed(todo):
                                 if p["a"].startswith("obj_")
                                 or p["b"].startswith("obj_")
                             }
-                            # Isaac<->blend invariant AT THE GATE: heal any hull
-                            # drift before trusting the session's contact pairs —
-                            # 0720_orinit3_abc1's desync made this gate PASS a
-                            # croissant buried 30mm in the tray.
                             try:
                                 session.physics.verify_sync(
                                     session, list(session.physics._names)
@@ -17271,8 +16852,6 @@ for current in reversed(todo):
                 if self.moge_dir
                 else None
             ),
-            # Bind the exact derived projection config as well as its source file.
-            # This is deliberately not the simplified legacy pseudo-view record.
             "camera_config_sha256": self._yaw_advisory_json_digest(projection_camera),
             "camera_artifact_sha256": self._sha256_file(
                 os.path.join(self.moge_dir, "moge", "moge.json")
@@ -17583,8 +17162,6 @@ for current in reversed(todo):
                 "reason_codes": ["advisory_not_required"],
             }
         else:
-            # Recompute the non-random half of the binding. Any edit, graph/constraint
-            # rewrite, camera/source change, or bypass makes the old token stale.
             current = self._yaw_advisory_scene_binding(
                 main_name=binding.get("main_surface")
                 if isinstance(binding, dict)
@@ -18292,10 +17869,6 @@ for current in reversed(todo):
                 + ". They still occlude the graded ones. Remove any surface you built "
                 "that the CURRENT scene graph does not register."
             )
-        # T3b follow-up (2026-07-24): the yaw CAUTION / UNVERIFIED advisory is
-        # composed INSIDE the coverage report, but on an overall pass the gate
-        # returns a one-line ALL-RULES-PASS summary — the clutter_fruit table
-        # shipped 90-degrees off with the advisory swallowed. Keep it.
         m = re.search(
             r"(yaw UNVERIFIED[^\n]*|CAUTION — weak photo evidence[^\n]*)", msg
         )
@@ -18328,9 +17901,6 @@ def initialize(args: dict[str, object]) -> dict[str, object]:
             blender_script=args.get("blender_script"),
             script_save=args.get("output_dir") + "/scripts",
             render_save=args.get("output_dir") + "/renders",
-            # Fall back to the input blend (as investigator.initialize already does):
-            # with no save path every agent edit renders and is then discarded, which
-            # silently produced 80 unusable runs on 2026-08-09.
             blender_save=args.get("blender_save") or args.get("blender_file"),
             target_image_path=args.get("target_image_path"),
             gpu_devices=args.get("gpu_devices"),
@@ -18444,8 +18014,6 @@ def initialize(args: dict[str, object]) -> dict[str, object]:
             ]
             if has_capability("initializer_code_transactions"):
                 tool_configs[0] = execute_and_evaluate_initializer_gpt6_tool
-                # 2026-09-15 owner: no nudge_object under gpt6_v1 — every object pose
-                # change is an execute_and_evaluate object transaction.
                 tool_configs.remove(nudge_object_tool)
         tool_effects = {
             "execute_and_evaluate": {"mutates_scene": True},
@@ -18793,8 +18361,6 @@ def execute_and_evaluate(
         else:
             out = result
         if out is not result:
-            # the crop / novel-view payloads replace execute()'s text: carry the script's
-            # own print() output over (owner 09-15: the agent reads its measurements here)
             for part in (result.get("output") or {}).get("text") or []:
                 if isinstance(part, str) and part.startswith(("Script output (", "Patch applied.")):
                     out.setdefault("output", {}).setdefault("text", []).append(part)
@@ -19299,13 +18865,6 @@ def render_current_scene(
     if blocked is not None:
         return blocked
     try:
-        # ONE render path whenever the pseudo-GT camera set exists (audit §12 A): a bare
-        # call renders the locked source view (0,0) UNPAIRED — NOVEL_VIEW_NOTE_ON_REQUEST
-        # promises a reference only when a view is explicitly passed; composition keeps
-        # its always-paired behavior. A lone azimuth=30 still means (30, 0) — the schema
-        # advertises the args independently, so a partial spec must never silently fall
-        # back to a different viewpoint. The legacy wrapper render below survives ONLY
-        # for the no-pseudo-GT fallback (cameras.json missing: nothing to route to).
         view_requested = azimuth is not None or elevation is not None
         if _executor._pseudo_gt_views():
             return _executor._render_novel_view(

@@ -113,17 +113,7 @@ def _inject_shared_features(predictor, state):
 
 
 def _segment_points(predictor, state, points, labels, out_path, all_candidates=False):
-    """Interactive (SAM2-style) point segmentation via the SAM3 Tracker, following the
-    HF Sam3Tracker single-point-click example: point coords are in original-image pixel
-    space (label 1 = foreground); a single click uses multimask_output=True and we pick
-    the best of the returned masks by predicted IoU. ``points`` are normalized [u, v].
-
-    ``all_candidates`` saves the FULL multimask stack (N,H,W) instead of the argmax
-    pick and returns every predicted IoU. Rationale (t3_multimask probe 2026-08-02):
-    on objects with printed detail the argmax is systematically the logo/part —
-    predicted IoU is ANTI-correlated with whole-object correctness across scales
-    (a perfect whole-bin mask scored 0.095 vs 0.945 for its interior sticker) — so
-    scale selection must happen client-side with signals SAM does not have."""
+    ""
     w, h = state["original_width"], state["original_height"]
     coords = np.array(
         [[float(u) * w, float(v) * h] for u, v in points], dtype=np.float32
@@ -162,14 +152,6 @@ def main():
     proc = Sam3Processor(model)
     predictor = model.inst_interactive_predictor
     torch.set_grad_enabled(False)  # F8: inference-only; no autograd graph on cached states
-    # F2: LRU-capped so the cached per-image backbone features (GPU) never grow
-    # unbounded across a run's many crops; the reused full image stays MRU (warm).
-    # Keyed by (path, mtime_ns, size), NOT path alone: tier-2 crop files are fixed
-    # per-instance paths that get OVERWRITTEN with a different window when the
-    # salvage/recount passes re-run an instance — a path-keyed cache then serves
-    # masks computed on the OLD pixels, which the caller pastes back at the NEW
-    # window's origin (0730_sel_real8334_r3: strap#2 became strap#1's coil
-    # translated by exactly the window delta, a phantom 4th strap).
     image_states: "OrderedDict[tuple, object]" = OrderedDict()
     STATE_CACHE_MAX = 8
 

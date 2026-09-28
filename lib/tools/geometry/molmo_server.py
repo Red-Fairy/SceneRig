@@ -45,9 +45,6 @@ def main():
     processor = AutoProcessor.from_pretrained(
         MODEL, trust_remote_code=True, padding_side="left"
     )
-    # Keyed by (path, mtime_ns, size), not path alone — same stale-cache landmine as
-    # sam3_server's state cache (fixed 2026-07-30): a fixed per-instance path
-    # rewritten with new pixels must never be answered from the old image.
     image_cache: dict[tuple, tuple] = {}  # (path, mtime_ns, size) -> (PIL, W, H)
     _respond({"ready": True})
 

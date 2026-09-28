@@ -1,26 +1,4 @@
-"""MoGE camera -> GRASE Blender camera + world-coordinate conversion.
-
-MoGE returns per-pixel 3D points in the OpenCV camera frame (+X right, +Y down,
-+Z forward into the scene) and the field of view. GRASE's world is Z-up with the
-source camera at the origin looking along -Y (+Z up), matching
-``glb_import.setup_camera``. This module:
-
-  - converts MoGE camera-space points to the GRASE world: ``P_world = (-x, -z, -y)``
-    (a proper rotation, det +1 — the X flip is required so the result is a real
-    rotation rather than a mirror: a camera looking -Y with +Z up has its image
-    right axis on world -X, which is exactly what Blender's
-    ``to_track_quat("-Z","Y")`` produces, so renders are not left-right flipped)
-  - derives the Blender camera lens (mm) from MoGE's horizontal FOV
-  - reprojects world points back to pixels (used to verify the camera, and later
-    to place / occlusion-test objects)
-
-Because MoGE has square pixels (``fx_norm * W == fy_norm * H``), a single Blender
-lens with a horizontal-fit 36 mm sensor reproduces BOTH FOVs exactly, as long as
-the render resolution matches the image aspect ratio.
-
-The pure functions here are unit-tested without Blender; ``set_blender_camera``
-applies a config inside a running Blender (lazy ``bpy`` import).
-"""
+""
 
 from __future__ import annotations
 
@@ -202,14 +180,6 @@ def camera_config_from_moge(
     # fy_px land on the same value, so vertical framing matches too.
     fx_px = (w / 2.0) / math.tan(math.radians(fov_x) / 2.0)
     fy_px = (h / 2.0) / math.tan(math.radians(fov_y) / 2.0)
-    # PRINCIPAL POINT. `fov_*_deg` carries only the FOCAL terms, so a camera whose optical
-    # centre is off-image-centre (any real calibrated sensor: --gt-depth ships
-    # intrinsics.json with measured cx/cy) used to be rendered as if centred, while
-    # gt_depth_estimate unprojected the depth through the TRUE cx/cy. Geometry and render
-    # then disagreed by (cx - w/2, cy - h/2) px — on the robolab top camera that is 2 px in
-    # x but 15 px in y (4% of frame height) — and composition, which compares its render
-    # against the photo, would MOVE objects to absorb a camera-model error.
-    # MoGE-2 writes a perfectly centred intrinsics_norm, so this is a no-op for it.
     k_norm = mj.get("intrinsics_norm")
     px_norm = float(k_norm[0][2]) if k_norm else 0.5
     py_norm = float(k_norm[1][2]) if k_norm else 0.5

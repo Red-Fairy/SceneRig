@@ -35,15 +35,7 @@ from lib.tools.geometry.surface_validation import audit_surface_meshes
 
 
 def fresh_transaction_workdir(scene, transaction_id) -> Path:
-    """``<scene>/physics/initializer_tx_<N>``, guaranteed empty and new.
-
-    2026-09-16: an agent-only rerun staged from a finished gpt6 run inherited the
-    source run's ``initializer_tx_*`` directories (the staging script strips them
-    now), and ``mkdir(exist_ok=False)`` then rolled back 32 transactions across 14
-    scenes with a bare FileExistsError. A stale directory is moved aside with a
-    timestamp suffix instead of failing the transaction, so the evidence survives
-    and the transaction proceeds on a clean work dir.
-    """
+    ""
     scene = Path(scene)
     work = scene / "physics" / f"initializer_tx_{int(transaction_id)}"
     if work.exists():
@@ -69,14 +61,7 @@ def settle_initializer_candidate(
     isaac_python: str = DEFAULT_ISAAC_PYTHON,
     dynamic_names: list[str] | None = None,
 ) -> dict:
-    """Return one converged joint outcome, retaining topples for agent repair.
-
-    ``dynamic_names`` (2026-09-15, owner rule "simulate only the moved objects'
-    hierarchies") lists the bodies that may move: they are admitted as dynamic
-    colliders; every OTHER object is admitted as a STATIC collider at its current pose,
-    exactly like the registered root surfaces, so a wall or desk build no longer
-    shoves unrelated objects around. ``None`` keeps the historical all-dynamic sim.
-    """
+    ""
     scene = Path(scene)
     placement = json.loads((scene / "placement.json").read_text())
     names = sorted(row["mesh_name"] for row in placement["objects"])

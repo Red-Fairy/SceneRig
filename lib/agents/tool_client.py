@@ -108,13 +108,7 @@ class ServerHandle:
         self.stack: AsyncExitStack | None = None
 
     async def start(self) -> None:
-        """Start the MCP server and wait for it to be ready.
-
-        Races the ready event against the runner task: any exception BEFORE
-        ``ready.set()`` (unknown path in path_to_cmd, missing venv python at spawn,
-        session.initialize() failure) previously sat unretrieved in the task while
-        this method awaited the event forever — an infinite SILENT pipeline hang.
-        Now it surfaces immediately as a RuntimeError naming the server."""
+        ""
         self._task = asyncio.create_task(self._runner())
         ready = asyncio.create_task(self.ready.wait())
         try:

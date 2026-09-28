@@ -1,8 +1,6 @@
 """Convert a GRASE experiment's final.blend into an Isaac-ready scene.usd.
 
     python isaac/blend_to_isaac.py <exp_dir> [--skip-verify]
-    # e.g. python isaac/blend_to_isaac.py output/static_scene/0701_v2_real8334
-
 Pipeline (the driver runs in the repo `.venv`; it imports numpy/scipy/trimesh helpers):
   1. repo Blender (headless): final.blend -> visual USD plus collision-source USD;
      authored roots use the harness's shared Boolean union at the current pose.

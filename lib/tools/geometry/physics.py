@@ -1,38 +1,4 @@
-"""Physics-settle: drop each placed object onto its support to find a stable resting pose.
-
-SAM3D reconstructs an object's shape and MoGE places it metrically, but neither adjusts how
-the object *rests* — an articulated/flat object (e.g. an open laptop) can be left in an
-unstable or wrong orientation. This module drops each placed object GLB onto its support and
-reads the orientation it **settles** into, then ``incremental_settle`` bakes the cumulative
-settle into a sibling ``<glb>_pm.glb`` placed mesh.
-
-Settling runs on PhysX through the persistent Isaac Sim settle server
-(``isaac/isaac_settle_server.py``) colliding CoACD convex parts
-(``lib/tools/geometry/collision.py``). This is the engine + collider representation the
-scenes are ultimately exported to (``isaac/blend_to_isaac.py``), so settled poses are at
-rest **in the deployment engine** — critical for reset-heavy robotics use. The entry point
-is ``incremental_settle``; the pre-2026-07-31 batch chain (``settle_hierarchical`` +
-``apply_pose_matching`` + ``joint_settle``, over a one-shot ``isaac_settle_worker.py``,
-plus a Bullet/convex-hull A/B backend) is gone — it had been default-unreachable and
-frozen since the incremental path landed on 07-13.
-
-Settling is **hierarchical and support-ordered** (a parent settles before its children):
-
-  * root ↔ object (base case): the support is a large PASSIVE plane at z=0 (the table proxy;
-    the initializer builds the real table top at z=0).
-  * parent ↔ child (stacked): the support is the already-settled parent object.
-
-Each object is released from hull-based first contact (+2 mm) and allowed to settle with its
-full PhysX translation and rotation. A tilt above 45° (or >50 mm xy drift for a rollable)
-opens the instability ladder: non-rollables try pristine and CoM/flatten stabilization before
-accepting the fallen resting pose when nothing stands; rollables try a rollback/re-seat before
-accepting their fallen pose. Per-object ICP then adjusts yaw/xy/scale, the object is re-dropped
-so z is physically derived again, and the completed scene receives a free-sim certification
-pass. See ``incremental_settle`` for the flip-accept and pristine-confirm short circuits.
-
-The node-slug and oriented surface-slab helpers are shared with
-``scripts/make_physics_scene.py`` (the press-Play viewer), which imports them.
-"""
+""
 
 from __future__ import annotations
 
@@ -198,33 +164,12 @@ DEFAULT_ISAAC_PYTHON = os.environ.get(
 )
 # Module attr (not inlined) so settle_client_test.py can swap in a fake server.
 SETTLE_SERVER_SCRIPT = REPO_ROOT / "isaac/isaac_settle_server.py"
-# Kit boot deadline. Measured 2026-07-28: a COLD boot is ~225 s on a fully idle box and
-# ~67 s once warm; 8 concurrent lanes roughly double it. The cost is Lustre per-file
-# metadata latency over the 25 GB / 63k-file Isaac install (stat 1.76 ms cold vs 0.069 ms
-# warm), NOT bandwidth (bulk reads run 320-450 MB/s), so the "warm" case is just the
-# kernel page cache. The old 300 s left ~25 % margin over an idle cold boot and blew twice
-# in 0728_idle_9096 — 300 s wasted each time, then a retry that only succeeded because
-# attempt 1 had populated the page cache. This bounds the HANG path only: a boot that dies
-# is still caught in seconds by the proc.poll() check below. scripts/prewarm_isaac.sh
-# removes the underlying cold-read cost; this is the safety margin for when it hasn't run.
 BOOT_DEADLINE_S = float(os.environ.get("GRASE_ISAAC_BOOT_TIMEOUT", 900.0))
-# Whose death should reap a shared settle server. NOT the spawning process: under a
-# standalone main.py the first Isaac user is composition, which runs inside an exec.py
-# MCP child that is torn down at the END of its stage (root.py) while certify still
-# needs the warm server — keying on the parent would cost a ~100 s re-boot every rerun.
-# The run entry points (runners/static_scene.py, main.py) export GRASE_RUN_OWNER_PID;
-# static_scene.py wins when both are in play because main.py only setdefault()s it.
 RUN_OWNER_PID_ENV = "GRASE_RUN_OWNER_PID"
 
 
 def _open_boot_log(work: Path):
-    """APPEND to <work>/settle_server.log, with a timestamped banner per spawn.
-
-    Truncating ("w") meant a boot RETRY erased the failed attempt it was retrying —
-    and a Kit boot that dies at the 300 s deadline is exactly when you need that log.
-    On 2026-07-27 both the composition and certify logs held only the last attempt,
-    so the hang had to be reproduced from scratch to find it (Lustre RPC wait). The
-    path stays `settle_server.log` because downstream tooling expects that name."""
+    ""
     f = open(work / "settle_server.log", "a")
     f.write(f"\n===== settle server spawn {time.strftime('%Y-%m-%dT%H:%M:%S')} =====\n")
     f.flush()  # banner lands before the child starts writing to the same fd
@@ -251,12 +196,6 @@ def _stabilize_params(npz_path: str) -> Optional[dict[str, Any]]:
         com, r, h, h_uni, inertia = mod.solve_com(npz_path, STABILIZE_THETA_DEG)
     except Exception:  # noqa: BLE001 - degenerate footprint (needle-thin) -> no candidate
         return None
-    # Contact-footprint guard: when the bottom-slice footprint is a SLIVER relative to
-    # the object (0713_obbfix_gpt1 glasses: r_cheb 4.3mm under a 132mm frame), a CoM
-    # over it doesn't restore a natural rest — it manufactures a corner-balancing act
-    # (the visual mesh cantilevers 10-40mm in the air). Refuse the rung; the ladder
-    # then accepts the FALLEN pose, which for this class is the physically and
-    # visually correct outcome (glasses tip over and lie flat, like real ones).
     d = np.load(npz_path)
     allv = np.vstack([d[f"v{i}"] for i in range(int(d["n"]))])
     ext = float((allv[:, :2].max(0) - allv[:, :2].min(0)).max())
@@ -274,11 +213,6 @@ def _stabilize_params(npz_path: str) -> Optional[dict[str, Any]]:
         "flatten_base_mm": mod.SLICE_MM,
         "friction": 0.9,
         "angular_damping": 1.5,
-        # MUST accompany com_world: a centerOfMass override with no matching
-        # inertia tensor is a self-inconsistent rigid body — under a plain drop
-        # (this ladder's own stability check) the inconsistency is invisible, but
-        # real contact torque near a support edge can turn it into a launch
-        # (0720_compfix_real8219, root-caused via ablation to exactly this gap).
         "diagonal_inertia": inertia["diagonal_inertia"],
         "principal_axes": inertia["principal_axes"],
         # solve_com's own (density-250) mass — the reference consumers need to
@@ -291,18 +225,7 @@ def _stabilize_params(npz_path: str) -> Optional[dict[str, Any]]:
 
 
 def _decompose_all(ordered: list[dict[str, Any]], work: Path) -> None:
-    """CoACD-decompose each object's current GLB (+ pristine candidate) into
-    ``collision_<name>.npz``. Fresh every time — the GLBs mutate in place across
-    the pipeline, so caching would go stale. Parallel: CoACD is the slow half.
-
-    SUPPORT objects with a pristine sibling are PRISTINE-FIRST (2026-08-22):
-    CoACD only ever sees the axis-aligned pristine — whose voxel remesh is
-    grid-aligned, so the cavity floor stays flat — and the placed collider is the
-    exact pristine->placed similarity transform of that decomposition
-    (``collision.placed_collider_from_pristine``; abc_5's ~4 deg tray cooked
-    placed carried a +3.1 mm median floor margin with 5.9% phantom-wall cells vs
-    a 2-6x flatter pristine cook). One decomposition instead of two per support;
-    a broken correspondence falls back to today's placed cook."""
+    ""
     import multiprocessing
     from concurrent.futures import ProcessPoolExecutor
 
@@ -335,10 +258,6 @@ def _decompose_all(ordered: list[dict[str, Any]], work: Path) -> None:
         if is_support and o.get("pristine_glb"):
             derived.append(o)
         else:
-            # frame_glb: the pristine candidate is SAM3D's axis-aligned canonical
-            # save placed UPRIGHT (owner insight 2026-08-05) — same topology as the
-            # raw, so corner correspondence recovers the raw's tilt exactly and the
-            # overshoot clamp trims uniformly (see collision._pristine_frame).
             tasks.append(
                 (o["glb"], o["parts_npz"], is_support, o.get("pristine_glb"))
             )
@@ -370,23 +289,7 @@ def _decompose_all(ordered: list[dict[str, Any]], work: Path) -> None:
 # Incremental settle: persistent Isaac server, DFS build-up, interleaved ICP   #
 # --------------------------------------------------------------------------- #
 class SettleClient:
-    """JSON-lines client for isaac_settle_server.py (skips Isaac log noise).
-
-    With ``shared_dir`` (and GRASE_ISAAC_SHARED != "0"): connect to a warm server
-    advertised by ``<shared_dir>/isaac.port``, else spawn one with ``--port-file``.
-    The server survives ``disconnect()`` so later stages — which run in DIFFERENT
-    OS processes (preprocess in static_scene.py, composition in the exec.py MCP
-    server, certify in main.py) — reuse ONE SimulationApp boot per run instead of
-    three. Reconnecting auto-``reset``s the registry, so every stage still sees a
-    fresh empty server. ``close()`` (or shutdown_shared_settle_server at run end)
-    shuts the server down. Without ``shared_dir``: the legacy private pipe-owned
-    server, shut down by ``close()``/``disconnect()``.
-
-    Those shutdowns are ``finally`` blocks, so they do NOT cover SIGKILL / OOM-kill /
-    pod eviction. A spawned server therefore also self-reaps: it gets ``--owner-pid``
-    (see RUN_OWNER_PID_ENV) and exits when that run dies, with an idle timeout as the
-    catch-all backstop. See isaac_settle_server.main_tcp.
-    """
+    ""
 
     def __init__(
         self,
@@ -457,8 +360,6 @@ class SettleClient:
 
         self._port_file.unlink(missing_ok=True)
         self._log = _open_boot_log(work)
-        # Self-reaping owner for the daemon: the run entry point if it exported one,
-        # else us (direct callers — tests, one-off scripts — ARE the whole run).
         owner = os.environ.get(RUN_OWNER_PID_ENV) or str(os.getpid())
         self.proc = subprocess.Popen(
             [isaac_python, str(SETTLE_SERVER_SCRIPT),
@@ -466,10 +367,6 @@ class SettleClient:
             stdin=subprocess.DEVNULL, stdout=self._log, stderr=subprocess.STDOUT,
             cwd=str(REPO_ROOT),
             env={**os.environ, "OMNI_KIT_ACCEPT_EULA": "YES", "OMNI_KIT_ALLOW_ROOT": "1",
-             # numpy threaded OpenBLAS livelocks (exec_blas_async_wait ->
-             # sched_yield spin; 0724_roomfix_room1 wedged 20min on a tiny
-             # 'add' matmul) with its default nproc-sized pool; the settle
-             # path only does 3x3 / per-part-vertex products: single-thread it.
              "OPENBLAS_NUM_THREADS": "1"},
         )  # fmt: skip
         deadline = time.time() + BOOT_DEADLINE_S
@@ -484,9 +381,6 @@ class SettleClient:
                     )
                 except (OSError, ValueError, KeyError) as exc:
                     raise RuntimeError(f"port file up but connect failed: {exc}")
-                # create_connection's timeout PERSISTS on the socket; clear it
-                # or every rpc dies at 5 s (killed the 0721_perffix settles —
-                # any drop longer than 5 s aborted the whole incremental stage).
                 self.sock.settimeout(None)
                 self._fin = self.sock.makefile("r")
                 return
@@ -494,7 +388,7 @@ class SettleClient:
         raise RuntimeError("settle server not ready in time")
 
     def _spawn_pipe(self, work: Path, isaac_python: str):
-        """Legacy private server over stdin/stdout (GRASE_ISAAC_SHARED=0)."""
+        ""
         import time
 
         self._log = _open_boot_log(work)
@@ -503,10 +397,6 @@ class SettleClient:
             stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=self._log,
             text=True, bufsize=1, cwd=str(REPO_ROOT),
             env={**os.environ, "OMNI_KIT_ACCEPT_EULA": "YES", "OMNI_KIT_ALLOW_ROOT": "1",
-             # numpy threaded OpenBLAS livelocks (exec_blas_async_wait ->
-             # sched_yield spin; 0724_roomfix_room1 wedged 20min on a tiny
-             # 'add' matmul) with its default nproc-sized pool; the settle
-             # path only does 3x3 / per-part-vertex products: single-thread it.
              "OPENBLAS_NUM_THREADS": "1"},
         )  # fmt: skip
         deadline = time.time() + BOOT_DEADLINE_S
@@ -559,7 +449,7 @@ class SettleClient:
             self._log.close()  # our copy of the fd; the daemon keeps its dup
 
     def close(self):
-        """Shut the server down (run-owner / legacy semantics)."""
+        ""
         try:
             self.rpc({"cmd": "shutdown"})
         except Exception:  # noqa: BLE001
@@ -618,41 +508,15 @@ def shutdown_shared_settle_server(shared_dir: Path) -> bool:
     return ok
 
 
-# CAPSIZE: the ONE definition of "this body did not stay the way it was put down",
-# shared by the settle ladder, both certify passes and the demo (2026-07-31). It was
-# three constants in two modules (physics.TILT_CAP, composition_physics.TILT_CAP_DEG /
-# TOPPLE_DEG) plus two hand-rolled rollable branches, and they had already drifted:
-# certify_composed_scene flagged on a bare tilt with NO rollable branch, so an in-place
-# roll (0731_rls_workdesk marker: 165 deg at 43 mm) read as a capsize while the server's
-# own pin path — same event, same numbers — did not.
 CAPSIZE_DEG = 45.0
 # A ROLLABLE (a lying marker/bottle, a round fruit) has no meaningful tilt: rolling about
 # its own axis is a 90-180 deg "capsize" that is physically nothing. It is judged on how
 # far it TRAVELLED instead — rolling in place passes, rolling away does not.
 CAPSIZE_DISP_MM = 50.0
-TILT_CAP = CAPSIZE_DEG  # legacy alias: the ladder's rung gate reads better as a "cap"
+TILT_CAP = CAPSIZE_DEG
 
 
-# STANDING VETO (2026-08-27). ``rollable`` is a VLM judgement, and it is wrong in one
-# specific, expensive direction: an UPRIGHT slender object (marker, pen, bottle, can,
-# yogurt drink) read as "lying". That flag then disables the ONLY guard against it
-# toppling, because capsized() below does not evaluate tilt at all for a rollable — so
-# settle may lay a correctly-standing object flat and nothing can reject the result.
-# Measured on 0825/0826 eibin: 9 objects placed at 11-22 deg from vertical shipped at
-# 87-90 deg, every one of them flagged rollable=True.
-#
-# The veto is one-directional (True -> False only): it can never GRANT rollable, so it
-# cannot strip the tilt guard from anything. It is also NOT a pin — clearing the flag
-# routes the body through the non-rollable ladder, which tries the pristine and
-# CoM/flatten rungs and still accepts the fallen pose when nothing stands, so a wrong
-# upright placement degrades instead of freezing.
-#
-# Judged on the PLACED collision geometry (the settle INPUT, decomposed by
-# _decompose_all before the add), which is the one moment the object is still standing.
 UPRIGHT_VETO_DEG = 25.0
-# Elongation (sqrt of the ratio of the two largest PCA eigenvalues) below this means the
-# long axis is numerical noise — a ball or a lemon. Those must keep their exemption:
-# rolling is all they do. Two toy balls in benchmark_final sit at 1.00 and 1.21.
 UPRIGHT_VETO_MIN_ELONGATION = 1.5
 
 
@@ -753,12 +617,7 @@ def _drop_attempt(result: dict, stage: str, role: str, attempt_id: int) -> dict:
 def _finalize_drop_bookkeeping(
     rec: dict, attempts: list[dict], retained: Optional[int]
 ) -> None:
-    """Project attempt history onto the final retained preprocessing pose.
-
-    A failed trial *after* ``retained`` (notably a reverted ICP correction) must not
-    pollute final convergence or recovery. Probe-only drops are evidence but are not
-    candidates and therefore do not create ``settle_recovered``.
-    """
+    ""
     rec["drop_attempts"] = attempts
     rec["retained_drop_attempt"] = retained
     final = next((a for a in attempts if a["id"] == retained), None)
@@ -780,18 +639,7 @@ def _finalize_drop_bookkeeping(
     )
 
 
-# Owner rules 2026-07-31 (0730-batch replay in CHANGELOG):
-# FLIP_ACCEPT_DEG — a non-rollable whose raw drop lands beyond this is FLIPPING to
-# its stable face; every rescue rung lands ~the same flip (0730 moma tape 169.6 ->
-# stab attempt 170.4; mugs4v2 clip 153.7 -> 153.6), so rescue burns two drops to
-# change nothing — accept the flip and skip the rungs.
 FLIP_ACCEPT_DEG = 145.0
-# PRISTINE_CONFIRM_DEG — the pristine (complete) mesh landing within this of the raw
-# tilt means the rotation is NOT a raw-mesh artifact: the raw rest is legitimate
-# (0730_fix_breakfast spoon: raw 45.2 vs pristine 33.9 — a conform-in-place that the
-# old adopt-if-under-cap rule turned into a mesh swap). Blocks PRISTINE adoption
-# only; the stabilized rung still gets its shot (sunglasses/fan/plush class, where
-# BOTH meshes are unstable at the authored pose and the CoM hold is correct).
 PRISTINE_CONFIRM_DEG = 30.0
 
 
@@ -812,26 +660,9 @@ def pristine_confirms_raw(tilt_raw: float, tilt_pristine: float) -> bool:
     return abs(tilt_pristine - tilt_raw) < PRISTINE_CONFIRM_DEG
 
 
-# Scene-entry topple retry: an object that STOOD in the isolation ladder
-# (ladder_tilt <= HCLEAR_LADDER_OK) but FELL on the full-scene drop because a
-# neighbor forced a big vertical lift (lift > HCLEAR_LIFT_MM) is retried by
-# SLIDING it to the nearest clear xy within a HCLEAR_MAX-radius DISK (server
-# cmd_clear_along), then settling from contact — no free-fall, no topple. A disk
-# rather than the camera ray: the clear opening is usually off any single ray
-# (0715 wendy1 marker cleared 25mm away in -x while its ray pointed -y).
-# NOTE: the server's down-preference (DOWN_PREF_MIN_LIFT_MM, armed by the
-# ``ancestors`` field on scene-entry drops) now resolves big non-ancestor lifts
-# DOWNWARD first; these gates remain the reactive backstop for overlaps with no
-# clear pose below.
 HCLEAR_MAX = 0.10  # max horizontal slide radius (m)
 HCLEAR_LADDER_OK = 15.0  # "stood in isolation" ceiling (deg)
 HCLEAR_LIFT_MM = 30.0  # "big neighbor-forced lift" floor (mm)
-# A dropped-from-atop object can land nearly UPRIGHT (low cum_tilt) yet far from
-# where it was placed — it tumbled/slid off the thing it overlapped. A big
-# horizontal drift of the settled origin vs the placed pose is that signal, and
-# it fires the same clear-then-settle retry even when the tilt gate misses
-# (abc3 microphone_1: 417mm lift-to-clear, landed at 11deg -> no topple, but
-# drifted off its stand).
 HCLEAR_XY_MM = 50.0  # "slid/tumbled far from placed xy" floor (mm)
 # ATOP-A-NON-PARENT retry: scene-entry lift-to-clear resolves an XY overlap with a
 # same-level neighbor VERTICALLY (lifts straight up), so an object can settle nearly
@@ -841,11 +672,6 @@ HCLEAR_XY_MM = 50.0  # "slid/tumbled far from placed xy" floor (mm)
 # footprint, slide it off to a clear cell on its real support instead.
 ATOP_FRAC = 0.5  # min fraction of the object's base a non-parent must support to fire
 HCLEAR_MAX_ATOP = 0.15  # larger slide radius: must clear a (possibly wide) neighbor (m)
-# RIM-TOPPLE NUDGE: an object that FELL only because its placed xy sits on the parent's
-# upturned rim (topples on the parent/scene but rests flat on a bare slab) is slid toward
-# the parent centroid in RIM_NUDGE_STEP_MM steps up to RIM_NUDGE_CAP_MM; the FIRST offset
-# whose full-scene re-drop tilt <= TILT_CAP is accepted (0722 abc2 knife on the tray rim,
-# 5.7deg on a slab -> 173deg on the rim -> ~9deg once nudged 20mm onto the floor).
 RIM_NUDGE_STEP_MM = 5
 RIM_NUDGE_CAP_MM = 25
 
@@ -885,18 +711,7 @@ def _bake_baseline_glb(o: dict, rec: dict) -> str:
 def certify_rescue_candidates(
     drift: dict, ordered: list, records: dict, theta_deg: float = STABILIZE_THETA_DEG
 ) -> list[str]:
-    """Objects to re-certify WITH their CoM bundle after a joint certify (2026-09-16).
-
-    The CoM rung is decided on the isolated ladder drop, so a body that stands that short
-    drop unaided but topples in the long joint certify shipped fallen with ``fell=False``
-    (IMG_8219 plush: stood 2.5 deg in isolation for the first time in 14 runs, then 68 deg
-    at certify and baked). Candidates are non-rollable RAW standers with no bundle yet,
-    no accepted flip, whose certify tilt capsized and whose intrinsic tip margin is below
-    ``theta_deg`` — the same metastability test the pristine branch already applies. A
-    stable-once-upright object (margin >= theta) is never touched; nor is one that simply
-    held certify, so the 57 marginal-but-standing objects of the 09-14/09-15/09-16 runs
-    are unaffected (1 of 1010 raw standers qualified).
-    """
+    ""
     out = []
     for o in ordered:
         name = o["name"]
@@ -944,29 +759,14 @@ def _chosen_swap(o: dict, rec: dict) -> dict:
     return {"npz": o["parts_npz"]}
 
 
-# --------------------------------------------------------------------------- #
-# physics/pose_changes.json — the run's settle record                          #
-# --------------------------------------------------------------------------- #
-# One file per scene, written by TWO stages in different processes: preprocess owns
-# `objects` (whole-file write), composition certify merges its own block in at the end
-# of the run. Both go through the helpers below so the schema and the run stamping stay
-# in one place.
-#
-# The record keys are an explicit whitelist — a rec key absent here is silently dropped,
-# which is how the first 0731_lad batch shipped records with the ladder rungs skipped
-# but no reason recorded. pose_changes_test.py pins the set.
 _POSE_CHANGE_KEYS = (
     "chosen", "tilt_raw", "tilt_pristine", "tilt_stabilized", "ladder_tilt_deg",
     "rollable", "disp_raw_mm", "ladder_disp_mm", "rollback_xy_mm", "tilt_rollback",
     "disp_rollback_mm",
-    # owner ladder rules (2026-07-31): WHY the rescue rungs were skipped
     "flip_accepted", "raw_confirmed_by_pristine", "physics_overrides", "lift_mm",
     # signed releases (negative = snap-down of a floating pose) + the non-ancestor
     # down-preference flag
     "release_dz_mm", "ladder_release_dz_mm", "down_cleared",
-    # F0b: convergence of the RETAINED drop, complete drop history, and whether the
-    # ladder recovered from an earlier candidate that stayed in motion. A still-false
-    # terminal pose is report-only: production continues with settle_failed=True.
     "converged", "drop_continued", "steps_used", "drop_attempts",
     "retained_drop_attempt", "settle_recovered", "settle_failed",
     "icp", "icp_skipped", "icp_skipped_overlap_mm", "icp_reverted_tilt_deg",
@@ -976,8 +776,6 @@ _POSE_CHANGE_KEYS = (
     # cumulative placed -> post-preprocess world matrix that the delivered-vs-placed
     # measure composes the composition delta onto (see certify_composed_scene)
     "certify", "settle_total",
-    # certify-topple rescue (2026-09-16): an isolation-stander that toppled in the joint
-    # certify was re-certified with its CoM bundle ({tilt_before_deg, tilt_after_deg, held})
     "certify_rescue",
     # standing veto: present only when a VLM rollable=True was cleared because the body
     # was PLACED standing on end ({placed_tilt_deg, elongation}); absent means no veto
@@ -986,9 +784,7 @@ _POSE_CHANGE_KEYS = (
 
 
 def run_id_for(out_dir) -> str:
-    """Identity of the run that owns a scene's artifacts: ``<run>/<task>``, from the
-    output layout ``output/static_scene/<run>/<task>/``. Used to tell a run's OWN
-    certify record apart from one that rode in on a --skip-preprocess staging copy."""
+    ""
     p = Path(out_dir).resolve()
     return f"{p.parent.name}/{p.name}"
 
@@ -1001,9 +797,6 @@ def write_pose_changes(work: Path, run_id: str, records: dict) -> dict:
         "mode": "incremental",
         "objects": {
             n: {
-                # `fell` == the ladder accepted a fallen/flipped rest. RENAMED from
-                # `toppled` on 2026-07-31: it never meant "tilt > 45", and an accepted
-                # flip-to-stable-face (flip_accepted) lands here too.
                 "fell": r.get("fell"),
                 "tilt_deg": r.get("cum_tilt_deg"),
                 "rest_dz": r.get("redrop_dz_mm", 0.0) / 1000.0,
@@ -1018,13 +811,7 @@ def write_pose_changes(work: Path, run_id: str, records: dict) -> dict:
 
 
 def merge_pose_changes(pc_path: Path, run_id: str, block: dict) -> dict:
-    """Merge a late block (composition certify) into pose_changes.json, dropping any
-    certify record that belongs to a DIFFERENT run.
-
-    A ``--skip-preprocess`` staging copies the source run's whole file — ladder records
-    (wanted: they carry the collider choice + stabilization bundles) and its certify
-    blocks (never wanted: they describe another scene's delivered poses). Nothing in the
-    file used to say which run wrote what, so stale flags survived silently."""
+    ""
     pc = {}
     if pc_path.exists():
         try:
@@ -1064,40 +851,7 @@ def incremental_settle(
     disable_icp: bool = False,
     icp_freeze: Optional[list[str]] = None,
 ) -> dict[str, dict[str, Any]]:
-    """Incremental physics build-up on the persistent Isaac server (DFS in support
-    order). Per object: release at the depth-guided pose from ~FIRST CONTACT (+2 mm;
-    lifted out of penetration, or snapped DOWN when the MoGE pose floats — a float
-    free-falls and topples what a contact release keeps upright, 0725_arr_room1
-    chair_1; big lifts forced by a NON-ancestor prefer a clear pose below,
-    server down-preference) -> ladder on instability (tilt>45, or for
-    a ROLLABLE object xy-displacement>50mm — rolling in place is benign). Ladder
-    rungs: non-rollable raw -> pristine (canonical upright) -> CoM/flatten
-    stabilize -> accept the FALLEN pose; rollable raw -> ROLL-BACK (keep the
-    settled rotation, translate the drift back, re-seat) -> accept the fallen
-    re-seat (rollables never take pristine or the CoM/flatten freeze). Two owner
-    rules (2026-07-31) short-circuit the non-rollable rungs: tilt_raw >
-    FLIP_ACCEPT_DEG accepts the flip outright (rescues land the same flip), and a
-    pristine drop within PRISTINE_CONFIRM_DEG of raw blocks the PRISTINE adoption
-    (the rotation is real, not a mesh artifact — no mesh swap; the stabilize rung
-    still runs, and its failure restores the raw rest) ->
-    every drop that hits its cap continues the same live rigid body for one full
-    extra budget; a still-nonconverged candidate cannot win a rung, but if every
-    fallback fails the terminal pose is retained and reported instead of aborting.
-    ``drop_attempts`` preserves every candidate/probe while ``converged`` describes
-    only the pose actually retained ->
-    per-object ICP (yaw/x/y/scale, bottom-
-    center pivot) -> re-drop so z is re-derived after photo alignment -> commit
-    (frozen static collider for all later releases). Ends with a certify pass (all
-    dynamic, short free sim — micro-drift baked + recorded) and ONE texture-preserving
-    Blender bake of each object's cumulative matrix into ``<glb>_pm.glb``.
-
-    Writes physics/pose_changes.json (ladder/ICP/re-drop/certify per object) and
-    pose_match.json (ICP log, demo-compatible). Returns the per-object records.
-
-    ``disable_icp`` skips the per-object ICP (and its re-drop): objects keep their
-    MoGE-placed yaw/xy/scale and are only settled + certified, never photo-aligned.
-    ``icp_freeze`` locks individual DOFs instead (any of ``xy``/``yaw``/``scale``):
-    the ICP still runs but only fits the remaining DOFs."""
+    ""
     from lib.tools.geometry.pose_match import (
         bake_world_matrices,
         bottom_center_pivot,
@@ -1110,9 +864,6 @@ def incremental_settle(
 
     freeze_kw = icp_freeze_kwargs(icp_freeze)
 
-    # A retained object that failed placement or mesh reconstruction must stop at
-    # the artifact boundary.  The old filter below silently skipped it, allowing
-    # physics and every later agent stage to operate on a smaller scene inventory.
     from lib.tools.geometry.inventory_contract import validate_object_materialization
 
     validate_object_materialization(graph, placement_objs, artifact_root=out_dir)
@@ -1255,32 +1006,16 @@ def incremental_settle(
                 rec["ladder_release_dz_mm"] = round(r["release_dz_mm"], 1)
 
             def _unstable(rr):
-                # Class-aware rung gate (see capsized): a ROLLABLE is unstable only
-                # when it rolled/slid AWAY — rolling in place reads as a huge tilt
-                # but is benign (0724 bin_condiments: the lying ketchup bottle
-                # rolled 90deg in place, tripped the tilt gate, took the pristine
-                # UPRIGHT rung, and was baked standing). A cap-hit snapshot is not a
-                # demonstrated rest even if it has not crossed either motion cap yet.
                 return drop_unstable(rr, roll)
 
             rec["tilt_raw"] = r["tilt_deg"]
             rec["disp_raw_mm"] = r.get("disp_xy_mm")
             tilt, disp, glb = r["tilt_deg"], r.get("disp_xy_mm", 0.0), o["glb"]
-            # Rule 1 (owner 2026-07-31): beyond FLIP_ACCEPT_DEG the body flips to its
-            # stable face regardless of rung — accept the flip, skip the rescues.
             raw_converged = bool(r.get("converged", True))
             flip = raw_converged and flip_accepted(r["tilt_deg"], roll)
             if flip:
                 rec["flip_accepted"] = True
             if _unstable(r) and roll:
-                # ROLL-BACK rung (rollables only, terminal): the raw drop found a
-                # genuine rest ORIENTATION but rolled/slid away past the disp cap.
-                # Keep the rotation physics chose, cancel the travel: translate the
-                # drift back and re-seat from contact. Rollables NEVER take the
-                # CoM/flatten stabilize rung — freezing the PLACED pose bakes
-                # cap-edge rests with the visual mesh hovering (0724 bin_condiments
-                # ketchup), and the override bundle then rides into every
-                # register/composition settle holding the unphysical pose up.
                 dvec = r.get("disp_xy_m") or [0.0, 0.0]
                 M = np.eye(4)
                 M[0, 3], M[1, 3] = -float(dvec[0]), -float(dvec[1])
@@ -1313,10 +1048,6 @@ def incremental_settle(
                     and bool(rp.get("converged", True))
                     and pristine_confirms_raw(rec["tilt_raw"], rp["tilt_deg"])
                 ):
-                    # Rule 2 (owner 2026-07-31): pristine CONFIRMS the raw rest — the
-                    # rotation is not a raw-mesh artifact, so no mesh swap. Swap raw
-                    # parts back in and re-drop so the accepted pose matches the raw
-                    # glb the bake uses; the stabilized rung below still gets its shot.
                     rec["raw_confirmed_by_pristine"] = True
                     r, r_attempt = _retry(
                         {"npz": o["parts_npz"], **roll_kv, **_vlm_fields(name)},
@@ -1354,10 +1085,6 @@ def incremental_settle(
                     tilt, disp = r["tilt_deg"], r.get("disp_xy_mm", 0.0)
                     rec["chosen"] = "stabilized"
                 elif rec.get("raw_confirmed_by_pristine"):
-                    # Rule-2 terminal: the pristine-confirmed RAW rest is the honest
-                    # pose — restore it rather than accepting the stabilized attempt's
-                    # fall (which can be WORSE than raw: 0730_full moma tape raw 69.1
-                    # -> stabilized attempt fell 169.5).
                     r, r_attempt = _retry(
                         {"npz": o["parts_npz"], **roll_kv, **_vlm_fields(name)},
                         "ladder_raw_restore",
@@ -1386,20 +1113,6 @@ def incremental_settle(
                     tilt, disp = r["tilt_deg"], r.get("disp_xy_mm", 0.0)
                 rec["fell"] = True
             if not roll and rec["chosen"] == "pristine":
-                # METASTABLE pristine: a body whose NATURAL (uniform-density) tip
-                # margin is below the stabilization ladder's own threshold stands a
-                # short isolated drop but topples in a long JOINT sim (0725_snapdown
-                # vase: pristine 1.9-5.7deg, then TOPPLED at preprocess certify in
-                # one run and composition certify in the other). Gate on the
-                # INTRINSIC margin, NOT on how the raw drop went — a raw fall often
-                # just means a weird SAM3D pose flopping to a natural rest, and a
-                # stable-once-upright object must NOT get a physics override. When
-                # armed, re-run the pristine rung WITH the bundle (solved on the
-                # PRISTINE frame) so it holds the certify AND, via
-                # physics_overrides, every composition settle (the boot re-derives
-                # the CoM on its fresh collider; friction/damping/flatten reused).
-                # chosen stays "pristine": the swap npz IS the pristine parts, so
-                # the bake baseline (pristine glb) is unchanged.
                 stab_p = _stabilize_params(o["pristine_parts_npz"])
                 if stab_p and stab_p["tip_theta_uniform_deg"] >= STABILIZE_THETA_DEG:
                     stab_p = None  # stable under its own mass model: leave it alone
@@ -1429,10 +1142,6 @@ def incremental_settle(
                         tilt, disp = r["tilt_deg"], r.get("disp_xy_mm", 0.0)
             rec["ladder_tilt_deg"] = tilt
             rec["ladder_disp_mm"] = disp
-            # stabilized rung -> its raw-frame bundle; otherwise PRESERVE a bundle the
-            # metastable-pristine branch armed (clobbering it to None here dropped the
-            # 0725_tipfix vase's overrides from the record: the live body held certify
-            # at 0.06deg but composition would have re-booted it uniform-density).
             rec["physics_overrides"] = (
                 stab if rec["chosen"] == "stabilized" else rec.get("physics_overrides")
             )
@@ -1453,12 +1162,6 @@ def incremental_settle(
                 rec["down_cleared"] = True
             rec["tilt_deg"] = rec["cum_tilt_deg"] = r["cum_tilt_deg"]
 
-            # TOPPLE RETRY: it stood in the isolation ladder but fell here because a
-            # neighbor forced a big vertical lift+drop. Restore the upright pose and
-            # SLIDE it to the nearest clear xy within a HCLEAR_MAX-radius DISK (own
-            # support/ancestors excluded), then settle from contact. A disk, not a
-            # camera ray: the clear opening is often off-axis to any single ray
-            # (0715 wendy1 marker cleared in -x while its ray pointed -y).
             _drift_xy_mm = float(np.hypot(*np.asarray(r["t"], float)[:2])) * 1000.0
             if roll:
                 # a rollable rotating in place inflates the frame translation t
@@ -1555,25 +1258,13 @@ def incremental_settle(
                         rec["atop_of"] = _sup2
                         r = _slide_off_atop(r)
 
-            # RIM-TOPPLE NUDGE: still down after the retries, and it topples on the parent
-            # but rests flat on a bare slab -> its placed xy sits on the parent's upturned
-            # rim. Slide toward the parent centroid (5mm steps, cap 25mm), re-dropping in
-            # the full scene; accept the FIRST offset whose tilt <= TILT_CAP. Skips ICP if
-            # nudged (its MoGE cloud is at the rim xy and would drag it back). 0722 abc2 knife.
             nudged = False
-            # rollables skip the rim nudge: their cum tilt is dominated by the
-            # accepted benign roll, so the trigger (and its bare-slab tilt probe)
-            # cannot distinguish a rim topple from rolling in place.
             if (
                 not roll
                 and rec["tilt_deg"] > TILT_CAP
                 and anc
                 and anc[0] in center_by_name
             ):
-                # Every rim probe resets/re-drops the live body. Preserve the exact
-                # converged full-scene pose that triggered the probes so a failed search
-                # can return to it instead of doing one more reset-and-drop that may land
-                # much farther away (0811 abc_5 bottle: 20mm scene-entry -> 85mm restore).
                 pre_rim = np.asarray(client.rpc({"cmd": "pose", "name": name})["total"])
                 pre_rim_attempt = drop_state["retained"]
                 dvec = (center_by_name[anc[0]] - np.asarray(o["center"], float))[:2]

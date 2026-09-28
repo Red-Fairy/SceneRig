@@ -39,9 +39,6 @@ from lib.utils.provenance import blender_provenance
 
 logger = logging.getLogger(__name__)
 
-# Mean 8-bit luminance below which a final render counts as blank. Real scenes sit at
-# 60-240; the 2026-08-09 blank frames all measured 0.41, so the gap is wide and this
-# threshold never has to discriminate a merely dim scene from a broken one.
 BLACK_RENDER_LUMINANCE = 2.0
 
 
@@ -54,17 +51,14 @@ def _blend_fingerprint(blend_path: Optional[str]) -> Optional[tuple]:
 
 
 def _mean_luminance(render_path: str) -> Optional[float]:
-    """Mean luminance of a render, or None when it cannot be measured.
-
-    Unreadable means "unknown", never "blank": a probe failure must not fail a run.
-    """
+    ""
     try:
         import numpy as np
         from PIL import Image
 
         with Image.open(render_path) as img:
             return float(np.asarray(img.convert("L"), dtype="float32").mean())
-    except Exception as exc:  # noqa: BLE001 - diagnostic probe only
+    except Exception as exc:
         logger.warning("Could not measure render luminance (%s): %s", render_path, exc)
         return None
 
@@ -243,12 +237,6 @@ class RootSceneAgent:
         ),
     ]
 
-    # 2026-09-15 (owner plan P4): a NOTABLE final free-settle change — an object the
-    # joint certify toppled or moved past CERT_DXY_CAP_M / CERT_TILT_CAP_DEG after the
-    # composition agent ended (layoutcheck abc_1: croissant_4 rotated 37 deg) — is not
-    # shipped silently under gpt6_v1: ONE short composition repair round sees exactly
-    # which objects physics moved, may re-place or accept them, then the scene is
-    # certified again. Rounds: 4 + 4 per listed object, capped.
     FINAL_SETTLE_REPAIR_MAX_ROUNDS = 16
     FINAL_SETTLE_REPAIR_WHY = (
         "The scene you delivered went through the final free physics settle (every "
@@ -271,11 +259,6 @@ class RootSceneAgent:
         self.args["harness_profile_manifest"] = resolve_harness_profile(
             self.harness_profile["name"]
         )
-        # Keys are the sequential stage indices used by _record_stage_result
-        # (initializer=0, then LOOP_STAGES enumerated from 1). The old
-        # "stage_index_semantics" index->label map lived here purely to be dumped into
-        # the prompt; _prompt_stage_order derives the order from the stage specs instead
-        # (audits/PROMPT_LEAKAGE_AUDIT_2026_08_22.md).
         self.stage_context: dict[str, Any] = {
             "harness_profile": resolve_harness_profile(self.harness_profile["name"]),
             "stage_artifacts": {},
@@ -306,21 +289,12 @@ class RootSceneAgent:
             raise RuntimeError(
                 "inherited base manifest does not exactly match the GPT-6 harness profile"
             )
-        # 2026-09-15 owner decision: stage-only reruns are a WIP workflow — no per-artifact
-        # hash binding to the base run's final manifest (the staged copy is path-rebased by
-        # scripts/stage_stage_only.sh, so those hashes cannot match by design).
         return True
 
     def _validate_pre_agent_inventory(
         self, *, recovery_complete: bool = False
     ) -> dict[str, Any]:
-        """Fail before the first agent when retained objects did not materialize.
-
-        The runner validates persisted artifacts too, but ``main.py`` can be launched
-        directly and staged runs can bypass that runner.  This boundary therefore
-        repeats the cheap direct masks/graph/placement checks and probes the exact
-        shared blend that the next owning stage will receive.
-        """
+        ""
 
         moge_dir = self.args.get("moge_dir")
         if not moge_dir:
@@ -576,10 +550,6 @@ class RootSceneAgent:
             self.stage_context["runtime_recovery"][
                 "post_recovery_inventory_validated"
             ] = True
-        # Post-preprocess, pre-agent fingerprint of the shared blend. If a stage runs
-        # and this never changes, no agent edit was persisted and the run exports the
-        # untouched input (2026-08-09: 80 runs shipped that way). Skipping every stage
-        # legitimately leaves it untouched, so only an executed stage makes it fatal.
         every_stage = {self.INITIALIZATION_STAGE.name} | {
             s.name for s in self.LOOP_STAGES
         }
@@ -954,11 +924,7 @@ class RootSceneAgent:
     def _final_settle_repair_request(
         self, certification: dict[str, Any]
     ) -> Optional[dict[str, Any]]:
-        """Objects the final free-settle moved NOTABLY (toppled, or past CERT_DXY_CAP_M
-        laterally OR vertically, or past CERT_TILT_CAP_DEG), as the repair-round request;
-        None when nothing qualifies or outside gpt6_v1 (the baseline harness keeps
-        record-and-ship). Vertical drop counts since 2026-09-15 (owner): v5accept toast
-        random bread_1 fell 59 mm into its rack during the final certify with no trigger."""
+        ""
         if self.harness_profile["name"] != "gpt6_v1":
             return None
         objects = certification.get("objects") or {}
@@ -1319,16 +1285,7 @@ class RootSceneAgent:
         stage_idx: int,
         repair: Optional[dict[str, Any]] = None,
     ) -> dict[str, Any]:
-        """ONE generator session, no verifier, no retry (composition). The generator's
-        own check_rules_enforced gate (penetration + investigation coverage) and a
-        voluntary `end` are both required for approval. Memory and
-        the per-object investigate/move budgets span the whole session — unlike the old
-        two-attempt loop, which reset both and re-investigated blind.
-
-        ``repair`` (2026-09-15, gpt6_v1) runs the SHORT final-settle repair round
-        instead: attempt 2 of the stage, the round budget from the request, the moved
-        objects listed in the prompt's stage context, and the exec server's coverage
-        gate scoped to exactly those objects (see ``_final_settle_repair_request``)."""
+        ""
         attempt_idx = 1 if repair is None else 2
         generator_args = self._build_agent_args(
             stage.name, stage_idx, stage.generator_cls.__name__, attempt_idx
@@ -1622,8 +1579,6 @@ class RootSceneAgent:
             row = {key: raw[key] for key in allowed if key in raw}
             if not row.get("id") or not row.get("build_name"):
                 continue
-            # Rebind even legacy rows that omitted the field. This record is only
-            # reached after its enclosing evidence/current revision equality passed.
             row["scene_graph_revision"] = current_revision
             rows.append(row)
         return rows
@@ -1763,12 +1718,7 @@ class RootSceneAgent:
     def _expected_constraint_kinds(
         relationship: dict[str, Any], generator_result: dict[str, Any]
     ) -> Optional[set[str]]:
-        """Mirror schema-v1's compiled obligations for completeness checks.
-
-        This is deliberately strict rather than a legacy adapter.  Unknown source
-        types or a missing scene graph make certification unavailable; they never
-        collapse to an implicit hard/pass relationship.
-        """
+        ""
         relation_type = str(relationship.get("type") or "").strip().casefold()
         if relation_type == "against":
             return {"edge_parallel_to_surface", "finite_against"}
@@ -1806,13 +1756,7 @@ class RootSceneAgent:
         cls,
         generator_result: dict[str, Any],
     ) -> Optional[dict[str, Any]]:
-        """Build the bounded, current-revision gate record given to the verifier.
-
-        Generator artifacts retain the complete backend payload.  Here we keep only
-        decision/provenance fields that can change the verifier's interpretation.  A
-        stale record is never summarized: scene edits advance ``gate_input_revision``
-        while the evidence remains bound to its earlier revision.
-        """
+        ""
         rule = generator_result.get("rule_evidence")
         yaw = generator_result.get("yaw_evidence")
         relationships = generator_result.get("relationship_evidence")
@@ -2147,10 +2091,8 @@ class RootSceneAgent:
     ) -> Optional[str]:
         """The current full-scene reference-view render the verifier judges from.
 
-        The generator's own render when it is current (the common case, free); otherwise
-        render the reference view here. A verifier with NO render falls back to judging
-        from scene-info text — which is what every texture/lighting/initializer verifier
-        did between 07-22 and 07-26 (audits/VERIFIER_RENDER_2026_07_26.md)."""
+        Use the generator's current render when available; otherwise render the
+        reference view here."""
         render = self._latest_normal_render(generator_result)
         if render:
             return render
@@ -2243,11 +2185,6 @@ class RootSceneAgent:
         rules_gap = (
             gated and not maxrounds and generator_result.get("rules_passed") is False
         )
-        # The rejection is PROCEDURAL (the attempt didn't finish cleanly), not a verdict that the
-        # scene is bad: the SCENE STATE carries into the next attempt and is often largely correct.
-        # An earlier verifier phrased this as "it must be regenerated" and the next generator
-        # obediently deleted + rebuilt every surface, re-introducing the very bugs the attempt had
-        # fixed — hence the explicit incremental-edit instruction.
         _incremental = (
             "The scene state IS preserved into the next attempt and may be largely correct — "
             "phrase edit_suggestion as INCREMENTAL edits to named surfaces (what to move/resize/"
@@ -2274,10 +2211,6 @@ class RootSceneAgent:
         elif (
             stage_name == "initializer" and generator_result.get("rules_passed") is True
         ):
-            # Positive confirmation, not just absence of a rejection note: the verifier prompt
-            # keys "don't re-verify (a)-(e)" on the attempt note, and 0721_bypass_groot2 showed
-            # a verifier hallucinating a table-size mismatch and rejecting despite a passed
-            # gate. State the pass explicitly so size/coverage stays the gate's verdict.
             cutoff_note = (
                 "This attempt PASSED check_rules_enforced: z=0/level, penetration, table base, "
                 "and every hard constraint explicitly certified by the current gate evidence "
@@ -2347,10 +2280,6 @@ class RootSceneAgent:
             ):
                 selected = yaw_summary.get("selected_candidate") or {}
                 analytic = selected.get("metrics") or {}
-                # the gate could NOT measure the main support's yaw (weak/absent
-                # anchor) — the visual check is on the VERIFIER, and only the
-                # reference view supports it (0724 clutter_fruit: table shipped
-                # ~90 deg off after the verifier judged from viewpoint orbits).
                 cutoff_note += (
                     "EXCEPTION — structured evidence marks the main support's YAW "
                     f"{'ADVISORY' if yaw_enforcement == 'advisory' else (yaw_status.upper() or 'UNVERIFIED')} "
@@ -2372,8 +2301,6 @@ class RootSceneAgent:
             else:
                 yaw_note = generator_result.get("yaw_note")
                 if yaw_note:
-                    # Backward compatibility with old executor responses.  New
-                    # responses use the branches above and never require prose regexes.
                     cutoff_note += (
                         f"EXCEPTION — the gate did NOT verify the main support's YAW ({yaw_note}). "
                         "Check the table's edge directions against the target photo on the "
@@ -2487,10 +2414,6 @@ class RootSceneAgent:
             path
             for path in render_dir.glob("*/*")
             if path.suffix.lower() in {".png", ".jpg", ".jpeg"}
-            # focus renders are isolated single objects; they live in a
-            # `<n>_focus_<obj>/` DIRECTORY and are named after the CAMERA, so only the
-            # directory identifies them — the old name-based filter never matched, and
-            # the Camera.png glob above it skipped the filter entirely.
             and "focus_" not in path.parent.name.lower()
         ]
         # scene-camera renders first, anything else (other cameras) only as a fallback
@@ -2559,10 +2482,6 @@ class RootSceneAgent:
             profile["name"]
         )
         stage_args["root_stage_name"] = stage_name
-        # Windowed memory is COMPOSITION-ONLY: dict(self.args) used to leak the
-        # CLI default (memory_window=5) into every stage, silently running the
-        # initializer/texture/lighting under the composition ledger memory
-        # (AUDIT_2026_07_15). Null it here; the composition block below re-enables.
         stage_args["memory_window"] = None
         if stage_name == "composition":
             # merged pose refinement: investigate/move caps + windowed memory
@@ -2611,8 +2530,6 @@ class RootSceneAgent:
         if override is not None:
             return int(override)
         if stage_name == "composition" and not is_verifier:
-            # single continuous session (no 2nd attempt) -> a bigger budget than the
-            # old per-attempt min(45, 5+3n); ~1 investigate + 1-2 moves per object.
             return min(70, 8 + 5 * self._n_pose_objects())
         return int(self.args.get("verifier_max_rounds", 8) if is_verifier else 10)
 
@@ -2644,10 +2561,6 @@ class RootSceneAgent:
         # use the shared --verifier-max-rounds budget.
         is_verifier = "Verifier" in agent_name
         agent_args["max_rounds"] = self._stage_max_rounds(stage_name, is_verifier)
-        # Verifier history is now VERIFIER-ONLY and OWN-STAGE-ONLY. The generator already
-        # receives its stage's latest feedback via _append_stage_retry_context, and other
-        # stages' verdicts are not its business (they invited cross-stage re-litigation —
-        # audits/PROMPT_LEAKAGE_AUDIT_2026_08_22.md), so it gets none.
         if is_verifier:
             own = self._own_stage_verifier_history_for_prompt(stage_name, stage_idx)
             sc = agent_args.get("stage_context")
@@ -2735,17 +2648,7 @@ class RootSceneAgent:
         return history[-1].get("approval_checklist", [])
 
     def _prompt_stage_context(self, stage_name: str, stage_idx: int) -> dict[str, Any]:
-        """Return the agent-facing pipeline position — no orchestrator bookkeeping.
-
-        Trimmed 2026-08-22 (audits/PROMPT_LEAKAGE_AUDIT_2026_08_22.md). This block used to
-        dump, per completed stage, the agent class name, attempt index, verifier verdict,
-        absolute artifact directory and last tool called, plus every other stage's verifier
-        outcome. No prompt referenced any of it, and a prior stage's ``approved=false``
-        invited the current stage to re-litigate work its own prompt assigns to the owning
-        stage (0814_wallfix_robodojo_stack_bowls_standard handed composition a failed
-        initializer). ``self.stage_context`` still holds the full record for orchestration
-        (``_unapproved_stages``) and for pipeline_result.json — only this projection is cut.
-        """
+        """Return the agent-facing pipeline position without orchestrator bookkeeping."""
         context: dict[str, Any] = {
             "stage_order": self._prompt_stage_order(),
             "current_stage": stage_name,
@@ -2847,19 +2750,7 @@ class RootSceneAgent:
     def _own_stage_verifier_history_for_prompt(
         self, stage_name: str, stage_idx: int
     ) -> dict[str, Any]:
-        """The CURRENT stage's latest verifier decision, compacted for the VERIFIER.
-
-        Only the reviewing verifier receives this — it diffs prior attempts against its
-        checklist. Long prose (``text``) and ``problem_images`` are dropped; a retry also
-        gets the full decision through the dedicated stage_retry_feedback channel, so
-        nothing is lost.
-
-        OTHER stages' verdicts are deliberately absent. They used to ride along as
-        ``attempt_idx``/``approved`` pairs for every stage, which told a generator that an
-        unrelated stage had failed (see ``_prompt_stage_context``). The generator gets no
-        verifier history at all: its own stage's feedback arrives via
-        ``_append_stage_retry_context``. pipeline_result.json keeps the FULL history.
-        """
+        ""
         history = (
             self.stage_context.get("verifier_history", {})
             .get(str(stage_idx), {})

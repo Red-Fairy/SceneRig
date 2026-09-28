@@ -59,11 +59,7 @@ def relationship_schema_is_valid(rel: dict[str, Any]) -> bool:
 
 
 def relationship_is_hard(rel: dict[str, Any]) -> bool:
-    """Whether a valid schema-v3 relationship may drive required geometry/rules.
-
-    Missing or mismatched fields fail closed.  There is intentionally no legacy
-    default-hard path: incompatible cached graphs must be re-preprocessed.
-    """
+    ""
 
     return relationship_schema_is_valid(rel) and str(rel.get("status")).lower() == "confirmed"
 

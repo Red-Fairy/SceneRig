@@ -5,10 +5,8 @@ Overriding only ``centerOfMass`` on a PhysX rigid body (as the settle stage's
 stabilization does) leaves the auto-computed inertia tensor describing the object's
 NATURAL (uniform-density, geometric-centroid) mass distribution — a self-inconsistent
 (mass, CoM, inertia) triple. Under a plain vertical drop the inconsistency is
-invisible (little torque is needed); under real contact torque (an object toppling
-near a support edge) it can produce runaway rotational dynamics — the plush toy
-launch in 0720_compfix_real8219 (audit: overriding CoM without inertia is a
-self-inconsistent rigid body — see CHANGELOG 2026-07-20).
+invisible (little torque is needed); under real contact torque it can produce
+runaway rotational dynamics.
 
 This module computes a mathematically valid (mass, CoM, diagonal-inertia,
 principal-axes) tuple for an ARBITRARY target CoM: the object's natural inertia

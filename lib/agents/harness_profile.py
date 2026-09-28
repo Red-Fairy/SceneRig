@@ -59,8 +59,6 @@ def resolve_harness_profile(name: Optional[str] = None) -> dict[str, Any]:
             f"unsupported harness profile {selected!r}; expected one of: {supported}"
         )
     if selected == DEFAULT_HARNESS_PROFILE:
-        # Historical version-1 contract data, including retired false keys. Preserve
-        # its serialized shape so existing baseline results remain reusable.
         capabilities = {
             "initializer_object_add": False,
             "initializer_mesh_edit": False,
@@ -72,9 +70,6 @@ def resolve_harness_profile(name: Optional[str] = None) -> dict[str, Any]:
         }
     else:
         capabilities = {capability: True for capability in HARNESS_CAPABILITY_NAMES}
-        # v4 (2026-09-14): the typed composition pose tool is withdrawn. Composition
-        # pose edits go through execute_and_evaluate (physics-settled after every call,
-        # mesh changes rejected) or the measured move() tool; see CHANGELOG.
         capabilities["composition_direct_pose_edit"] = False
     return {
         "schema_version": HARNESS_PROFILE_SCHEMA_VERSION,
@@ -87,15 +82,7 @@ def resolve_harness_profile(name: Optional[str] = None) -> dict[str, Any]:
 def base_manifest_profile_matches(
     payload: Mapping[str, Any], selected_profile: str
 ) -> bool:
-    """Whether an inherited result declares the selected harness contract.
-
-    Manifests produced before profiles existed are baseline-only for compatibility.
-    GPT-6 inheritance always requires an explicit, complete canonical declaration: the
-    same name, schema version and the IDENTICAL capability set. The profile ``version``
-    is a changelog counter, not a contract change — bumping it (v4 -> v5 on
-    2026-09-15) must not make every finished run un-convertible / un-inheritable, so it
-    is ignored here; a capability difference still fails closed.
-    """
+    ""
 
     expected = resolve_harness_profile(selected_profile)
     declared = payload.get("harness_profile")
@@ -108,13 +95,7 @@ def base_manifest_profile_matches(
 
 
 def nonterminal_runtime_recovery_markers(scene_dir: str | Path) -> list[Path]:
-    """Return validated nonterminal GPT-6 runtime-object recovery markers.
-
-    A marker is trusted for pre-agent deferral only when its identity is bound to a
-    durable GPT-6 initializer or composition journal event. Invalid/misbound markers
-    fail closed. Legacy initializer markers predate the explicit ``stage`` field and
-    continue to bind as initializer-only.
-    """
+    ""
 
     scene = Path(scene_dir)
     marker_root = scene / "runtime_objects" / "transactions"

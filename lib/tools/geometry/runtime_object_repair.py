@@ -610,7 +610,7 @@ def new_runtime_inventory(scene_dir: str | Path) -> dict[str, Any]:
 
 
 def load_runtime_inventory(scene_dir: str | Path) -> dict[str, Any] | None:
-    """Load the active overlay, returning ``None`` for a legacy scene."""
+    ""
 
     path = runtime_inventory_path(scene_dir)
     if not path.is_file():
@@ -661,10 +661,7 @@ def write_runtime_inventory(scene_dir: str | Path, payload: Mapping[str, Any]) -
 
 
 def procedural_capture_of(record) -> dict | None:
-    """The gpt6 Empty-tree procedural capture recorded in a runtime record's placement
-    snapshot, or None. Authored geometry is identified by THIS, not by ``mask_policy``:
-    since 2026-09-16 a composition mesh replacement keeps the source photo mask
-    (``tracked``) while still being authored Empty+parts geometry."""
+    ""
     placement = (record or {}).get("placement") if isinstance(record, dict) else None
     capture = (placement or {}).get("procedural_capture") if isinstance(placement, dict) else None
     if isinstance(capture, dict) and capture.get("source_schema") == "gpt6_blender_empty_tree_v1":

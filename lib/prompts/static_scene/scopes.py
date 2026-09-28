@@ -1,17 +1,4 @@
-"""Single source of truth for each static-scene stage's edit boundary.
-
-Every stage's "what it may and may not touch" used to be restated in three places —
-the generator system prompt, the verifier system prompt, and the generator's per-round
-render-feedback in ``lib/agents/generator.py`` — which silently drifted apart (the texture
-feedback still judged objects long after the system prompt was changed to root-surfaces
-only). These constants are the ONE place to edit a stage's scope; the prompts and the
-render-feedback all embed them.
-
-Pipeline order (see ``lib/agents/root.py``): initializer -> texture -> lighting ->
-composition. Physics is settled in PREPROCESSING (before init), so there is no physics stage;
-there is no geometry stage, no camera stage, and composition is the FINAL stage — do not
-reference stages that do not exist.
-"""
+""
 
 from __future__ import annotations
 
@@ -49,15 +36,6 @@ def reconstruction_exclusions(ignore_objects: list[str] | None) -> str:
     )
 
 
-# Meaning of `end` for ONE stage. Keep this in every generator prompt so stage-specific
-# workflow prose cannot quietly redefine budget exhaustion as successful completion.
-#
-# PER-STAGE since 2026-08-22 (audits/PROMPT_LEAKAGE_AUDIT_2026_08_22.md). One shared
-# paragraph used to spell out EVERY stage's gating to every stage, so the initializer was
-# told "composition has no verifier" — cross-stage process detail it cannot act on. It also
-# closed by explaining that a non-approved stage "remains a quality warning rather than
-# making a structurally valid Blender artifact fail": orchestrator bookkeeping that told the
-# agent its own failure was tolerated. Each stage now sees only what gates ITS end call.
 _STAGE_GATES = {
     "initializer": (
         "A current check_rules_enforced pass is REQUIRED before you may call end, and "
@@ -93,11 +71,6 @@ def completion_contract(stage: str) -> str:
     )
 
 
-# Exact support predicate shared by the initializer generator, verifier, and rule-tool
-# description. Keep the threshold and the photo exception in one place.
-# 2026-09-16 (owner): one support contract for BOTH harnesses — each object is checked
-# against its exact declared direct support (scene-graph edge), never collapsed to the
-# main support. Enforced by script_generators.objects_on_direct_supports_report.
 OBJECT_SUPPORT_CONTRACT = (
     "Each current object's XY footprint must be fully inside its exact declared direct support "
     "with a small margin, OR be a photo-supported partial overhang with at least 65% of its "
@@ -108,10 +81,6 @@ OBJECT_SUPPORT_CONTRACT = (
     "fails closed."
 )
 
-# Initialization normally trusts the physics-settled poses, but the old absolute freeze
-# made the resting/penetration gate prescribe an edit that the structure gate then rejected.
-# Keep the narrow exception in one shared contract: generator prompt, verifier prompt, and
-# per-round short scope must not independently redefine which object corrections are allowed.
 INITIALIZER_OBJECT_CORRECTION_CONTRACT = (
     "Imported object poses are physics-settled and are the trusted default, not an invitation "
     "to relayout them. Do not edit an object's transform directly in Blender code. "
@@ -153,7 +122,6 @@ def initializer_object_repair_enabled(
     if selected_profile != "gpt6_v1":
         return False
     capabilities = (harness_profile_manifest or {}).get("capabilities")
-    # 2026-09-15 owner decision: a missing manifest fails CLOSED.
     return bool(capabilities) and all(
         capabilities.get(capability, False)
         for capability in INITIALIZER_OBJECT_REPAIR_CAPABILITIES
@@ -330,12 +298,6 @@ LIGHTING_SCOPE = (
     "leave those as-is and make the existing scene readable and target-like through lighting alone."
 )
 
-# ---- Shared prompt blocks (dedup 2026-07-14) -------------------------------------- #
-# The per-stage generator/verifier prompts repeated these near-verbatim (one noun
-# swapped per stage) and drifted. Single-source them here; tool USAGE details live in
-# the tool schemas the model already sees — prompts should not re-describe tools.
-
-
 def internal_render_feedback(judge: str, fix_kind: str) -> str:
     """Per-stage [Internal Render Feedback] block (texture/lighting/composition)."""
     return (
@@ -359,11 +321,6 @@ def response_rule(before_execute: str) -> str:
     )
 
 
-# Verifier: first-evidence protocol (the texture and lighting verifiers; composition is
-# single-pass with no verifier, and the initializer has its own longer evidence section).
-# The no-render clause is not hypothetical — between 07-22 and
-# 07-26 the render never reached ANY verifier (audits/VERIFIER_RENDER_2026_07_26.md), and the
-# only reason verdicts stayed grounded was that models happened to render first unprompted.
 VERIFIER_FIRST_STEP = (
     "[Required First Step]\n"
     "The first verifier user message should include the attached target image and a current "
@@ -454,7 +411,6 @@ def composition_capability_enabled(
     if selected_profile != "gpt6_v1":
         return False
     capabilities = (harness_profile_manifest or {}).get("capabilities")
-    # 2026-09-15 owner decision: a missing manifest fails CLOSED (no opt-in capability).
     return bool(capabilities) and capabilities.get(capability, False) is True
 
 

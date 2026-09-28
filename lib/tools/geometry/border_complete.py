@@ -1,27 +1,4 @@
-"""Boundary (frame-cut) completion for objects truncated by the LEFT/RIGHT image edge.
-
-An object cut off by the frame has a PARTIAL mask (only its inner portion), so its
-per-object MoGE cloud is the inner slice and both the mask centroid and the
-``fit_similarity`` fit are biased INWARD (toward scene center). Two such objects
-(wendy1: monitor cut left, box cut right) get pulled in, land on the already-placed
-center objects, and the Isaac settle collapses.
-
-We recover the off-frame part with LanPaint + Qwen-Image-Edit-2509's NATIVE OUTPAINT
-(``outpaint_padding``): expand the canvas by ``PAD_FRAC`` on the cut side and let the
-model continue the object + background into the new region. (An earlier hand-rolled
-"shift content + gray strip + manual mask" approach failed — the edit model kept the
-gray; the native outpaint fills it correctly.) Occluders, if any, are removed in a
-separate LanPaint inpaint pass first (the outpaint API forbids a mask).
-
-Geometry: a left pad of ``PAD`` px places the original content at columns [PAD:PAD+W]
-of the wider canvas, i.e. the optical axis moves to cx0+PAD (a right pad leaves it at
-cx0). Feeding LingBot / the unprojection the shifted principal point at the new width
-puts the completed cloud back in the ORIGINAL camera frame — the visible part maps to
-its original coords, the completed part extends past the boundary. The redetect record
-carries ``points_npy`` (new-canvas grid, original frame) + a ``border`` marker;
-placement / mesh / ICP consume it directly, while screen_bbox and register fall back to
-the original visible mask (they render through the original GT camera).
-"""
+""
 
 from __future__ import annotations
 
@@ -38,38 +15,11 @@ from lib.tools.geometry.agentic_mask import _dilate1
 PAD_FRAC = 0.25
 HOLE_DILATE_PX = 8
 
-# Negative prompt for the border outpaint (v4, probe-validated 2026-07-30 —
-# logs/border_prompt_probe_0729). Deliberately does NOT include bare "text/code/
-# letters": negatives are global, and they suppressed the legitimate continuation of
-# a lit screen's content (the v3 dark-screen artifact). Only off-screen text shapes
-# are targeted. The live prompt scopes continuation to content visibly belonging to
-# the cut target, so this negative must remain equally narrow.
 OUTPAINT_NEG = "floating text, caption, watermark, user interface panel"
 
 
 def outpaint_prompt(side: str, target: str) -> str:
-    """The border-outpaint instruction.
-
-    Probe-backed constraints (logs/border_prompt_probe_0729, 100+ samples):
-    - Bare CATEGORY, never the proposer description: "computer monitor showing lines
-      of code" fed verbatim made Qwen paint code into the pad on every seed — the
-      description is content bait, not context.
-    - The "Extend the scene to the {side}" preamble is load-bearing: the LanPaint mask
-      is latent-space only and never visible to the VL conditioning, so this sentence
-      is the SOLE carrier of outpaint intent. Without it the model leaves the gray pad
-      strip unfilled (10/30 samples) or pastes unrelated objects.
-    - The "(its frame, body and any stand or base)" parenthetical reads as monitor
-      vocabulary but is ANCHORING, not decorative: dropping it re-opens the same
-      fill-reliability hole as dropping the preamble — 0806b box#1 seed 0 came back as
-      the literal gray canvas strip (pad std 12.1 and mean RGB 126,125,124 vs std
-      44.9-58.3 and wood-tinted means in all 17 other cells). Keep it for EVERY
-      category, screen-like or not.
-
-    The text guard is scoped to invented captions/watermarks/unrelated UI. Existing
-    content may continue only when it visibly belongs to the cut TARGET; this avoids
-    both the old dark-screen failure and the unrelated-screen content bait. The prompt
-    stays paired with the LanPaint operating point in ``lanpaint_worker.py``.
-    """
+    ""
     category = target.split("#")[0]
     return (
         f"Extend the scene to the {side}. Continue the existing support and background "
@@ -105,16 +55,7 @@ def _strip(H: int, W: int, side: str, D: int) -> np.ndarray:
 
 
 def border_cut_side(mask: np.ndarray, margin: int = 3) -> Optional[str]:
-    """Geometric border-cut candidacy: "left"|"right"|None (no VLM, 2026-07-30).
-
-    Candidates are objects whose mask reaches within ``margin`` px of exactly one
-    of the left/right image edges (spanning both -> not single-side completable;
-    the margin tolerates segmentation stopping a pixel or two short of the edge).
-    Truncation MAGNITUDE is a hybrid OR-gate: high-band
-    ``edge_contact_ratio >= 0.85`` fires geometrically, while
-    ``beyond_frame_fraction`` handles lower-contact cases. Edge contact alone cannot
-    distinguish cut from merely edge-adjacent objects in the mixed 0.3–0.7 band
-    (8226 cup#1 is whole at 0.69)."""
+    ""
     left = bool(mask[:, :margin].any())
     right = bool(mask[:, -margin:].any())
     if left == right:  # neither, or both edges -> not a single-side cut
@@ -125,12 +66,8 @@ def border_cut_side(mask: np.ndarray, margin: int = 3) -> Optional[str]:
 def edge_contact_ratio(mask: np.ndarray, side: str, margin: int = 3) -> float:
     """Fraction of the mask's bbox HEIGHT that touches the ``side`` frame edge.
 
-    High-band magnitude signal for the border gate (census 2026-08-04,
-    audits/BORDER_GATE_PROBE_2026_08_04.md, ~130 object-scene pairs): every
-    observed case >= 0.85 is a TRUE cut (monitor 1.00, cut walls 0.88-1.00,
-    laptops 0.90-0.99, gpt1 KINFOLK book 0.87; the recurring 0.46 book reading
-    is a mask error per owner) while the highest UNCUT case is 0.69 (8226 cup).
-    The band 0.3-0.7 is genuinely mixed — there only the VLM's
+    High-band magnitude signal for the border gate. The middle band is ambiguous;
+    there only the VLM's
     beyond_frame_fraction separates (uncut <= 0.05 vs cut >= 0.10) — so this
     ratio must never be used alone; it OR-gates with the VLM floor."""
     col = mask[:, :margin].any(axis=1) if side == "left" else mask[:, -margin:].any(axis=1)
@@ -178,10 +115,6 @@ def _remove_occluders(scene, out_dir, slug, occluders, masks, desc, qwen):
         occ = _dilate1(occ)
     em = out_dir / f"{slug}_border_rm_mask.png"
     Image.fromarray(np.where(occ, 0, 255).astype("uint8"), "L").save(em)
-    # Same removal phrasing as the resegment path (0717 fix): "fill with the surface
-    # behind" under-specified the goal and regenerated removed objects / left ghosts
-    # (ppfix2 gpt1 book#0: translucent Kinfolk-book remnant above the bauhaus book).
-    # Category-collapsed names, not raw descriptions — descriptions are content bait.
     from lib.tools.geometry.generative_resegment import (  # lazy: parent imports us
         build_removal_prompt,
     )
@@ -224,10 +157,6 @@ def border_complete(
 
     img = np.asarray(Image.open(scene / "input.png").convert("RGB"))
     H, W = img.shape[:2]
-    # Pad rounded to the VAE's 16-px latent grid: an off-grid pad boundary lands
-    # mid-latent-cell and the 0729 probe measured ~2x worse seam ratios. Before
-    # this only W=768-family scenes aligned by luck (gpt1 W=1402 -> PAD 350,
-    # painting W=1001 -> PAD 250 both ran misaligned).
     PAD = max(16, int(round(PAD_FRAC * W / 16)) * 16)
     moge = json.load(open(scene / "moge" / "moge.json"))
     Kn = np.asarray(moge["intrinsics_norm"], float)

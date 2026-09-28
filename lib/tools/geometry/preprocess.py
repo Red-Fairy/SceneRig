@@ -51,14 +51,7 @@ _ACTIVE_MESH_PRESPAWN: contextvars.ContextVar[Any] = contextvars.ContextVar(
 def _prepare_pseudo_gt_regeneration(
     pseudo_gt_dir: Path, rejection_reason: str, nvs_backend: str = "sharp_gpt"
 ) -> Optional[Path]:
-    """Quarantine a rejected reuse bundle before generating its replacement.
-
-    Novel-view generation writes ``cameras.json`` before every completion exists.  It
-    must therefore start in an empty directory: generating over the copied bundle could
-    otherwise combine a new manifest with stale ``completed.png`` files and make a
-    failed partial build look complete.  Keep the rejected bundle beside the scene for
-    audit/recovery and record why automatic fallback was selected.
-    """
+    ""
 
     scene_dir = pseudo_gt_dir.parent
     archive: Optional[Path] = None
@@ -297,15 +290,7 @@ def object_world_box(
 def _object_world_points(
     mask, world_points, cam_pos=None, depth_filter=False, depth_filter_min_keep=0.6
 ):
-    """Masked, finite, sliver-trimmed world points for one object (or None if empty).
-
-    Shared front-end for :func:`object_world_box` and :func:`oriented_world_box`; the
-    SLIVER-DISTRUST trim (see :func:`object_world_box`) is applied here so both the
-    axis-aligned and the oriented box see the same cleaned points. ``depth_filter`` adds a
-    depth-domain consistency prune (:func:`_depth_consistency`). Placement enables it for
-    every object (since 2026-07-24): ordinary depth clouds use ``min_keep=0.9`` while
-    redetect/border-completed clouds retain the more permissive tuned value ``0.6``.
-    """
+    ""
     h, w = world_points.shape[:2]
     b = _resize_mask(_binarize(mask), h, w)
     if depth_filter and cam_pos is not None:
@@ -418,19 +403,6 @@ def build_placement_table(
         mask = np.load(mp)
         screen_mask = mask  # for screen_bbox: must stay in the ORIGINAL image frame
         obj_world = world
-        # Depth-consistency prune ON for every object (was redetect-only until
-        # 2026-07-24): a TRANSPARENT object's near-boundary pixels carry background
-        # depth — 0724_roomval_room1's glass vase had 5.3% of its mask ~1.5m behind
-        # the body (73% of those within 3px of the boundary), blowing the 2-98pct
-        # box to 1.37m depth and the placed mesh to ~6.3x. The windowed-median prune
-        # kills exactly that band. min_keep=0.9 (vs the redetect path's tuned 0.6):
-        # for plain MoGE masks the filter may only shave a SMALL contaminated
-        # fraction — when it wants >10% the object is OPENWORK (groot2's wire basket
-        # lost 17.7% = its real back rim, halving its height) and the unfiltered box
-        # is the safer estimate, so it falls back. Corpus replay: vase 2.6% removed
-        # (filtered, fixed), basket 17.7% / bridgeclean4 shock mount 13.0%
-        # (fallback, unchanged); margin to the nearest filtered case (mic stand
-        # 7.4%). Full table: logs/roomval_room1_issues_20260724/.
         depth_filter = True
         dfilter_min_keep = 0.9
         rd = r.get("redetect")
@@ -619,9 +591,6 @@ def _write_same_size_registry(
     from lib.tools.geometry.same_size import REGISTRY_KEY
 
     payload[REGISTRY_KEY] = registry
-    # Cached proposer payloads can predate the dedicated resolver. Erase both category-
-    # and nested-instance legacy booleans so no UI/audit consumer can mistake them for
-    # current policy, even though placement already ignores them.
     for proposed in payload.get("objects", []):
         if not isinstance(proposed, dict):
             continue
@@ -846,16 +815,7 @@ def _node_id(r: dict[str, Any]) -> str:
 def _map_support(
     obj: dict, surfaces: list[dict], objects: list[dict], scores: dict[str, float]
 ) -> Optional[str]:
-    """Normalize an upstream ``support`` claim to a retained node id.
-
-    ``surfaces`` and ``objects`` are the *complete retained inventory*, not just
-    nodes for which MoGE geometry was measurable.  Exact semantic support therefore
-    survives a missing plane/base observation.  Geometry is used only to rank legacy
-    bare-category claims; if no candidate is measurable, inventory order is the
-    deterministic fallback.  This helper belongs to the upstream support-finalization
-    pass.  The public :func:`build_scene_graph` requires the resulting exact id and
-    never calls this resolver.
-    """
+    ""
     sup = obj.get("support")
     measured_surfaces = [s for s in surfaces if "_inliers" in s]
     dominant_pool = measured_surfaces or surfaces
@@ -1148,8 +1108,6 @@ def _validate_and_apply_graph_topology(
         nodes[oid]["support"] = pid
         nodes[pid]["children"].append(oid)
 
-    # These assertions intentionally validate the serialized topology, not merely the
-    # temporary parent map used to create it.
     for oid in object_ids:
         node = nodes[oid]
         if node.get("parent") != node.get("support"):
@@ -1217,11 +1175,6 @@ def _construct_scene_graph(
             if plane is None:
                 continue
             ext = sgm.footprint_bbox(pts, up)
-            # Snap AT THE SOURCE (2026-08-06): serialize the gravity-plumbed normal so
-            # the initializer prompt and every checker read the SAME plane the agent is
-            # told to build on (the raw fit stays in normal_raw; the in-process support
-            # scoring below keeps using _plane, the raw fit). An ambiguous tilt keeps the
-            # raw normal and is treated like a missing plane by consumers.
             pn, pkind = sgm.plumb_plane(plane["normal"])
             n_out = pn if pkind != "ambiguous" and pn else plane["normal"]
             node["plane"] = {
@@ -1231,11 +1184,6 @@ def _construct_scene_graph(
                 # keep n.x + d = 0 through the measured centroid for the snapped normal
                 "d": float(-np.dot(np.asarray(n_out, float), plane["centroid"])),
                 "inlier_frac": plane["inlier_frac"],
-                # How much of the frame this surface actually occupies. A sliver wall
-                # (edge-on, a few hundred px) fits ANY plane through its near-collinear
-                # points, so inlier_frac alone reads 1.0 while its horizontal RUN is
-                # unconstrained — 0801_rdj_push_t_random anchored the table's yaw on a
-                # 0.56%-of-frame wall and shipped it 14deg off. Consumers gate on BOTH.
                 "mask_frac": _mask_frac(mp),
             }
             node["extent"] = [[float(x) for x in ext[0]], [float(x) for x in ext[1]]]
@@ -1252,13 +1200,6 @@ def _construct_scene_graph(
             node["world_center"] = [float(x) for x in bt["centroid"]]
             objects.append(node)
 
-    # Support adjudication (2026-08-07, owner-approved; probe evidence in
-    # audits/support_flag_probe_2026_08_06/). Two triggers route a TERNARY visual
-    # question (on/not_on/uncertain) to a one-marked-crop VLM referee. Only a visually
-    # uncertain pair receives the approximate geometry evidence. Everything else keeps
-    # the VLM-parent-wins rule unchanged. Fallbacks are asymmetric by design: T1's
-    # default answer declines the geometric nomination, T2's keeps the declared parent
-    # — both collapse to today's behaviour on a flaky reply.
     masks_dir = Path(masks_json_path).parent
     image_path = masks_dir.parent / "input.png"
     adjudicate = (
@@ -1302,12 +1243,7 @@ def _construct_scene_graph(
             return ""
 
     def _t1_decide(obj: str, pv, pg: str, sc: dict) -> str:
-        """T1 — missed stacking (food_packing can#1: VLM said table while the can
-        sat one box-height above it; geometry's box#2 nomination was recorded and
-        discarded). Fires only when the geometric nominee is an OBJECT (56/58
-        fleet flags point object->root and are false; the object-directed ones
-        were true), its score clears 0.2, and the DECLARED parent is physically
-        impossible (<= 0.05 — merely-worse stays with the VLM)."""
+        """Resolve a missed stack when geometry strongly contradicts the declared parent."""
         if not adjudicate or budget[0] <= 0:
             return pv
         pgn = nodes.get(pg)
@@ -1506,10 +1442,6 @@ def _construct_scene_graph(
     # partially finalized state.
     roots = _validate_and_apply_graph_topology(nodes, res["parents"])
 
-    # Support normalization/adjudication is an upstream mutation, deliberately kept
-    # outside the public graph builder.  Persist *all* exact resolved parents, not just
-    # VLM-referee changes: null, bare-category, and case-only legacy claims must also be
-    # finalized before build_scene_graph consumes the inventory.
     if persist_supports:
         if not resolve_supports:
             raise ValueError("persist_supports requires resolve_supports=True")
@@ -1614,18 +1546,7 @@ def build_scene_graph(
 def _render_canonical_root(
     image_path: str, cands: list[dict], chosen_id: str, out_png: Optional[str] = None
 ) -> Optional[str]:
-    """Read-only overlay: tint each ground candidate and label it, marking the CHOSEN
-    one. The pick is made by the caller (proposer ``form`` designation, else a
-    deterministic tiebreak). Best-effort: returns the path, or None on any failure.
-
-    Was ``_pick_canonical_root``, which asked a VLM to name the ground surface from this
-    same overlay and parsed the reply with an order-dependent SUBSTRING scan
-    (``c["id"].lower() in ans``) — so "not table#0 - floor#0" returned whichever id came
-    first in ``cands``, and ``table#0`` matched inside ``side table#0``
-    (HARNESS_AUDIT_2026_07_26 V7). It was the ORIGINAL picker (2026-06-23), superseded
-    on 07-01 by the proposer's ``form`` designation and left in place as a tie-breaker
-    that needed BOTH a form failure AND >1 candidate — a combination that never occurred
-    in 344 recorded scenes, so it never actually ran."""
+    ""
     from PIL import Image, ImageDraw
 
     im = Image.open(image_path).convert("RGB")
@@ -1651,17 +1572,7 @@ def _render_canonical_root(
 
 
 def main_support_id(masks: dict) -> Optional[str]:
-    """The main support's ``category#k`` id, resolved from the SUPPORT CHAIN.
-
-    Split out of the per-instance ``form`` tag (owner redesign 2026-07-31): that field
-    carried two unrelated jobs — the table/tabletop semantic (now the scene-level
-    ``routing.form``, see ``scene_form``) and the main-support IDENTITY used here and by
-    ``_choose_ground``. Walk every object's declared support up to the first ROOT SURFACE
-    and take the most-voted root. Validated against the 305 archived runs that carry a
-    legacy form tag: 304 agree (99.7%); the one difference is a room-ish scene resolving
-    to floor#0, which is the room anchor anyway. A naive vote on the DIRECT support only
-    agrees 273/305 — containers win it (bridge5's bin, abc1's placemat/tray), exactly the
-    "a container is NEVER the main support" case, which is why the walk is transitive."""
+    ""
     insts = {
         f"{r['category']}#{r['instance']}".lower(): r
         for r in masks.get("instances", [])
@@ -1715,20 +1626,7 @@ def stamp_main_support(graph: dict, masks_payload: dict) -> str:
 
 
 def scene_form(masks: dict) -> str:
-    """The scene-level FORM flag: ``'room'`` | ``'closeup:table'`` | ``'closeup:tabletop'``.
-
-    Owner redesign 2026-07-31: this used to be a per-INSTANCE ``form`` field the proposer
-    emitted and the proposal verifier could flip (``fix_form``). It was global in all but
-    name — across 308 archived runs, 305 carried exactly ONE non-null form and none carried
-    two — and its meaning silently changed between tracks (in room mode the tag rode the
-    FLOOR, so a reader could not tell "bare tabletop work surface" from "room floor"). It is
-    now emitted once by the ROUTER and stored in ``masks.json`` under ``routing.form``.
-
-    LEGACY SHIM: archived runs (and any staged ``GRASE_STAGE_FROM`` rerun off one) have no
-    ``routing.form`` — ~85 of those 308 predate the routing block entirely. Fall back to the
-    old per-instance scan, mapping the room track onto the new vocabulary. The return value
-    is the effective downstream form: an adjudicated-hard floor-under-furniture
-    relationship promotes a stale cached tabletop label without rewriting the cache."""
+    ""
     r = masks.get("routing") or {}
     f = str(r.get("form") or "").strip().lower()
     if f not in ("room", "closeup:table", "closeup:tabletop"):
@@ -1750,9 +1648,6 @@ def scene_form(masks: dict) -> str:
             else:
                 f = "closeup:table"  # same safe default as the router
 
-    # Cache-safe reconciliation: old masks may preserve a one-shot tabletop verdict even
-    # though the later surface audit confirmed a hard floor-under-table relationship.
-    # Treat the effective form as a full table without rewriting or invalidating the cache.
     if f == "closeup:tabletop":
         main_id = main_support_id(masks)
         if floor_under_furniture_support(masks.get("relationships") or [], main_id):
@@ -1891,7 +1786,6 @@ def _reconcile_relationship_form(md: dict[str, Any]) -> None:
                 "tabletop": "closeup:tabletop",
                 "closeup:tabletop": "closeup:tabletop",
             }.get(raw, "")
-        # Do not guess when an old artifact lacks an auditable pre-promotion form.
         if prior == "closeup:tabletop":
             routing["form"] = prior
             routing["form_source"] = "relationship_adjudication_restored"
@@ -1925,14 +1819,7 @@ def _sync_relationship_form_to_moge(
 def _fail_closed_relationship_adjudication(
     masks_json_path: str, error: Exception
 ) -> None:
-    """Fall back to advisory for non-UNDER claims if phase-0 adjudication fails.
-
-    Schema v3 has no legacy/default-hard compatibility path.  This fallback therefore
-    emits an explicit, atomically mapped status/enforcement pair for every surviving
-    record so an exception cannot leave ambiguous relationship authority.  Valid
-    root-to-root UNDER is the deliberate exception: it is policy-authoritative,
-    independent of finite-mask geometry, so an adjudicator failure must not demote it.
-    """
+    ""
 
     from lib.tools.geometry.surface_relations import RELATIONSHIP_TYPES
 
@@ -2025,42 +1912,7 @@ def _prune_to_main_support(
     main_id: Optional[str],
     scene_kind: str = "closeup",
 ) -> None:
-    """Safety prune (the proposer should already focus): keep the main support's scene.
-
-    This includes root surfaces hard-connected to the main support, every valid
-    relationship's direct root identities, and objects whose support-chain reaches the
-    main support. Everything else (objects on a second desk, an unreferenced background
-    surface) moves to ``dropped`` (reason ``off_main_support``). Rewrites ``masks.json``
-    in place so placement / scene-graph / meshes all see the pruned set. No-op if there's
-    no main support.
-
-    Three rules beyond the classic chain test (TABLETOP_OVERFIT_AUDIT_2026_07_24):
-
-    - A current root surface named by any syntactically valid root-to-root relationship
-      is retained as scene identity, even when that relationship is advisory or rejected.
-      Only HARD relationships contribute graph edges: retaining the two named roots does
-      not grant a non-hard claim topology or constraint authority.  A relationship with
-      an unknown type, self edge, missing endpoint, or non-root endpoint retains nothing.
-
-    - An object with NO support at all (null) is DANGLING too, not off-support: the
-      field is missing, not pointing elsewhere. It came from ``_norm_instances``'s
-      placeholder for a category whose instances parsed empty (benchmark_final
-      robolab_bin_condiments bin, 2026-08-27).
-    - DANGLING support ids that are INDEX SLIPS — the id's category HAS listed
-      instances, only the index is off ('tray#1' when only tray#0 exists; groot2
-      silently lost 5 tabletop objects this way) — no longer drop the object: it is
-      KEPT with ``support`` nulled, and the scene graph's geometric parent
-      resolution + ``drop_disconnected_from_support`` decide from geometry. An id
-      whose CATEGORY is entirely absent ('desk2#0') still drops: that is the
-      proposer intentionally referencing an excluded surface.
-    - In a ``'room'`` scene, an object whose chain roots at a KEPT floor/ground
-      surface is kept. (In practice the floor IS the main support in room mode, so
-      chains end 'main'; this branch is defense-in-depth for a room scene whose
-      canonical root diverges from the floor.) The proposer's adjacency prompt rule
-      ("furniture farther away is IGNORED") is the only background-furniture
-      filter — the former 0.5 m world-distance adjacency backstop was removed
-      2026-07-28 (it never fired in any run).
-    """
+    ""
     if not main_id:
         return
     main_id = str(main_id).strip().lower()
@@ -2127,10 +1979,6 @@ def _prune_to_main_support(
         and str(r["category"]).strip().lower() in _FLOOR_CATS
     }
 
-    # Union with PROPOSAL categories (2026-07-30, genai2 flowerpot): a category the
-    # proposer listed but masking later lost (superseded into a containing object)
-    # is not "intentionally excluded" — dependents of its ids must degrade to
-    # dangling (support cleared, geometric re-parent), never to off_main_support.
     listed_cats = {str(r["category"]).strip().lower() for r in insts} | {
         str(o.get("category", "")).strip().lower() for o in masks.get("objects", [])
     }
@@ -2150,17 +1998,6 @@ def _prune_to_main_support(
             nxt = sup[cur]
             if nxt is None:
                 if cur == oid:
-                    # An OBJECT with NO declared support (2026-08-27, benchmark_final
-                    # robolab_bin_condiments): the proposer's category parsed to zero
-                    # instances, `_norm_instances` synthesized the placeholder
-                    # {description=category, support=None}, and this branch read the
-                    # missing field as INTENT and dropped the bin off_main_support —
-                    # while the same run's vital check had it "resting on its flat
-                    # bottom on the table". A null support carries no intent; an
-                    # intentionally off-support object names its surface. Keep it as
-                    # dangling: support stays None and _map_support parents it to the
-                    # dominant surface, with drop_disconnected_from_support as the
-                    # geometric filter — the same treatment as an index slip.
                     return "dangling"
                 return "floor" if cur in kept_floor_ids else "other"  # listed root
             if nxt in seen:
@@ -2319,14 +2156,6 @@ _SLIVER_PLANE_INLIER = 0.6  # fraction of a SLIVER wall's points that must lie i
 # trusted keeper's plane band before it may be absorbed (see _merge_coplanar_walls)
 _SLIVER_MIN_PTS = 50  # a sliver needs at least this many finite points to be judged
 _SLIVER_VETO_DEG = 45.0  # a sliver's OWN fit may VETO a merge (never authorize one): a
-# sliver is small enough that most of its points sit inside the 0.20 m band of ANY nearby
-# plane, so proximity alone merged a near-perpendicular neighbour (0801_rdj_push_t_random
-# wall#1 -> wall#0 at 62% inliers / 76.5 deg). The fit is too coarse to anchor yaw but is
-# easily good enough to rule out a right angle. Same ~45 deg parallel/perpendicular split
-# drop_impossible_corners uses; measured separation on the archive is 24.0 deg (worst true
-# merge) vs 76.5 deg (best false one).
-
-
 def _drop_sliver_roots(
     masks_json_path: str, exclude_ids: set[str] | None = None
 ) -> list[str]:
@@ -2401,42 +2230,7 @@ def _drop_sliver_roots(
 def _merge_coplanar_walls(
     masks_json_path: str, world: np.ndarray, exclude_ids: set[str] | None = None
 ) -> list[str]:
-    """ONE WALL PER PLANE (owner rule, 2026-08-07): two wall roots whose fitted
-    planes coincide are the same physical wall — different colour/content sections
-    are the TEXTURE stage's job, not separate instances. Census over 111 scenes
-    (eval_0806 + 0807_bulk/pconv): 3 true pairs (bowls 3.5deg/5cm; online6
-    0.8-1.0deg/18cm genuine colour split, x2 fleets); nearest genuinely distinct walls
-    are perpendicular (hangr 89deg) — nowhere near the thresholds.
-
-    TWO TIERS, because a sub-MIN_PLANE_MASK_FRAC wall's own RANSAC fit is noise (its
-    near-collinear unprojections score a perfect ``inlier_frac`` on an arbitrary plane):
-
-    * TIER 1 — TRUSTED walls (>= MIN_PLANE_MASK_FRAC of the frame, >=100 finite world
-      points, RANSAC plane in the plumb-wall band |n_z| <= PLUMB_WALL_MAX_NZ; a sliver
-      floor whose fit reads vertical is excluded by category and ``exclude_ids``) form
-      groups pairwise: horizontal-normal angle < COPLANAR_WALL_ANG_DEG and mutual
-      centroid-to-plane offset < COPLANAR_WALL_OFFSET. Transitive (union-find), so three
-      sections collapse in one pass.
-    * TIER 2 (2026-08-14, F2) — a SLIVER wall may JOIN a tier-1 group but never FORM one.
-      Positive evidence is never its own plane: it is absorbed iff at least
-      ``_SLIVER_PLANE_INLIER`` of its raw points lie within COPLANAR_WALL_OFFSET of a
-      keeper's TRUSTED plane (ties: smallest median residual). Its own fit enters ONLY as
-      a VETO (``_SLIVER_VETO_DEG``) — a sliver is small enough that most of its points sit
-      inside the band of ANY nearby plane, so proximity alone absorbed a near-perpendicular
-      neighbour; a fit too coarse to anchor yaw still rules out a right angle. A sliver
-      with no fit at all is retained, not merged. Two slivers can never validate each
-      other. This restores the absorb-then-drop ordering the 08-10 sliver drop was
-      designed around — the 08-14 "retain tiny walls" change had added a mask-fraction
-      guard here that silently stopped it (robodojo_make_toast_random wall#1, 0.64% of
-      frame, merged before that guard and not after).
-      Archive probe over every sliver/keeper pair (33): 9 merges at 3.2-24.0deg own-angle
-      and 0.62-1.00 inliers; 24 retained at 76.5-89.9deg and 0.00-0.62 inliers.
-      Kill switch GRASE_COPLANAR_WALLS_SLIVER=0 (tier 1 keeps running).
-
-    The keeper (largest TRUSTED mask) absorbs the victims' masks (union, native
-    resolution, overlay regenerated); victims land in ``dropped`` with reason
-    ``coplanar_with <keeper>``; supports re-point; relationships rewrite victim ->
-    keeper and self-pairs drop. Kill switch GRASE_COPLANAR_WALLS=0."""
+    ""
     if os.environ.get("GRASE_COPLANAR_WALLS", "1") == "0":
         return []
     from lib.tools.geometry import scene_graph as sgm
@@ -2583,10 +2377,7 @@ def _merge_coplanar_walls(
 
 
 def _regenerate_composite(masks_json_path: str, image_path: str) -> None:
-    """Rebuild composite.png from the FINAL instance list (2026-08-07, owner call).
-    The segmentation-time composite keeps later-dropped instances' tints and
-    0-based labels (hangr: label 26 = the since-pruned wall#2), so the demo's
-    segmentation image disagreed with the object list. Best-effort."""
+    ""
     from lib.tools.geometry.agentic_mask import InstanceMask, make_composite
 
     try:
@@ -2668,10 +2459,6 @@ def _revert_occluded_work_surface(
         return
     floor_id = sup[ws_id]
     ws_rec["kind"] = "root_surface"  # support stays the floor id (like a closeup table)
-    # Promote the work surface to a root surface in the raw proposal too. The FORM
-    # designation is no longer moved between instances: it is one scene-level flag
-    # (routing.form), set below alongside the mode flip — which also retires the old
-    # "belt and braces" double write into objects AND instances.
     ws_cat, ws_k = ws_rec["category"], ws_rec["instance"]
     for o in masks.get("objects", []):
         if o.get("category") != ws_cat:
@@ -2730,35 +2517,9 @@ def _accept_up_normal(g, pts):
     return -g if face < 0 else g
 
 
-# Part A (canonicalization fit hygiene): a root surface's mask can be scattered —
-# tier-1 text grounding may return the real surface's regions PLUS same-material
-# contaminants (0721_part1_bridge5: "table" = 3 real wood-corner components + the
-# vertical pegboard back wall; the mixed fit dropped inlier_frac to 0.497, fell to
-# the normal-map average over horizontal+vertical wood, and tilted the canonical
-# frame ~50 deg). Fit on the component at the instance's Molmo point, absorb only
-# components COPLANAR with it, refit on the union — contaminants never join.
 _GROW_BAND = 0.015  # m: coplanarity band for absorbing a component
 _GROW_COMP_MIN = 200  # px: ignore smaller components
 _GROW_FRAC = 0.6  # fraction of a component's points inside the band to absorb it
-# Part B (direction consensus): the chosen root's gravity DIRECTION is decided by
-# an inlier-weighted vote over ALL planar evidence — the root mask's own components
-# plus the dominant planes of the children resting on it — with ROOT PRIORITY.
-# Motivation (0722_gatefix_bridge5): Molmo's point is stochastic; seeded on the
-# pegboard contaminant it produced a near-vertical "up" (80 deg off), and a gate
-# measured against that garbage direction vetoed the honest bin-floor witness. The
-# vote is point-free: same mask -> same answer, whichever component Molmo hit.
-# Rules (user-amended, offline-validated on 15 artifact sets 2026-07-22):
-#   - winner = heaviest 15-deg direction cluster CONTAINING a root component;
-#   - a child-only cluster overrides ONLY when the root's total planar evidence is
-#     < 20% of that cluster's weight (the root mask is effectively junk) — then the
-#     z height falls back to FLUSH BELOW all instance bases (partial hallucination;
-#     a container's floor height is inside it, never the ground height);
-#   - z otherwise anchors to the union of root components within 25 deg of the
-#     winning direction (the actual tabletop region, wherever Molmo pointed).
-# Validation: bridge5 identical 5.0-deg result for BOTH observed Molmo points;
-# real8226's 375k-inlier monitor cluster (heavier than the desk!) deterministically
-# rejected; 10 healthy scenes unchanged; corner-dropped synthetic -> flush-below
-# height within 1.2 cm of the true table height.
 _WITNESS_INLIER = 0.3  # dominant-plane quality bar for a child witness
 _COMP_MIN_PX = 500  # px: root components smaller than this don't vote
 _COMP_INLIER = 0.5  # a root component must BE a plane to vote
@@ -2943,8 +2704,6 @@ def _synthetic_ground(insts, normals, points_npy, world_raw, h, w, deroll=True):
             break
     if g is None:
         return None, None, None
-    # Camera zero-roll prior (same as the main canonical path); g is reassigned so the
-    # recorded g_world matches R (it used to record the PRE-deroll gravity).
     roll_pre = mc.gravity_roll_deg(g)
     if deroll:
         derolled = abs(roll_pre) < mc.DEROLL_MAX_DEG
@@ -3008,21 +2767,7 @@ def _compute_canonical_transform(
     image_path: str,
     deroll: bool = True,
 ):
-    """Canonicalize the scene to a root surface: the ground is the support-chain-resolved
-    main support (``main_support_id``) when it survives the candidate filters, else a
-    deterministic tiebreak; its normal gravity-aligns to +Z (R) and a RANSAC plane fit
-    gives its height so it sits at z=0 (T). The camera, at the world origin, moves to T.
-    Returns (R 3x3 | None, T (3,) | None, info | None).
-
-    No VLM: the ``model`` parameter went away with ``_pick_canonical_root`` on 2026-07-26
-    (see that function's successor, ``_render_canonical_root``). ``image_path`` is now
-    used only for the debug/demo overlay.
-
-    The support normal comes from a RANSAC fit through the surface's 3D POINTS
-    (``fit_plane``) — the same point cloud all downstream geometry (object placement,
-    resting, slabs) lives in — so the canonical plane is exactly the one objects sit on.
-    The MoGE normal-map average (``estimate_gravity_up``) is only a fallback for masks too
-    small/occluded for a reliable fit."""
+    ""
     if not os.path.exists(normal_npy):
         return None, None, None
     normals = np.load(normal_npy)
@@ -3221,12 +2966,11 @@ def unify_same_size_scales(
 ) -> list[str]:
     """Give every eligible registry group ONE shared physical size.
 
-    ``auto_lock`` (default False since 2026-09-16, owner decision) gates the
+    ``auto_lock`` gates the
     ``vlm_auto`` groups: the visual auditor still runs and its groups stay in the
     registry / on the rows with status ``detected_unlocked``, but their meshes are
     normalized and scale-locked only with ``--same-size-auto-lock``. Manual
-    (``user_explicit``) groups always apply. gpt6v1_0916 stack_bowls_standard: the
-    auto lock shrank three correct bowls ~11% to a shared box.
+    (``user_explicit``) groups always apply.
 
     Target = per-axis MEDIAN of the instances' metric-pristine ``*_pcand.glb`` OBB
     extents (``[long, mid, short]``, metres) — the median rejects occlusion-shrunk
@@ -3533,8 +3277,6 @@ def generate_meshes(
             info = meshes_dir / f"{slug}_info{rd_suffix}.json"
             placed = meshes_dir / f"{slug}.glb"
             rotation = None
-            # Reuse a previously reconstructed raw mesh (the expensive step); only
-            # re-place it (cheap) so placement always matches the current masks.
             if not (raw.exists() and raw.stat().st_size > 0):
                 if recon is None:
                     own = recon = Sam3dServer(
@@ -3562,14 +3304,6 @@ def generate_meshes(
     finally:
         if own is not None:
             own.close()
-
-    # SAM3D's estimated pose is trusted VERBATIM for every object. The consensus
-    # rule-out vote (classify_ruled_out) was removed 2026-07-11: over 290 runs it
-    # mis-executed correct lying-flat poses ~4x more often than it caught genuinely
-    # wrong ones, and its flagship case (the 8226 laptop hinge error) no longer
-    # reproduces with point-map-conditioned SAM3D. Wrong-but-UNSTABLE poses are still
-    # rescued by the settle ladder via the pristine fallback below; wrong-but-stable
-    # ones (rare) ship and are visible in the state snapshots.
 
     def _place_pristine180(pristine_glb, out_glb, center, size, use_obb=False):
         # Place the upright canonical (pristine) mesh with NO SAM3D pose and NO gravity tilt
@@ -3642,7 +3376,7 @@ import bpy
 entries_path, blend, clearflag, basepath = sys.argv[-4:]
 entries = json.load(open(entries_path))
 bpy.ops.wm.open_mainfile(filepath=blend)
-if clearflag.startswith("clear"):  # drop ALL previously-imported objects (mesh AND the glTF
+if clearflag.startswith("clear"):
     # empty wrappers) before re-importing. Filtering to type=="MESH" left the empty
     # parents behind, so every re-import (physics, ground-rest) leaked an "obj_*_1.NNN"
     # empty -- enough of them to overflow the scene-info object cap and hide table/wall.
@@ -3693,14 +3427,7 @@ def import_meshes_to_blend(
     warn_if_cleared: bool = False,
     base_matrix_path: Optional[str] = None,
 ) -> None:
-    """Import each placed GLB (entries: [{mesh_glb, mesh_name}]) into the shared
-    blend at identity (already world-placed), naming each object. ``clear`` first removes
-    any previously-imported ``obj_*`` meshes (for a re-import after flip-baking, or to keep
-    the FIRST import idempotent). ``warn_if_cleared`` logs loudly if that clear removed any
-    ``obj_*`` -- only the first import expects an empty blend, so a non-empty one signals a
-    polluted ``empty_scene.blend`` template or a reused blend. ``base_matrix_path`` (when
-    given) receives ``{mesh_name: matrix_world}`` as imported -- the baseline the
-    delivered-vs-placed measure subtracts to isolate the composition delta."""
+    ""
     if not entries:
         return
     flag = ("clear_warn" if warn_if_cleared else "clear") if clear else "noclear"
@@ -3770,9 +3497,6 @@ def preprocess_scene(
 
     out = Path(out_dir)
     out.mkdir(parents=True, exist_ok=True)
-    # Explicit, restart-safe progress contract for dashboards. Artifact probes remain
-    # as a compatibility fallback for older runs, but new UIs do not infer which long
-    # operation is active from directories that may be created minutes in advance.
     _progress_path = out / "preprocess_progress.json"
     _progress_lock = threading.Lock()
     _progress_stop = threading.Event()
@@ -3857,11 +3581,6 @@ def preprocess_scene(
         _steps[label] = round(_steps.get(label, 0.0) + now - _t_tick[0], 2)
         _t_tick[0] = now
 
-    # Canonical input: an RGB PNG copy with the long edge capped at MAX_IMAGE_EDGE
-    # (1536; lib.utils.common). Everything from here on (depth, masks, GT-resolution
-    # renders, register, VLM prompts) reads this copy, not the original -- a raw 24MP
-    # phone photo would otherwise tax every render (0705_time_real8210: 30min register
-    # vs 2min at demo resolution).
     from lib.utils.common import normalize_input_image
 
     image_path = normalize_input_image(image_path, str(out / "input.png"))
@@ -4071,13 +3790,6 @@ def preprocess_scene(
     _mesh_spawn.start()
     print("[preprocess] SAM3D mesh server prespawned in the background (P1)")
 
-    # Tier-3 component/suspension merge (post-resegment, owner-approved 07-30):
-    # weakly-grounded (tier-3) masks that are really a COMPONENT of a neighbour —
-    # a monitor's stand base proposed as 'keyboard'/'docking station', a mic-stand
-    # cradle as 'shock mount' — are folded into their owner by the pair VLM with
-    # the component+suspension rules (fleet-probed 4/77 merges, all true, 0 false;
-    # audits/category_check_probe_2026_07_29/). Runs BEFORE the connectivity prune
-    # so the union is what gets judged, AFTER resegment so the pairs actually touch.
     try:
         from lib.tools.geometry.agentic_mask import tier3_component_merge
 
@@ -4085,16 +3797,6 @@ def preprocess_scene(
     except Exception as e:  # noqa: BLE001 - best-effort, mirrors the resegment block
         print(f"WARNING [preprocess]: tier-3 component merge failed: {e}")
 
-    # NOTE (2026-08-03): carve_overlaps no longer runs here — it moved into
-    # segment_scene (right after masks.json is written), so the resegment damage
-    # gates above judge the CARVED cut-out (a carved container gets its occluder
-    # inpainted before mesh recon; the misc_online8 notebook baked a glasses texture
-    # under the old order) and carve never sees amodal redetect masks. Overlaps that
-    # resegment/t3merge CREATE are amodal-by-design and intentionally not re-carved.
-
-    # Connectivity prune AFTER re-segmentation (moved out of segment_scene 2026-07-28):
-    # judge each object on its redetect-completed mask, so a partial detection whose
-    # missing vital part re-segmentation recovered is no longer dropped as "floating".
     _prune_disconnected(str(masks_json))
 
     # Room-mode occlusion revert (BEFORE canonicalization): a room-track proposal whose
@@ -4251,9 +3953,6 @@ def preprocess_scene(
         except Exception as e:  # noqa: BLE001 - a drop failure keeps the slivers
             print(f"[preprocess] sliver-root drop failed ({e}); keeping slivers")
         try:
-            # Phase 2 recomputes verdicts after coplanar-wall endpoint rewrites and
-            # sliver cleanup.  This subsumes the old infer_against/drop-corner backstops
-            # and leaves rejected claims in the audit instead of silently deleting them.
             rel_summary = _adjudicate_surface_relationships(str(masks_json), world_c)
             counts = rel_summary.get("counts_by_enforcement", {})
             print(
@@ -4357,10 +4056,6 @@ def preprocess_scene(
     # yaw compilation, reconstruction, physics, or background GPU work begins.
     validate_scene_graph_inventory(masks_payload, graph, allow_runtime_additions=False)
 
-    # Resolve same-size intent after the support referee's final masks.json write-back,
-    # as well as all mask/root/relationship pruning. The registry fingerprint therefore
-    # describes the exact final inventory reused by skip/resettle validation. This also
-    # erases all cached legacy proposer booleans.
     same_size_registry = _resolve_same_size_after_mask_pruning(
         str(masks_json), image_path, same_size_categories, model
     )
@@ -4407,9 +4102,6 @@ def preprocess_scene(
     )
     yaw_observation_path = write_main_support_yaw_observation(out, yaw_observation)
     print(f"[preprocess] main-support yaw observation: {yaw_observation_path}")
-    # Compile the adjudicated source facts into the immutable obligations consumed by
-    # both the initializer prompt and rules gate.  This is a required preprocess artifact:
-    # there is intentionally no legacy/default-hard reconstruction downstream.
     from lib.tools.geometry.relationship_constraints import (
         write_initializer_constraints,
     )

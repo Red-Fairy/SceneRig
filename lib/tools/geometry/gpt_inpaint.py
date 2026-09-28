@@ -31,12 +31,6 @@ DEFAULT_PROMPT = (
 )
 
 
-# The "polish" prompt for SHARP raw renders (frozen from the 2026-07-28 probe, where
-# naming the ACTUAL defects beat both the generic fill prompt and vague "make it
-# clear" phrasing). The raw render's failure mode is haze/smear plus black voids,
-# not transparent holes, so the fill prompt above is off-target for it. Maskless on
-# purpose: with gpt-image the mask does not protect the keep region anyway
-# (measured drift 11.8-31.4 WITH a mask).
 POLISH_PROMPT = (
     "This photo has hazy semi-transparent smears near object edges and some "
     "black empty regions. Produce the scene as if captured "

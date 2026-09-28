@@ -1,19 +1,4 @@
-"""DINOv2 patch-similarity metric for pose registration (rotation/facing term).
-
-Silhouette IoU is blind to a ~180-degree yaw on near-symmetric objects (spoons,
-forks): the outline barely changes but the visible face does. ``patch_sim``
-scores APPEARANCE agreement between two same-size crops (render vs photo) as the
-mean per-patch cosine similarity of DINOv2 patch tokens, optionally restricted to
-the patches covered by a mask.
-
-The model runs in a persistent SPAWNED WORKER SUBPROCESS, not in-process:
-importing torch after an in-process CoACD decomposition HANGS the process
-(OpenMP runtime clash, reproduced 2026-07-14 — same family as the known
-scipy-after-CoACD segfault), and this module is imported inside the composition
-MCP server, which does run CoACD. The worker speaks JSON-lines over its OWN
-stdin/stdout pipes; the parent's stdout (the MCP JSON-RPC transport) is never
-written to — all diagnostics go to stderr.
-"""
+""
 
 from __future__ import annotations
 
@@ -26,48 +11,12 @@ import subprocess
 import sys
 from typing import Optional
 
-# Weight of the DINO term added to ROTATION candidates' selection score in
-# ``PoseSession.optimize_axis``. The current value is 0.2; set it to 0 for IoU-only
-# selection. Selection also falls back to IoU-only when the DINO worker is unavailable.
-# Tuned on the
-# 0714_flipfirst_abc1 / 0714_e2e_abc1 offline replay (the replay script is gone;
-# re-tuning today would use the recorded benchmark register.json traces): at
-# 0.2 no known-correct object's winning candidate changes (true for the whole
-# {0.05..0.4} sweep) while near-tied rotations get real orientation pressure.
-# NOTE: no sweep value can outweigh a full 180-reversal's IoU gap (~0.15 on the
-# flipfirst spoon; would need lambda ~3) — that correction belongs to the
-# orientation HINT + rotate_180 path, not this term.
 LAMBDA_FEAT = 0.2
 # ``orientation_hint`` flags a suspected 180-reversal when the flipped render's
 # photo-similarity beats the current one by at least this margin, on the
 # masked-white crop (isolated object on white) at the stable pose.
 HINT_MARGIN = 0.02  # re-tuned for the position-invariant bbox-stretch crop
-# (_orient_object_crop; 2026-07-20). Across abc1/abc2/abc3/gpt1 the true reversals
-# separate at >= +0.026 (spoon +0.31, fork +0.21, knife +0.10, notebook +0.040,
-# book#0 +0.11, book#1 +0.026) from the clear keeps <= +0.003 (round plate/donut,
-# cup/saucer, mics/sensors, mug/clock/pen); 0.02 sits in the gap and keeps book#1.
-# The bbox-stretch normalises round objects to ~0, so the donut/plate false
-# positives the earlier square-pad crop produced are gone (near-symmetric croissants
-# can still flag ~+0.05, but a 180-yaw of a near-symmetric object is a no-op).
-# The inverse-direction margin: ``sim0 - sim180`` at or above this reports the
-# orientation as "SAME (verified)" in the investigate hints (exec.py) — strong
-# evidence AGAINST flipping. Scores between the two margins are neither flagged
-# nor verified. Same crop/score scale as HINT_MARGIN: retune the two together.
 VERIFIED_SAME_MARGIN = 0.10
-# The VERIFIED band of the reversal flag: ``sim180 - sim0`` at or above this
-# reports "REVERSED (verified)" in the investigate hints (exec.py) and lets the
-# reversal own the whole hint chain; flagged margins in [HINT_MARGIN, this) are
-# surfaced as "REVERSED (suspected)" — judge-the-crops-first, no chain
-# suppression. Deliberately NOT symmetric with VERIFIED_SAME_MARGIN (0.10): on
-# the 0821 benchmark hints.jsonl both confirmed-TRUE flips sit under 0.10 —
-# robolab_breakfast_table milk carton#0 at +0.054 and robolab_food_packing_dense
-# bin#0 at +0.065 — while the one confirmed FALSE positive (misc_online6 book#0,
-# flip applied then undone at IoU 0.28->0.09) sits at +0.023. 0.05 is the
-# largest round bar that keeps both true positives verified and demotes the
-# false positive to "suspected". Low-margin TRUE reversals exist (down to
-# +0.026, see the HINT_MARGIN note) — exactly why "suspected" still surfaces
-# them. Same crop/score scale as the two margins above: retune all three
-# together.
 REVERSED_VERIFIED_MARGIN = 0.05
 
 _ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))

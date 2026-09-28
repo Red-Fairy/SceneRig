@@ -1,19 +1,4 @@
-"""Decompose a scene's objects into CoACD collider parts (run with ./.venv).
-
-    # export chain (authoritative): from the exported USD's own geometry
-    .venv/bin/python isaac/build_collision.py --from-dump <visual_meshes.npz> --out <dir>
-
-    # legacy: from the placed GLBs in placement.json
-    .venv/bin/python isaac/build_collision.py <exp_or_task_dir> [--out <dir>]
-
-Writes one world-frame parts file per object: <out>/<prim_name>.npz, which
-``isaac/isaac_add_physics.py`` authors as the USD collision prims.
-
-The --from-dump mode consumes ``isaac/usd_dump_objects.py`` output and MUST be used
-for the export chain: agent stages (register/composition) move objects in the blend
-after placement, so placed-GLB poses can be stale — 0708_phys_real8334's glue bottle
-sat 24 cm from its GLB, which put its GLB-derived collider inside a neighbor's.
-"""
+""
 
 from __future__ import annotations
 

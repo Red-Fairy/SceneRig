@@ -135,9 +135,6 @@ def _parts_to_blocks(content) -> list[dict]:
     return blocks
 
 
-# Block vocabularies used to tell WHOSE provider-native blocks a stored
-# `_raw_blocks` list belongs to. Memory entries are provider-agnostic dicts; a
-# stage session sticks to one model, but a guard beats a 400 on the odd mix.
 _ANTHROPIC_BLOCK_TYPES = {"text", "thinking", "redacted_thinking", "tool_use"}
 _RESPONSES_ITEM_TYPES = {"reasoning", "message", "function_call"}
 
@@ -251,9 +248,6 @@ def _openai_to_anthropic(chat_args: dict) -> dict:
 
     out: dict = {
         "model": chat_args.get("model"),
-        # 32000 since 2026-08-07: at 16000, long thinking rounds truncated BEFORE the
-        # tool call (0806 fleet: modal init-round completion == the cap exactly, 41/682
-        # rounds) — each one wastes the round + the discarded thinking spend.
         "max_tokens": int(chat_args.get("max_tokens") or 32000),
         "messages": messages,
     }
@@ -300,11 +294,6 @@ class _ShimToolCall:
 
 class _ShimMessage:
     def __init__(self, resp):
-        # Drop None-valued keys from the dumps: these are SDK-side fields, not API
-        # fields, and the replay ships blocks back verbatim — the API 400s on any
-        # unknown key ("messages.N.content.0.text.parsed_output: Extra inputs are
-        # not permitted", 0807_seate2e2 round 2: stream().get_final_message() text
-        # blocks carry parsed_output=None, which create()'s never did).
         blocks = [
             {k: v for k, v in b.model_dump().items() if v is not None}
             for b in resp.content
@@ -340,22 +329,9 @@ class _ShimResponse:
 
 
 def _native_create(chat_args: dict):
-    # STREAMING accumulate, not create(): the SDK refuses a non-streaming create at
-    # max_tokens 32000 ("Streaming is required for operations that may take longer
-    # than 10 minutes") — the 16000->32000 bump broke every native agent round at
-    # its first call (both 0807_seate2e_* runs died in the initializer). Streaming
-    # also keeps bytes flowing through the CLAUDE_BASE_URL proxy during long
-    # thinking rounds, where an idle >10-min non-streaming response risks an
-    # idle-connection kill. get_final_message() returns the SAME Message object
-    # create() did, so the shim and every consumer are untouched.
-    # On a stream httpx applies the read timeout PER CHUNK, so MODEL_ATTEMPT_TIMEOUT_S is
-    # an idle bound (thinking deltas / pings keep arriving), not a cap on the round.
     with _native_client().messages.stream(
         **_openai_to_anthropic(chat_args), timeout=MODEL_ATTEMPT_TIMEOUT_S
     ) as stream:
-        # Heartbeat (2026-08-07): long thinking rounds stream for minutes with no
-        # log output and read as hangs (0807_seate2e3: 23.7k tokens ~= 5 min at
-        # ~75 tok/s). One line every ~30 s shows liveness without log spam.
         _t0 = _last = time.time()
         _chunks = 0
         for _event in stream:
@@ -373,19 +349,6 @@ def _native_create(chat_args: dict):
     if resp.stop_reason == "refusal":
         raise RuntimeError("native API returned stop_reason=refusal")
     return _ShimResponse(resp)
-
-
-# --------------------------------------------------------------------------- #
-# OpenAI Responses API adapter (tool-bearing OpenAI calls)                      #
-# --------------------------------------------------------------------------- #
-# gpt-5.6-family models REJECT function tools together with reasoning on
-# /v1/chat/completions (400: "use /v1/responses or set reasoning_effort to
-# 'none'"; probed live 2026-08-12 — omitting the param also fails, because the
-# model's DEFAULT effort applies). Same boundary pattern as the Anthropic
-# native layer above: pipeline shapes stay chat-completions everywhere, this
-# translates one request and duck-types the response. Reasoning items are
-# carried in `_raw_blocks` (generator/verifier already store `raw_content`)
-# and replayed verbatim, which is what lets thinking survive the tool loop.
 
 
 def _drop_nones(obj):
@@ -577,11 +540,6 @@ def _openai_to_responses(chat_args: dict) -> dict:
     # stored server-side; harmless otherwise.
     out["include"] = ["reasoning.encrypted_content"]
     mot = chat_args.get("max_completion_tokens") or chat_args.get("max_tokens")
-    # 2026-09-16: an uncapped call let gpt-6's runaway function-call arguments (a JSON
-    # string degenerating into newlines) run to the model's 128k limit: ~27 min and $6.4
-    # per occurrence, 56x in the 0916 batch. Observed legitimate agent outputs peak at
-    # ~4.1k tokens (preprocess 9.1k), so 16k keeps 4x headroom and bounds a runaway to
-    # ~3 min / $0.80. Callers that set max_tokens keep their own value.
     out["max_output_tokens"] = int(mot) if mot else RESPONSES_DEFAULT_MAX_OUTPUT_TOKENS
     if _supports_explicit_openai_cache(chat_args.get("model")):
         options = dict(chat_args.get("prompt_cache_options") or {})
@@ -620,12 +578,6 @@ class _RespShimToolCall:
 class _RespShimMessage:
     def __init__(self, resp):
         items = [_drop_nones(i.model_dump()) for i in resp.output]
-        # 2026-09-16: a response cut at max_output_tokens carries a TRUNCATED function
-        # call (the 0916 batch: 128k tokens of newlines inside a JSON string). Its
-        # arguments are not JSON and its items must never be replayed, so the shim
-        # reports it as a truncated reply with NO tool call: both agent loops already
-        # handle that case (generator "CUT OFF" message, verifier "must contain a tool
-        # call" message) and spend the round instead of crashing the attempt.
         self.truncated = getattr(resp, "status", None) == "incomplete"
         texts: list[str] = []
         tool_calls: list[_RespShimToolCall] = []
@@ -687,13 +639,6 @@ class _RespShimResponse:
 
 _RESPONSES_BUDGET_SECONDS = 3600.0
 RESPONSES_DEFAULT_MAX_OUTPUT_TOKENS = 16000
-# ONE per-attempt model-call timeout for the whole project (2026-09-15 owner). Data behind
-# it (44 gpt6_v1 runs, 3005 successful gpt-6-astra attempts): p99 per stage 28-68 s, a
-# single legitimate call over 120 s (lighting, 170 s); all 50 failures were hangs that
-# never sent headers and whose retry finished in 8-35 s. Claude streamed agent rounds
-# (520 in teleop_di_0915_v2): max 84 s. Applied as the Responses attempt cap, the OpenAI
-# client timeout for tool-less calls, and the per-chunk read timeout of the native
-# Anthropic stream. Fireworks/Kimi keeps 3600 s (documented >600 s thinking rounds).
 MODEL_ATTEMPT_TIMEOUT_S = 120.0
 _RESPONSES_ATTEMPT_TIMEOUT_SECONDS = MODEL_ATTEMPT_TIMEOUT_S
 
@@ -747,12 +692,6 @@ def _responses_create(
         preparation_s=round(preparation_s, 6),
         timeout_s=remaining,
     )
-    # SSE stream (2026-09-16): events arrive as the model generates, so the httpx read
-    # timeout (`remaining`, <= MODEL_ATTEMPT_TIMEOUT_S) bounds the IDLE gap between
-    # events, not the whole generation — a legitimate 170 s round no longer dies 5x.
-    # The terminal event carries the same `Response` the non-streaming call returned,
-    # so the shim below is unchanged. The wrapper owns all retries; the copied client
-    # shares the original transport.
     stream = client.with_options(max_retries=0).responses.create(
         **request, stream=True, timeout=remaining
     )
@@ -803,24 +742,7 @@ def _responses_create(
 
 
 def get_model_response(client: OpenAI, chat_args: dict, effort: str = "high") -> Any:
-    """Get ONE model response, with retries against transient network errors.
-
-    ``effort`` maps to the OpenAI-compat ``reasoning_effort`` parameter (verified
-    accepted on api.anthropic.com/v1 chat/completions, values low..max, 2026-07-29).
-    The default "high" matches the API's own default, so existing callers are
-    unchanged; callers with easy questions (e.g. vlm_physics material/mass) can pass
-    a lower level to cut thinking spend. Injected for anthropic and openai models —
-    every effort level the pipeline actually uses ("high"/"medium") is valid on both
-    scales — and never overrides a ``reasoning_effort`` the caller already put in
-    ``chat_args``. Skipped for google/qwen, whose handling of the param is unverified.
-
-    (This used to generate ``num_candidates`` responses per decision, but every caller
-    only ever consumed the first — the best-of-N selection was never implemented — so
-    the multi-candidate path was removed. The pipeline accepts the first result.)
-
-    Raises:
-        Exception: If all retries fail.
-    """
+    ""
     provider = _provider_or_none(chat_args.get("model"))
     if (
         effort
@@ -844,12 +766,6 @@ def get_model_response(client: OpenAI, chat_args: dict, effort: str = "high") ->
         and "max_tokens" in chat_args
         and "extra_body" not in chat_args
     ):
-        # Qwen3.5 thinks by default and the thinking BILLS INTO the completion
-        # budget: capped aux calls (physics_estimate: max_tokens 2000) returned
-        # empty content 3/3 on the 0813 pilot — the model spent the entire cap
-        # inside <think> and the reasoning parser left nothing. Rule: a caller
-        # that caps completion wants a short direct answer, so budgeted calls
-        # run with thinking off; uncapped agent rounds keep thinking.
         chat_args = {
             **chat_args,
             "extra_body": {"chat_template_kwargs": {"enable_thinking": False}},
@@ -882,15 +798,8 @@ def get_model_response(client: OpenAI, chat_args: dict, effort: str = "high") ->
             "effort": chat_args.get("reasoning_effort"),
         }
         _request_event(trace, "start", budget_s=_RESPONSES_BUDGET_SECONDS)
-    # Overload waves (529/429) last minutes, not seconds: the old fixed 3x10s budget
-    # killed three 0730_rdj lanes four stages deep in ONE shared 529 wave (08:56:37,
-    # all within 10 s of each other). Those transient classes now get a patient
-    # exponential ladder (~7.7 min total); everything else keeps the quick budget —
-    # a 400 (oversized image) will never heal, so waiting 8 min on it just stalls.
     overload_sleeps = [10, 30, 60, 120, 240]
     quick_sleeps = [10, 10]
-    # A timeout is a dead connection (2026-09-15: 50/50 observed hangs never sent
-    # headers; the retry finished in 8-35 s) — retry at once, several times.
     timeout_sleeps = [2, 5, 10, 20]
     attempt = 0
     while True:
@@ -984,9 +893,6 @@ def get_model_response(client: OpenAI, chat_args: dict, effort: str = "high") ->
             attempt += 1
 
 
-# Substring -> provider. Single source of truth for every per-provider branch
-# (credentials, request-shape quirks, native-API gating). Four separate copies of
-# this ladder used to drift; add a provider here and nowhere else.
 _PROVIDERS = (
     # "fireworks" first: Fireworks model ids ("accounts/fireworks/models/kimi-k3")
     # embed other providers' family names (gpt-oss, qwen*, ...) further down the path.
@@ -1045,10 +951,6 @@ def build_client(
     # get_model_response owns retries; the SDK's own 2 retries would multiply a hang.
     kwargs: dict = {"max_retries": 0, "timeout": MODEL_ATTEMPT_TIMEOUT_S}
     if provider_of(model_name) == "fireworks":
-        # Kimi-K3's always-on thinking on a full agent-round prompt regularly
-        # exceeds the SDK's 600s default (0818 batch: 10-min timeouts on Round 0;
-        # misc_online3 burned 9 straight and died). Non-streaming, so the project cap
-        # would cut real rounds: the documented exception to MODEL_ATTEMPT_TIMEOUT_S.
         kwargs["timeout"] = 3600
     return OpenAI(
         api_key=api_key or info["api_key"],
@@ -1062,13 +964,6 @@ def build_client(
 # or the base64 payload (model per-image size limits, e.g. Anthropic's 10 MB).
 MAX_IMAGE_EDGE = 1536
 
-# Long-edge cap for AGENT-LOOP VLM attachments (generator/verifier round images). The
-# comparison is already bounded by the 768-long novel-view render, so pairing it with a
-# 1536 photo bought tokens, not information (2359 -> 590 tok per attachment). Owner policy
-# 2026-07-28 (audit §12, D3 REVISED same day): one attach size for the ENTIRE agent loop,
-# protected-head target photo included. Deliberately NOT applied to: preprocess VLM callers
-# (segmentation/resegment crops, vlm_physics — they pass no max_edge and keep the 1536
-# safety net) or any on-disk artifact (input.png stays 1536: MoGE/register need it).
 AGENT_VLM_EDGE = int(os.environ.get("GRASE_VLM_EDGE", "768"))
 
 
@@ -1088,12 +983,8 @@ def normalize_input_image(
 def display_path(path: Any, scene_root: Any = None) -> str:
     """Render a run artifact path for a PROMPT: relative to the run's scene root.
 
-    An absolute artifact path carries four things no agent can use and none of them by
-    design: the date-coded run name (``0814_probe_still_life`` = a date plus "this is a
-    probe"), the stage index, the attempt number, and the operator's username. No tool
-    accepts a model-supplied path, so the only real consumer is the verifier's
-    ``problem_images`` echo — which ``resolve_display_path`` maps back.
-    See audits/PROMPT_LEAKAGE_AUDIT_2026_08_22.md.
+    No tool accepts a model-supplied path; ``resolve_display_path`` maps verifier
+    artifact references back to the run directory.
 
     Falls back to the basename when the path lies outside ``scene_root`` (or no root is
     known), so a stray absolute path can never reach a prompt through here.

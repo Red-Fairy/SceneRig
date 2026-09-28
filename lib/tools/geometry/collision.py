@@ -1,29 +1,4 @@
-"""CoACD convex decomposition of placed GLBs into world-frame collider parts.
-
-A convex hull of a concave object (open laptop, mug, bowl) fills its cavities, so a body
-resting *in* or *against* the concavity sits on phantom volume and the settle tips or
-ejects it. CoACD (collision-aware approximate convex decomposition, Wei et al. 2022)
-splits the mesh into a small set of convex pieces whose union hugs the real surface;
-physics engines then collide against the pieces as a compound body — exactly (each piece
-is convex), fast, and with a cavity that actually exists.
-
-Parts are decomposed fresh from the current GLB at preprocess (placed GLBs are mutated in
-place by settle / pose-match, so blindly cached parts would go stale). Later sessions
-(composition boot, certify) REUSE the preprocess decomposition instead of re-cooking: the
-exact pose delta is recovered per object via ``corner_similarity`` on face-corner
-correspondence, which self-invalidates (falls back to a fresh cook) whenever the geometry
-actually changed. This keeps the settle ladder's validated collider choice — a fresh CoACD
-of the same object can rest differently (0715 wendy1 marker capsized on a re-cook of a
-pristine-rescued collider) — and saves ~27 s/object/session. Parts are saved in the Z-up
-world frame the physics runs in (``_unpre_rotate_for_gltf`` — same frame contract as the
-grounding in ``physics.incremental_settle``). CoACD's ``auto`` preprocessing voxel-remeshes
-the open SAM3D shells to a watertight solid first, which also makes PhysX's density-derived
-mass/COM/inertia come from a solid, not a shell.
-
-Consumers: ``physics.incremental_settle`` / ``composition_physics`` and
-``isaac/build_collision.py`` -> ``isaac/isaac_add_physics.py`` (authors the parts as USD
-collision prims).
-"""
+""
 
 from __future__ import annotations
 
@@ -44,52 +19,16 @@ import numpy as np
 # Concavity tolerance (normalized 0.01-1). 0.05 keeps tabletop objects at ~2-15 parts;
 # lower is more faithful but slower to decompose and to simulate.
 DEFAULT_THRESHOLD = 0.05
-# Part cap: bumpy organic shapes (plush toys) otherwise shatter into 60+ hulls whose
-# surface bumps carry no contact information but multiply every scene reset's collision
-# cost. CoACD keeps the most significant cuts when capped.
-# 32 since 2026-08-27 (was 16): 51% of the 0825 batch's objects were truncated at 16, and a
-# 119-object probe showed 32 costs nothing (0.95x wall-clock). Ring-bottomed objects (mugs,
-# cups) get several base hulls instead of one — a single spanning base hull creeps under
-# PhysX at physical mu (roborig_depth/CHANGELOG 2026-08-27). The plush-toy rationale above
-# still holds at 32: CoACD stops on the concavity threshold long before the cap for most.
 MAX_PARTS = 32
 # coacd's own default, kept explicit for contrast with the support tier below: the
 # auto-preprocess voxel remesh runs at 50 cells across the bbox, ~10 mm on a 0.5 m
 # container — coarse enough to close a wire weave into a solid before decomposition.
 DEFAULT_PREP_RESOLUTION = 50
-# Finer budget for SUPPORT objects (anything cargo rests in/on: basket, tray, plate,
-# mug). At the default budget a container's cavity gets bridged by solid wedges —
-# 0722_bulkfix_groot2's wire basket carried 44 mm median phantom fill over its floor
-# plus cm-scale part-seam holes, leaving the pepper floating on fill and the corn
-# wedged over a gap. Benchmarked on that scene: this tier costs +19-53 s per support
-# (basket 28->47 s) but is 3-440x slower on organic NON-supports (bell peppers) for
-# zero contact value — hence the gate. Non-supports rest ON things; only supports
-# need faithful cavities.
 SUPPORT_THRESHOLD = 0.02
 SUPPORT_MAX_PARTS = 64
-# Support prep resolution is VOXEL-TARGETED, not fixed (2026-08-22). CoACD's
-# preprocess_resolution is cells across the longest bbox extent, so a fixed 100
-# meant ~5.3 mm voxels on benchmark_0822_rerun2/abc_5's 0.53 m tray: the remesh
-# quantization put a +3.1 mm median / +7.8 mm p90 margin over the tray floor with
-# 5.9% phantom-wall cells (+37..66 mm) narrowing the cargo strip — bottles could
-# never stand there (39 deg implied lean; 13 preprocess re-drops). Targeting
-# SUPPORT_TARGET_VOXEL_M instead: resolution = ceil(extent / 0.003), clamped to
-# [100, 200] — the floor keeps small supports at (or above) the old fidelity, and
-# the cap bounds the O(res^3) remesh cost on metre-scale supports. The rule keys
-# off the extent of the mesh being COOKED: on the pristine-first path that is the
-# pristine (pcand) sibling, which today shares metric scale with the placed GLB
-# by the placement contract (preprocess places and same-size-rescales both
-# together), so the derived placed collider's effective voxel is ~3 mm too. If
-# that contract ever loosens (pristine->placed scale s != 1), the target merely
-# drifts to s * 3 mm — corner_similarity recovers any s exactly, so geometry
-# stays correct regardless.
 SUPPORT_TARGET_VOXEL_M = 0.003
 SUPPORT_PREP_RESOLUTION_MIN = 100
 SUPPORT_PREP_RESOLUTION_MAX = 200
-# Cap-hit escalation: a support decomposition returning EXACTLY SUPPORT_MAX_PARTS
-# means CoACD truncated its cut tree (abc_5's tray hit 64 exactly and its floor
-# strip kept phantom walls a further cut would have opened). One bounded retry at
-# this cap, supports only (decompose_world_mesh logs the old/new part counts).
 SUPPORT_ESCALATED_MAX_PARTS = 128
 
 
@@ -121,9 +60,8 @@ def decompose_glb(
 
 
 def _pristine_frame(world, faces, frame_glb):
-    """Exact LOCAL clamp frame from the SAM3D pristine sibling (owner insight
-    2026-08-05: SAM3D's pristine save is axis-aligned in its own frame — a heuristic
-    that holds in practice). Pristine, raw, and placed GLBs are the SAME mesh under
+    """Exact local clamp frame from the axis-aligned SAM3D pristine sibling.
+    Pristine, raw, and placed GLBs are the same mesh under
     similarity transforms (identical topology), so face-corner correspondence
     recovers the placed pose's rotation from the axis-aligned frame EXACTLY — no
     PCA, no estimation error. Returns ``(s, R, t, lo, hi)`` with the placed VISUAL
@@ -147,18 +85,7 @@ def _pristine_frame(world, faces, frame_glb):
         return None
 
 
-# CoACD's MCTS is stochastic: unseeded, byte-identical meshes produced a different
-# decomposition on every call (2026-08-16, replay_real_trajectory repro: banana
-# 384b0837ea vs 1657ab0370, bowl three different hashes in three runs), which made
-# grasp outcomes irreproducible. A fixed seed makes the decomposition a pure
-# function of the mesh. Its default of 0 in run_coacd is NOT a fixed seed.
 COACD_SEED = 20260816
-# Opt-in hull vertex cap. CoACD (decimate=False) emits hulls at raw surface-vertex density
-# (2,600-27,000 verts seen on eibin objects); PhysX then cooks every convexHull to 64 verts
-# (physxConvexHullCollision:hullVertexLimit default), so the simulated shape is NOT the
-# authored one. On flat-bottomed objects the cooked base is no longer planar and resting
-# objects creep at constant velocity (eibin ae341146 mug 6 mm/s, apple ~10 mm/s, 2026-08-27).
-# Capping at authoring makes cooking an identity. Set GRASE_COACD_MAX_VERTS=64 to enable.
 COACD_MAX_VERTS = int(os.environ.get("GRASE_COACD_MAX_VERTS", "0"))
 
 
@@ -182,11 +109,7 @@ def _coacd_file_identity(path: str, size: int, mtime_ns: int) -> dict:
 def _run_coacd_recorded(
     world: np.ndarray, faces: np.ndarray, out_npz: str, kwargs: dict
 ) -> list:
-    """Retain submitted arrays and library identity if a native cook exits abruptly.
-
-    Native stderr retains its existing owning tool/core-log destination. Successful
-    calls remove only their own temporary evidence, never an earlier failed attempt.
-    """
+    ""
     import coacd  # Optional native dependency: imported only at the cooking boundary.
 
     mesh = coacd.Mesh(world, faces)
@@ -289,25 +212,6 @@ def _save_parts(
     parts: list, world: np.ndarray, faces: np.ndarray, out_npz: str, frame_glb: str | None
 ) -> int:
     """Clamp cooked parts to the visual mesh and write the ``{n, v{i}, f{i}}`` npz."""
-    # Clamp part vertices to the visual mesh's z-RANGE: the voxel remesh overshoots
-    # the surface by ~1 mm (up to ~half a voxel) on EVERY face. Bottom clamp — an
-    # object authored in exact resting contact would otherwise start its collider
-    # penetrated into the support, and PhysX's depenetration nudge makes narrow
-    # objects lean at sim start (8334 glue bottle). Top clamp (2026-08-04, owner-
-    # approved) — the mirror interface: a NEIGHBOR resting on this object starts
-    # penetrated into the top overshoot instead. Stacks of thin slabs get it from
-    # both faces (0804_e2e_online6: book_0's collider top sat 2.7mm inside book_1 on
-    # a 30mm book) — joint settles absorb that mutually, but a single-object
-    # move-settle turns it into an ejection impulse: the moved book flipped 60-174deg
-    # and EVERY composition move on a stacked book was capsize-rejected. Parts stay
-    # convex (PhysX hulls the vertices), and only the systematic stacking axis (z)
-    # matters — lateral overshoot carries no resting weight and is left alone.
-    # LOCAL-frame clamp first (2026-08-05, owner-approved): the world clamp planes
-    # sit at the AABB extremes, so on a TILTED slab they trim only the high-corner
-    # region and ~90% of the face keeps its overshoot (0804_e2ef books: collider
-    # tops +1.1mm above visual after settle -> 0.8mm visible inter-book margins).
-    # The pristine-frame clamp trims uniformly across every face and is
-    # pose-invariant, so the transform-reuse machinery propagates it exactly.
     frame = _pristine_frame(world, faces, frame_glb)
     z_min = float(world[:, 2].min())
     z_max = float(world[:, 2].max())
@@ -328,16 +232,6 @@ def _save_parts(
     return len(parts)
 
 
-# Agent-authored objects: one convex hull PER AUTHORED PART instead of CoACD on the fused
-# union (2026-09-17, owner-approved). CoACD re-slices the union along its own planes and
-# handed clutter_shelf's base slab back as a 46-vertex hull with a bulged top; resting on
-# 5 of its vertices PhysX pumped energy in every step and the shelf launched 1.2 m in the
-# metric sim (cap 24/64 + OMP_NUM_THREADS=1, corner filters, subsampling all still
-# flipped; four clean corners for either face held 0.0 mm). The agent's part boundaries
-# are the cut planes CoACD cannot infer from the fused surface, and primitives hull to
-# a handful of vertices (a box slab -> 8). A part whose mesh volume is below this
-# fraction of its hull volume is non-convex (torus rim, carved cup, cut slab) and is
-# CoACD'd ALONE, so no cut can ever span two parts. 189/196 gpt6v1_0917 parts are >=0.95.
 AUTHORED_HULL_FILL_RATIO = 0.9
 
 
@@ -637,15 +531,14 @@ def transform_stabilization_bundle(
 def placed_collider_from_pristine(
     pristine_npz: str, pristine_glb: str, placed_glb: str, out_npz: str
 ) -> bool:
-    """Derive the PLACED collider by similarity-transforming the PRISTINE
-    decomposition — never CoACD the placed mesh of a support (2026-08-22).
+    """Derive the placed collider by similarity-transforming the pristine decomposition.
 
     CoACD's voxel remesh is grid-aligned with the axis-aligned pristine save, so
     the pristine decomposition's floor is flat at a uniform quantization offset;
     remeshing the same mesh TILTED staircases the floor across the grid instead
     (abc_5's ~4 deg tray: +3.1 mm median margin, 12.9 mm plane residual, 5.9%
     phantom-wall cells vs a 2-6x flatter pristine cook). Pristine and placed GLBs
-    are the SAME mesh under a similarity (owner insight 2026-08-05), so
+    are the same mesh under a similarity, so
     ``corner_similarity`` recovers the placed pose exactly and convexity survives
     the transform (``transform_parts_npz``). The pristine cook's world z-clamp IS
     its exact local-frame clamp (the pristine is axis-aligned in world), so it

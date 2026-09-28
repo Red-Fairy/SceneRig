@@ -13,9 +13,6 @@ from typing import Any
 
 from lib.tools.geometry.register import mesh_name_for
 
-# Relative spread of per-axis scale ratios above which a transform edit is a SHAPE
-# edit. Blender's float32 scales perturb ratios at ~1e-7; real rescales in the
-# 2026-09-14 benchmark were 5-150%.
 ISOTROPIC_SCALE_TOLERANCE = 0.005
 
 
@@ -40,8 +37,6 @@ def anisotropic_scale_change(before_scale: Any, after_scale: Any) -> str | None:
     if not all(math.isfinite(r) for r in ratios):
         return None
     if any(r <= 0.0 for r in ratios):
-        # audit F-M7: a reflection (negative scale) is neither a rigid pose nor a uniform
-        # rescale — it used to pass as "uniform" because the check returned None here
         return "mirrored " + "x".join(f"{r:.3f}" for r in ratios)
     if (max(ratios) - min(ratios)) / max(ratios) <= ISOTROPIC_SCALE_TOLERANCE:
         return None
@@ -261,9 +256,6 @@ def observed_object_changes(
             f"missing={sorted(expected - set(after))!r}, "
             f"unexpected={sorted(set(after) - expected)!r}"
         )
-    # Shape protection (RC1, 2026-09-14): an existing object's transform may change
-    # rigidly or by a uniform scale. A non-uniform scale stretches the mesh (drawer
-    # 1.19x1.08x1.50, spoon 1x1.40x1) and must be a declared replacement instead.
     for name in sorted(set(before) & set(after)):
         if name in added_names:
             continue  # a declared replacement may carry any scale

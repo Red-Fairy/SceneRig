@@ -272,14 +272,7 @@ def _geometry_or_pose_changed(name: str, row: dict) -> bool:
 def initializer_pose_exclusions(
     scene: Path, active_mesh_names: list[str]
 ) -> dict[str, dict]:
-    """Return explicit reporting exemptions for active initializer-edited objects.
-
-    ``active_mesh_names`` must come from the caller's validated object inventory.
-    A missing ledger is a legacy/no-edit scene and grants no exemptions. Present
-    malformed or contradictory evidence raises ``ValueError``; the caller must
-    report that provenance failure, never silently exempt all authored objects.
-    Only two fixed JSON/JSONL paths are read, without native processes or scans.
-    """
+    ""
     _require(
         isinstance(active_mesh_names, list)
         and all(isinstance(name, str) and name for name in active_mesh_names)

@@ -423,12 +423,6 @@ def filter_hierarchy(
     return kept, dropped
 
 
-# --------------------------------------------------------------------------- #
-# Stage 3 — vital-part check                                                   #
-# --------------------------------------------------------------------------- #
-# Outline colour for _marked_crop as (rgb, NAME). The NAME is what a prompt must call
-# it, so colour and wording come from ONE source and cannot drift (N1, 2026-07-31: the
-# verify prompt said GREEN while the crop drew RED for ~219 production calls).
 MARK_RED = ((255.0, 0.0, 0.0), "RED")
 MARK_GREEN = ((0.0, 220.0, 60.0), "GREEN")
 
@@ -436,8 +430,7 @@ MARK_GREEN = ((0.0, 220.0, 60.0), "GREEN")
 def _marked_crop(
     img: np.ndarray, m: np.ndarray, out: str, pad_frac=0.35, mark=MARK_RED
 ) -> str:
-    """Zoom crop with the object tinted + outlined in ``mark``'s colour (merge style).
-    Default red keeps ``check_vital``'s crop byte-identical to its probe calibration."""
+    ""
     from PIL import Image
 
     rgb = np.array(mark[0], float)
@@ -508,10 +501,6 @@ def check_vital(
     cut = _masked_crop(img, mask, str(masks_dir / f"_vital_{tag}_cut.png"))
     known = ""
     if occluders:
-        # each entry is a name or (name, missing_part) — the pairwise judge already
-        # established WHAT each occluder hides; anchoring the crop check on it stops
-        # the "that face is not visible anyway" rationalization (0709_eval5 gpt1
-        # book#0: the covered top face was argued away as self-occlusion)
         parts = [
             f"{o[0]} (hides: {o[1]})"
             if isinstance(o, (tuple, list)) and len(o) > 1 and o[1]
@@ -566,9 +555,6 @@ def check_vital(
         # persisted for DISPLAY/audit (demo shows "~N% hidden"); the gate never
         # reads it — severity above is the only policy input
         "visible_fraction": round(frac, 2),
-        # Border-cut magnitude (probe 2026-07-30, 10 labeled candidates x2 reps:
-        # cut >= 0.07-0.40, uncut/sliver <= 0.08): gates border completion at
-        # GRASE_BORDER_MIN_BEYOND, replacing the detect_border_cut VLM.
         "beyond_frame_fraction": round(beyond, 2),
         # state-aware rollability (a LYING marker rolls, a STANDING one does
         # not): consumed by the composition physics gates — a rolling object is
@@ -585,13 +571,7 @@ def check_vital(
 # Stage 4 — redetect execution                                                 #
 # --------------------------------------------------------------------------- #
 def trivial_seam(seam_px: int, target_area: int) -> bool:
-    """Layer 1 of the same-category redetect fix: is the target-occluder seam too
-    small for a removal edit to reveal anything meaningful? OR-semantics — skip only
-    when BOTH floors fail (calibrated 2026-07-29 on labeled cases: FP egg#3 104px/2.1%
-    fails both; TPs book#0 2425px/5.7% and keyboard#0 838px/8.7% pass comfortably).
-    Applies to the occlusion paths: the heavy seam floor and the carved-container
-    override floor. Border-completion and vital-only redetects have no occlusion seam
-    by construction and must never be gated here."""
+    ""
     min_px = int(os.environ.get("GRASE_REDETECT_MIN_CONTACT_PX", "150"))
     min_frac = float(os.environ.get("GRASE_REDETECT_MIN_CONTACT_FRAC", "0.03"))
     return seam_px < min_px and seam_px < min_frac * max(target_area, 1)
@@ -612,9 +592,6 @@ def build_removal_set(
 ) -> list[str]:
     """Occluder ids to erase for ``target``: direct occluders (sentinels dropped) plus
     everything transitively SUPPORTED by a removed object (never the target itself)."""
-    # drops border/mask/unknown ids AND the target itself: a VLM can name the object
-    # as its own occluder for stacked/self-overlapping items (0709_eval_real8334
-    # sticker sheet) — seeding it would ERASE the target
     closure = {o for o in direct_occluders if o in support and o != target}
     grew = True
     while grew:
@@ -750,15 +727,6 @@ def remove_objects(
     }
 
 
-# Upper bound on the PART-UNION branch of `resegment` (2026-08-06). The IoU branch is
-# self-limiting — iou >= min_iou_vs_original (0.25) mathematically caps the result at ~4x
-# the original (|union| <= |inter|/0.25 <= 4|orig|) — but the adjacency branch trusts mere
-# TOUCHING, which carries no size information, so its bound must be stated. Without it the
-# tier-3 point rung (added 2026-08-04) hands the tracker's SUPPORTING SURFACE straight to
-# it: 0806_fleet make_toast_standard bread#3 unioned the entire TABLE and shipped it as
-# the bread (249x its own mask, 100% of table#0's pixels; root surfaces are deliberately
-# absent from `_others_mask`, so nothing carved it back). Fleet calibration over 51
-# redetects: the 46 IoU-branch results are <= 3.1x, all 5 legitimate part-unions <= 4.2x.
 PART_UNION_MAX_GROWTH = float(os.environ.get("GRASE_RESEG_MAX_GROWTH", "8.0"))
 
 
@@ -776,34 +744,7 @@ def resegment(
     point: Optional[list[float]] = None,
     foreign_occluders: Optional[list[np.ndarray]] = None,
 ) -> Optional[dict[str, str]]:
-    """SAM3 on the edited image -> ``masks/<slug>_redetect.npy``; returns
-    {mask_path, seg_prompt, score} or None when nothing acceptable is found.
-
-    Detection has LADDER PARITY with the base pass (2026-08-04, owner-approved):
-    full-image text on the part-aware prompt and the bare category, then the
-    instance's Molmo POINT via the tracker (tier-3 analogue: a category that
-    needed the tracker the first time fails bare-noun text on the edited image
-    too), and only LAST the proposer's SYNONYMS. The point outranks synonyms
-    (owner call, 0804_e2e_abc1): a synonym is often a HYPERNYM ('croissant' ->
-    'pastry') that happily grounds a neighbouring sibling or the LanPaint
-    look-alike fill in a removed occluder's hole, while the instance's own point
-    is the most specific evidence we hold — synonyms fire only when both precise
-    methods fail ('coaster' -> 'mat' stays reachable). Judging is IDENTICAL for every rung: sibling pixels are carved out,
-    the mask must overlap the original (IoU >= ``min_iou_vs_original``) or be
-    adjacent (the part-only case, unioned with the original), and the winner
-    must GROW the mask (> 1.02x) — a disjoint detection means SAM3 grabbed a
-    different instance; no growth means the edit revealed nothing (a correct
-    no-op logged as such, NOT a failure).
-
-    ``foreign_occluders`` (owner-approved 2026-08-04, probe on abc1 croissant /
-    make_toast toast#3 vs 5 legit reveals — 7/7 separation): masks of removed
-    occluders NOT in the target's support subtree. A removed occluder's old
-    footprint is claimable amodal reveal only when the occluder RESTED ON the
-    target (tray under its pastries, bottom book under the stack); an occluder
-    supported by a THIRD object (side-by-side pastry, parallel toast slice in a
-    rack) occludes by viewpoint only — a candidate covering >80% of such a
-    footprint has adopted the LanPaint look-alike fill and gets that footprint
-    (minus the target's own original pixels) subtracted before the growth gate."""
+    ""
     from lib.tools.geometry.agentic_mask import Sam3Server
     from lib.utils._path import SAM3_PY
 
@@ -1074,12 +1015,6 @@ def generative_resegment(
         return np.load(mp) > 0
 
     def _others_mask(rid: str, removed: tuple = ()) -> Optional[np.ndarray]:
-        # Union of every other REMAINING object's original mask — the redetected
-        # target must not swallow adjacent instances (bridge3: two plush toys
-        # merged). REMOVED occluders are exempt: their old mask region is exactly
-        # where the target's hidden parts get revealed (gpt1: the removed gray
-        # book's footprint IS the black book's newly visible cover — carving it
-        # deleted all re-segmentation gain).
         acc = None
         base = _mask(rid)
         for other in insts:
@@ -1225,22 +1160,6 @@ def generative_resegment(
             vital_part = v.get("vital_part") or ""
             heavy = v.get("severity") == "heavy"
             vital = bool(v.get("vital_part_missing"))
-            # Border cut (object truncated by the LEFT/RIGHT frame edge): pad-shift +
-            # LanPaint/Qwen removal-and-outpaint + LingBot, so its placement is not
-            # center-biased (wendy1). Runs before the occl/vital gate — a purely frame-cut
-            # object has no object-occluder and would otherwise be skipped. Falls through to
-            # the standard path if detection or completion yields nothing.
-            # Candidacy is geometric (mask within 3 px of exactly one L/R edge);
-            # Magnitude is a HYBRID OR-gate (2026-08-04, owner-approved;
-            # audits/BORDER_GATE_PROBE_2026_08_04.md): fire when the mask touches the
-            # edge along >= GRASE_BORDER_MIN_CONTACT of its height (census: every case
-            # >= 0.85 is a true cut, highest uncut 0.69 — this band is where the VLM
-            # scalar FLAPS on identical pixels: wendy1 monitor 0.05-0.15, fold_clothes
-            # wall 0.05 vs 0.40) OR when check_vital's beyond_frame_fraction clears the
-            # 0.1 floor (probe 2026-07-30 — still the only signal that separates the
-            # mixed 0.3-0.7 contact band: uncut cup 0.69 @ 0.02 vs cut kettle 0.46 @
-            # 0.15). Mildly-cut heavy/vital objects both signals miss are still
-            # recovered by the occlusion path below.
             side = border_cut_side(masks[rid])
             beyond = float(v.get("beyond_frame_fraction") or 0.0)
             contact = edge_contact_ratio(masks[rid], side) if side else 0.0
@@ -1293,15 +1212,6 @@ def generative_resegment(
             if not occl and not vital:
                 continue
             if occl and not (heavy or vital):
-                # Carved-container override (2026-08-03, carvefix misc_online8): when
-                # carve_overlaps cut an occluder out of this mask (contain > 0.8, merge
-                # declined), the occluder sits ON the object and mesh recon textures it
-                # into the hole from the original image regardless of how complete the
-                # cut-out reads — the severity gate answers GEOMETRY, not contamination
-                # (the VLM called the notebook's 11288px glasses notch "a small notch...
-                # no structural part is missing" and the mesh baked the glasses). A
-                # non-trivial carve therefore forces the inpaint path; trivial carves
-                # reuse the calibrated seam floors.
                 carved = int(insts[rid].get("carved_px") or 0)
                 if carved and not trivial_seam(carved, int((_mask(rid) > 0).sum())):
                     carve_forced = True
@@ -1400,14 +1310,6 @@ def generative_resegment(
                     um = _mask(rid) > 0
                     for o in removal:
                         um = um | (_fit(_mask(o), um.shape) > 0)
-                    # REDETECT CONTRACT: the mask must live in the EDITED image's frame
-                    # (build_placement_table pairs it with the LingBot points of the
-                    # edited image; mesh recon pairs it with the edited image itself).
-                    # The union above is in the ORIGINAL frame; the LanPaint/Qwen
-                    # pipeline works at a capped resolution (0804_carvefix4: 768x1360
-                    # vs the 864x1536 original — object_world_box got a mismatched
-                    # pair, returned None, and the notebook silently vanished from
-                    # placement/meshes/physics). Resize into the edited frame.
                     from PIL import Image as _EImg
 
                     ew, eh = _EImg.open(rec["edited_image"]).size

@@ -21,10 +21,6 @@ from typing import Any, Callable, Optional
 
 import numpy as np
 
-# Support-score model V2 (2026-08-07, owner-approved; probe evidence in
-# audits/support_flag_probe_2026_08_06/): percentile footprints + in-container
-# relation + containment-instead-of-IoU for on-object resting. Kill switch
-# reverts all three to the pre-08-07 formulas.
 FOOT_PCTL = (2.0, 98.0)  # P1: outlier-robust footprint bbox (a depth-bleed strip
 # at an occlusion boundary stretched a statue's min/max base bbox to 1.15m and
 # poisoned its `covered` factor to 0.14 — just under the 0.15 flag floor)
@@ -158,22 +154,7 @@ PLUMB_WALL_MAX_NZ = 0.3  # |nz| <= this -> plumb wall, zero z (within ~17.5 deg 
 
 
 def plumb_plane(normal) -> tuple[Optional[list], str]:
-    """Snap a MEASURED root-surface normal to the gravity frame (single source of truth).
-
-    Returns ``(normal, kind)``:
-
-    * ``|nz| >= PLUMB_SUPPORT_MIN_NZ`` -> ``([0,0,1], "support")`` — a level support.
-    * ``|nz| <= PLUMB_WALL_MAX_NZ`` -> horizontal part renormalized, z zeroed, ``"wall"``.
-    * in between -> ``(unit(normal), "ambiguous")`` — neither class can trust the fit;
-      consumers must treat it like a MISSING plane (build / verify by eye, never anchor).
-    * missing / degenerate input -> ``(None, "ambiguous")``.
-
-    The prompt tells the agent to build on the SNAPPED plane, so checkers must anchor
-    against the snapped normal too — pre-2026-08-06 they compared the built surface to
-    the RAW fit, and a plumb-built wall extended past its mask centroid read as "off its
-    measured plane" by |offset|*|nz| alone. Idempotent (a plumbed normal re-plumbs to
-    itself), so it is safe on old scene graphs (raw normals) and new ones (pre-snapped).
-    """
+    ""
     if normal is None:
         return None, "ambiguous"
     v = np.asarray(normal, dtype=np.float64).reshape(3)
@@ -192,13 +173,7 @@ def plumb_plane(normal) -> tuple[Optional[list], str]:
 def footprint_bbox(
     points: np.ndarray, up=(0, 0, 1), pctl: Optional[tuple[float, float]] = None
 ) -> tuple[np.ndarray, np.ndarray]:
-    """2D bbox of points projected onto the plane perpendicular to ``up``.
-
-    ``pctl=(lo, hi)`` uses per-axis percentiles instead of min/max — the outlier-
-    robust form object bands need (P1, 2026-08-07): min/max let a few depth-bleed
-    points at an occlusion boundary stretch a 14cm statue base to a 1.15m strip.
-    Surface extents keep the min/max default (thousands of points; trimming a
-    table's true edge only hurts edge-of-table ``covered`` factors)."""
+    ""
     e1, e2 = basis_perp(up)
     pts = _finite(points)
     proj = np.stack([pts @ e1, pts @ e2], axis=1)
@@ -262,18 +237,7 @@ def _bbox_iou(a: tuple, b: tuple) -> float:
 # Support scoring                                                             #
 # --------------------------------------------------------------------------- #
 def in_container(obj_bt: dict[str, Any], cand: dict[str, Any], eps: float = SUPPORT_EPS) -> bool:
-    """Does ``obj_bt`` rest INSIDE container ``cand`` (P2, 2026-08-07)?
-
-    The on-top score only knows the candidate's RIM height, so an object inside a
-    bin indicts itself (base-to-rim gap -14cm -> contact 0) and geometry votes for
-    the table below — every bin scene produced a score-1.0 false flag
-    (eval_0806 census). Three conjuncts, all required:
-      1. >= INCONT_FRAC of the object's base footprint lies inside the rim bbox
-         (the opening is what you fall into);
-      2. the object's base sits between the container's bottom (-eps) and its rim;
-      3. the container has >= INCONT_MIN_DEPTH of interior — a placemat is not a
-         container.
-    ``cand`` needs base_h / top_h / top_bbox (the object-candidate dict + base_h)."""
+    ""
     if cand["top_h"] - cand["base_h"] < INCONT_MIN_DEPTH:
         return False
     # INTERIOR test: the base must sit clearly below the rim (margin = the same
@@ -312,13 +276,6 @@ def support_score(
             gap = max(0.0, obj_bt["base_h"] - candidate["base_h"])
             covered = _bbox_overlap_frac(obj_bt["foot_bbox"], candidate["top_bbox"])
             return max(0.0, 1.0 - gap / eps) * covered
-        # P3: containment replaces IoU — the surface case's own asymmetry. IoU
-        # punishes size mismatch, which is backwards for resting: a small can is
-        # ENTIRELY on a big box (true flag rose 0.227 -> 0.322), and a spoon on a
-        # placemat scored the placemat LOW (IoU) while the table paid only the
-        # placemat's thickness in contact — the source of the fleet's 56
-        # thin-support false flags. Height (contact) still gates a huge candidate
-        # from claiming everything; containment still needs real overlap.
         gap = obj_bt["base_h"] - candidate["top_h"]
         contact = max(0.0, 1.0 - abs(gap) / eps)
         covered = _bbox_overlap_frac(obj_bt["foot_bbox"], candidate["top_bbox"])

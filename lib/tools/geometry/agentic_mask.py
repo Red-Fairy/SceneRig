@@ -76,15 +76,7 @@ def is_duplicate_mask(
     dedup_iou: float,
     kind: Optional[str] = None,
 ) -> bool:
-    """Does ``mb`` duplicate an already-claimed mask? Pure form of the segmentation
-    dedup test.
-
-    ``kind`` restricts the comparison to SAME-KIND claims, mirroring ``_overlap_idx``'s
-    rule (2026-08-14, F6). Roots are never carved, so a tabletop mask legitimately
-    CONTAINS every object resting on it — a kind-agnostic test let one large claimed
-    OBJECT push IoU past the threshold and silently reject the tabletop's last-resort
-    tier-3 mask, which then dropped as ``root_unsegmented``. ``claimed`` and ``kinds``
-    are index-parallel."""
+    ""
     return any(
         _mask_iou(mb, c) > dedup_iou
         for c, k in zip(claimed, kinds)
@@ -238,12 +230,7 @@ def vlm_json(
     default: Any = _RAISE,
     validate: Optional[Callable[[dict], dict]] = None,
 ) -> Any:
-    """``parse_json(vlm(...))`` with the RC6 retry: an unparseable or non-object reply
-    is retried up to ``retries`` times with the parse error fed back so the model
-    returns bare valid JSON. On exhaustion, raises — unless ``default`` is given, in
-    which case that safe no-op decision is returned so one flaky reply degrades ONE
-    decision instead of killing the run (the merge call used to crash the whole
-    preprocessing pass this way; HARNESS_AUDIT_2026_07_26 V2/V3)."""
+    ""
     err = ""
     for attempt in range(retries):
         retry_parts = parts + (
@@ -332,14 +319,6 @@ def _nonempty_masks(masks: np.ndarray, scores: list):
     return masks[keep], [scores[i] for i in keep if i < len(scores)]
 
 
-# Rung 3 of the Molmo robustness ladder (2026-07-30, 0730_sel_mugs4 mug#2): cut the
-# description's placement clause at the first CURATED placement participle. NOT a
-# generic -ing/-ed regex — that would decapitate compound nouns ("cutting board",
-# "measuring cup", "shelving unit", "charging case") and match adjectives ("striped");
-# replay over 1145 recent proposer descriptions showed the curated list cuts to a
-# clean head noun phrase every time. A trailing parenthetical is preserved: the
-# salvage caller appends "(NOT a crossed-out one)" and that instruction is
-# load-bearing on its crossed-out probe image.
 _PLACEMENT_CLAUSE = re.compile(
     r"\s+(?:standing|lying|sitting|resting|leaning|tipped|placed|positioned|located"
     r"|propped|stacked|tucked|hanging|growing|rising|extending)\b.*$",
@@ -347,14 +326,6 @@ _PLACEMENT_CLAUSE = re.compile(
 )
 _TRAILING_PAREN = re.compile(r"\s*(\([^)]*\))\s*$")
 
-# Rung 4 of the Molmo ladder (2026-08-01, tableverse1 egg#0). A POSITIONAL phrase joined to
-# its container by a BARE preposition grounds NOTHING: "egg at the back left inside the
-# white ceramic bowl" -> [] while the same phrase with "of" -> exactly the right egg
-# (probed live; the 0730 runs that kept all four eggs used the "of" form). Cutting the
-# clause off entirely does NOT work either — "egg at the back left" alone also returns []
-# — so this rewrites the joiner rather than truncating. Only fires when a positional cue
-# ("at/near/on the <pos>") precedes the preposition, so plain "spoon inside the pot"
-# (already handled by the participle rules) is untouched.
 _BARE_PREP_JOIN = re.compile(
     r"(\b(?:at|near|on)\s+the\s+[a-z\- ]{2,24}?)\s+(?:inside|in|within)\s+(the\b)",
     re.IGNORECASE,
@@ -430,33 +401,7 @@ def restore_severed_components(
     max_overlap: float = 0.10,
     bridge_halo_px: int = 3,
 ) -> int:
-    """Give back the components ``keep_own_components`` removed WRONGLY: the parts of a
-    single object severed by a known OCCLUDER. Room mode made this real — furniture is
-    an object now, and in 0724_roomval_room1 the front chair's leg cut the table mask in
-    two; the trimmed pedestal sliver stayed LIVE in the image, escaped the occlusion-edit
-    hole, and seeded LanPaint's table regeneration (logs/roomval_room1_issues_20260724/).
-
-    Runs ONCE at the end of ``_segment_objects`` (every claimed mask exists — at trim
-    time the occluder may not be masked yet, so the trim itself cannot know).
-    ``keep_own_components`` is untouched, and both of its historical kills stay dead by
-    explicit veto: a removed component is restored ONLY when
-
-      (i)   it holds NO other instance's Molmo point (a swallowed neighbour — the 0629
-            key fob — is never restored),
-      (ii)  less than ``max_overlap`` of it lies inside other objects' masks (pixels
-            inside the occluder's own mask are the occluder's, not ours), and
-      (iii) it reconnects to the kept mask THROUGH other OBJECT masks — the union
-            ``own | C | dilate(other objects, bridge_halo_px)`` labeled 8-connected
-            must join them. ``bridge_halo_px`` (3) seals the soft-edge halo between
-            adjacent SAM3 masks (room1: the sliver sits 3.2px from the chair mask —
-            both boundaries are anti-aliased). A fragment adjacent only through
-            BACKGROUND (the 0630 charging plug) fails this at ANY halo — there is no
-            object mask in its gap to dilate. Root surfaces are EXCLUDED from the
-            bridge set: a floor/wall mask would bridge everything in frame.
-
-    Mutates each restored instance's mask ``.npy`` (and overlay, when ``image_path`` is
-    given) in place and sets ``restored_px``. Returns the count of restored instances.
-    Best-effort: no SciPy or shape mismatch -> untouched."""
+    ""
     if not trimmed:
         return 0
     try:
@@ -900,12 +845,7 @@ class Sam3Server(_JsonServer):
         points: list[list[float]],
         out_npy: str,
     ) -> tuple[Optional[np.ndarray], list[float]]:
-        """ALL multimask candidates for a single click -> ((N,H,W) stack, per-candidate
-        predicted IoUs), instead of the server's argmax pick. The tier-3 scale
-        adjudicator needs the full set: on printed objects the argmax is systematically
-        the logo/part while the whole object sits in the discarded candidates with a
-        LOW predicted IoU (t3_multimask probe 2026-08-02, 7/7 cases). Meaningful for
-        single-point prompts only (multimask is off for 2+ points)."""
+        ""
         Path(out_npy).parent.mkdir(parents=True, exist_ok=True)
         resp = self._rpc(
             {
@@ -932,17 +872,7 @@ class MolmoServer(_JsonServer):
         super().__init__(py, MOLMO_SERVER, log_path, ready_timeout)
 
     def point(self, image_path: str, obj: str) -> list[list[float]]:
-        """Point at ``obj`` with a deterministic robustness guard: MolmoPoint's
-        language front-end SILENTLY returns nothing for descriptions with a leading
-        article ("the metal spoon lying inside the steel pot" -> [] while the same
-        phrase without "the" grounds exactly) or a trailing comma clause ("gray book
-        on top of the stack, right side" -> []; both probed live on 0709_eval4
-        inputs). The article is stripped up front; an empty result retries once with
-        the trailing comma clause(s) removed, then once more (rung 3, 2026-07-30)
-        with the placement clause cut to the head noun phrase, then rung 4
-        (2026-08-01) rewriting a bare positional ``inside/in/within`` join to ``of``.
-        Rungs 3–4 count only when they ground exactly ONE point. Protects against proposer style
-        drift regardless of the prompt-side rules."""
+        ""
         q = re.sub(r"^(the|a|an)\s+", "", obj.strip(), flags=re.IGNORECASE)
         resp = self._rpc({"image": image_path, "object": q})
         pts = (resp or {}).get("points", []) if (resp or {}).get("ok") else []
@@ -952,14 +882,6 @@ class MolmoServer(_JsonServer):
                 resp = self._rpc({"image": image_path, "object": q2})
                 pts = (resp or {}).get("points", []) if (resp or {}).get("ok") else []
         if not pts:
-            # Rung 3 (2026-07-30, mugs4 mug#2): SOME full phrasings silently return
-            # nothing ("red mug standing upright in the middle of the table" -> []
-            # while "red mug" grounds exactly; not a universal token rule — sibling
-            # descriptions with the same participle pointed fine). Retry with the
-            # placement clause cut at a curated participle. Accepted ONLY when the
-            # short phrase grounds EXACTLY ONE point (owner rule): the cut drops the
-            # disambiguating location, so a multi-point answer is ambiguous — keep
-            # the instance undetected rather than guess.
             q3 = strip_placement_clause(q)
             if q3 != q:
                 resp = self._rpc({"image": image_path, "object": q3})
@@ -967,10 +889,6 @@ class MolmoServer(_JsonServer):
                 if len(p3) == 1:
                     pts = p3
         if not pts:
-            # Rung 4 (2026-08-01, tableverse1 egg#0): a positional phrase joined to its
-            # container by a BARE preposition grounds nothing; rewriting that joiner to
-            # "of" restores the exact form the 0730 runs used. Same owner rule as rung 3
-            # — accepted ONLY on a single unambiguous point.
             q4 = rejoin_with_of(q)
             if q4 != q:
                 resp = self._rpc({"image": image_path, "object": q4})
@@ -1018,10 +936,7 @@ class Sam3dServer(_JsonServer):
 # VLM object-list proposer                                                     #
 # --------------------------------------------------------------------------- #
 def _make_vlm(model: str, effort: str = "high") -> Callable[[str, list], str]:
-    """``effort`` maps to reasoning effort (see get_model_response). The resegment
-    stage passes medium (probed 2026-07-29: judge_pair 8/8, check_vital 5/6 with the
-    one diff on a borderline case in the SAFE direction, detect_border_cut 6/6 vs
-    recorded high-effort verdicts); the proposer/merge callers keep the high default."""
+    ""
     from lib.utils.common import build_client, get_model_response
 
     client = build_client(model)
@@ -1236,11 +1151,7 @@ _ROUTER_SYSTEM = (
 
 
 def _norm_scene_kind(ans: str) -> str:
-    """Normalize a router reply to 'room'|'closeup:table'|'closeup:tabletop' (2026-07-31:
-    the router now also carries the main support's FORM, which used to be a per-instance
-    proposer field). Anything unrecognized — or a reply naming both worlds — falls back to
-    'closeup:table': the safe default in BOTH axes, since a hidden base costs less than an
-    elevated surface left floating."""
+    ""
     s = (ans or "").strip().lower()
     if "room" in s and "closeup" not in s:
         return "room"
@@ -1249,15 +1160,6 @@ def _norm_scene_kind(ans: str) -> str:
     return "closeup:table"
 
 
-# The reply is ONE token, but a reasoning model spends thinking tokens against the same
-# ceiling — so a tight budget truncates the answer to EMPTY before any visible text. An
-# empty string then normalizes to the 'closeup:table' default, which is indistinguishable
-# from a considered verdict, and a room scene is silently demoted to closeup. That is what
-# made `--room-mode` inert for the whole 0803_roomnew batch. Measured with
-# scripts/probe_router.py (2026-08-03): 10/25 replies EMPTY at 30 tokens, 0/6 at 400;
-# real_new4 (round table + 4 chairs on a rug) routes 'room' 3/3 once it can answer at all.
-# Not effort-specific — empties appear at effort=None too — and 30 was the smallest
-# max_tokens in the pipeline by 26x (every other call site is 800-16000).
 _ROUTER_MAX_TOKENS = 400
 
 
@@ -1291,9 +1193,7 @@ def route_scene(vlm: Callable, image_path: str) -> str:
 
 
 def _norm_instances(category: str, raw: list) -> list[dict[str, Any]]:
-    """Normalize a category's instances to [{description, kind, support}], one per
-    instance. Accepts plain strings (legacy) or dicts; missing kind is inferred
-    from the category (surface vs object), missing support defaults to None."""
+    ""
     cat_kind = "root_surface" if is_surface(category) else "object"
     out: list[dict[str, Any]] = []
     for it in raw:
@@ -1332,13 +1232,7 @@ def _norm_cat(name: str) -> str:
 
 
 def _merge_duplicate_categories(objects: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    """Deterministic backstop for the prompt's each-category-once rule: fold repeated
-    category entries into the first one (instances appended in order and synonyms
-    unioned) so downstream 'category#k' ids stay collision-free.
-
-    ``same_size`` is a downstream compatibility field, never a proposer decision.  Clear
-    it even when a legacy or non-conforming model reply emits the old field.
-    """
+    ""
     by_cat: dict[str, dict[str, Any]] = {}
     out: list[dict[str, Any]] = []
     for o in objects:
@@ -1396,18 +1290,6 @@ def propose_objects(
         },
         _img_part(image_path),
     ]
-    # per-instance {description,kind,support} + relationships is long, and on the
-    # native API adaptive-thinking tokens count against max_tokens too — at 5000 the
-    # xhigh propose call truncated mid-array on real8334 6/6 times (completion == cap;
-    # parse_json's balanced-scan then silently returned the FIRST array element, a bare
-    # {"category": ...} dict with no "objects" key, netting zero instances), and healthy
-    # lanes measured up to 3722. 16000 gives headroom; cost is per token used, not per cap.
-    # One flaky generation must not kill the whole run (RC6):
-    # retry up to 3x, feeding the parse error back so the model returns bare valid JSON.
-    # A VALID reply listing ZERO movable objects gets the same retry budget (2026-07-30:
-    # 4 of 5 cluttered top-down 0730_rdj random lanes died at the downstream ZERO-instance
-    # guard on a parsed-but-empty proposal, while immediate reprobes of the identical call
-    # returned 20+ categories — a bimodal judgment flake, so a re-ask usually recovers it).
     err, err_kind = "", "parse"
     parsed_ok = False
     objects: list[dict[str, Any]] = []
@@ -1489,11 +1371,6 @@ def propose_objects(
         print(
             "[propose_objects] zero object instances after 3 attempts — returning empty proposal"
         )
-    # NOTE (2026-07-22): the container-root demotion (demote_nonsurface_roots)
-    # that used to run here was REMOVED: 3 firings, 3 false positives (wendy1's
-    # wall-forming whiteboard, real8334's workbench = the actual main support),
-    # 0 true catches — the prompt's "a container is NEVER the main support" rule
-    # (added alongside it) is the working defense for the bridge5 bin case.
     return objects, relationships
 
 
@@ -1541,11 +1418,6 @@ _VERIFY_SYSTEM = (
 )
 
 
-# Room-track verifier: audits under the room worldview — floor + walls are the only
-# surfaces, the work surface and all furniture are OBJECTS and must never be
-# re-classified as surfaces. (Form is a scene-level router flag since 2026-07-31.)
-# Probed 2026-07-24 on the dining demo's real composite (2/2:
-# re-adds missed walls, floor<->wall rels only, never touches an object).
 _VERIFY_SYSTEM_ROOM = (
     "You AUDIT the segmentation of a single-image 3D ROOM scene. The scene is a "
     "ROOM: ONE floor (the ground) + the walls that BOUND it. The WORK SURFACE "
@@ -1590,16 +1462,7 @@ def _results_summary(
     colors: dict[str, str],
     main_support: Optional[str] = None,
 ) -> str:
-    """Render the MASKED ROOT SURFACES as a compact, id-labelled text block for the verifier
-    to audit against the surfaces-only overlay. ``colors`` maps a surface id to the colour it
-    wears in that overlay (from ``make_surface_composite``); ``main_support`` is the id of the
-    main support, resolved from the support chain.
-
-    OBJECTS ARE DELIBERATELY ABSENT (owner redesign 2026-08-01). The verifier corrects only
-    surfaces + relationships and cannot touch an object, so the object list bought nothing and
-    cost three separate prompt guardrails fighting it: don't move objects, don't cite an object
-    as a relationship endpoint, don't invent a surface to host an off-support object. Remove the
-    input and the temptations go with it."""
+    ""
     surf = []
     for r in results:
         if r.kind != "root_surface":
@@ -1651,23 +1514,7 @@ def verify_segmentation(
     list[dict[str, Any]],
     dict[str, Any],
 ]:
-    """One audit pass AFTER segment+merge. ``mode`` routes to the matching verifier:
-    ``'closeup'`` (default, ``_VERIFY_SYSTEM``) or ``'room'`` (``_VERIFY_SYSTEM_ROOM``
-    — same audit under the room worldview). Shown the SURFACES-ONLY overlay at
-    ``composite_path`` (built by ``make_surface_composite``, whose ``{id: colour}`` map the
-    caller passes as ``colors``) + optional geometry hints, the verifier ADDS missing
-    bounding surfaces + corrects the relationship list. Objects are shown to it neither as
-    tints nor as ids — it cannot touch them, so since 2026-08-01 it is not told about them.
-    It does NOT touch the main support's form: that is a scene-level
-    router flag since 2026-07-31 (``routing.form``, read via ``preprocess.scene_form``).
-    It does NOT drop objects — off-support removal is the geometric mask-connectivity check
-    (``drop_disconnected_from_support``), so a valid object is never lost to a VLM misjudgment.
-    Added surfaces are NOT re-segmented (SAM
-    just re-grounds onto the existing wall, producing a near-duplicate mask) — they become
-    name-only ``unmasked_root_surfaces`` for the initializer to build VISUALLY (it names them by the
-    given id, e.g. ``wall_1``, so the relationship rule still locates them by name). Returns
-    ``(results, relationships, dropped, unmasked_roots, review)``. Best-effort — on any failure the
-    un-audited segmentation is returned unchanged."""
+    ""
     review: dict[str, Any] = {
         "ran": True,
         "add_surfaces": [],
@@ -1677,11 +1524,6 @@ def verify_segmentation(
         "hints": hints,
     }
     try:
-        # The main support's FORM is a scene-level router flag since 2026-07-31
-        # (masks.json routing.form) and is none of the verifier's business; its
-        # IDENTITY still is — with objects gone from the summary, the id list is the
-        # only thing telling it which surface the scene is built around. Lazy import:
-        # preprocess imports us at module level, so the reverse edge must be runtime.
         from lib.tools.geometry.preprocess import main_support_id
 
         main_id = main_support_id(
@@ -1797,11 +1639,6 @@ def verify_segmentation(
                 rel["provenance"] = provenance
                 rel["status"] = "unverified"
                 rel["enforcement"] = "advisory"
-        # Endpoint validation: a relationship citing a surface that exists NEITHER as
-        # a masked root NOR as a verifier-added name-only root is dead weight that can
-        # only mislead (0709_eval5_raw3: the verifier's "corrected" list cited a
-        # wall#1 it never added; the phantom edge starved the yaw anchor while
-        # LOOKING like wall coverage existed). Purely subtractive: drop + log.
         valid_ids = {
             f"{r.category}#{r.instance}".lower()
             for r in results
@@ -1809,11 +1646,6 @@ def verify_segmentation(
         } | {f"{u['category']}#{u['instance']}".lower() for u in unmasked_roots}
 
         def _repair(i: str) -> Optional[str]:
-            # A BARE CATEGORY id ("wall" instead of "wall#0") is a formatting slip,
-            # not a phantom surface — repair it when exactly ONE instance of that
-            # category exists (0710_eval1_wendy1: the verifier's `against desk#0 <->
-            # wall` lost a load-bearing yaw-pin rel to the strict drop). Ambiguous
-            # (two walls) still drops: guessing an instance is worse than losing it.
             if i in valid_ids:
                 return i
             if "#" not in i:
@@ -1844,11 +1676,6 @@ def verify_segmentation(
             if r not in kept_rels:  # a repair may collide with an existing rel
                 kept_rels.append(r)
         new_rels = kept_rels
-        # GUARD: a truthy submitted list whose entries ALL collapse during endpoint
-        # validation is almost always an id-format slip (for example, overlay numbers
-        # instead of ids). Preserve the proposer's constraints in that case. An explicit
-        # [] is different: the prompt defines it as an intentional complete correction
-        # to no relationships, so it is allowed to clear the old list.
         if (
             raw_reply_rels is not _missing_rels
             and bool(raw_reply_rels)
@@ -1862,9 +1689,6 @@ def verify_segmentation(
             )
             new_rels = list(relationships)
             dropped_rels, repaired_rels = [], []
-        # (2) the main support's FORM is no longer the verifier's business: it is a
-        # SCENE-level flag the router emits (routing.form). A stray fix_form in the
-        # reply is ignored, like the retired "drop" field.
         review.update(
             {
                 "add_surfaces": add,
@@ -1987,22 +1811,7 @@ def wall_hints(
     max_planes: int = 4,
     min_frac: float = 0.04,
 ) -> Optional[str]:
-    """Geometry hint for the proposer-verifier: large flat surfaces roughly PERPENDICULAR to
-    the main support — candidate walls/panels the proposer may have missed. Gravity-free
-    (runs before canonicalization) and best-effort (None on any issue).
-
-    The reference normal comes from the MAIN SUPPORT'S OWN masked points, never from
-    "the largest plane in the scene" (HARNESS_AUDIT_2026_07_26 N9). The old heuristic
-    inverted whenever a wall out-covered the support: the floor then read as
-    perpendicular and was announced as "likely a wall", while the real wall — being
-    ``planes[0]``, the reference — could never be hinted at all, silently failing at the
-    one job this function has.
-
-    When the support has NO usable mask we emit NOTHING rather than falling back to the
-    largest plane. That case is not neutral: a support that defeated all three masking
-    tiers is usually barely visible, so RANSAC cannot recover it either, while a plain
-    untextured wall is exactly what SAM3 fails to mask and what RANSAC finds easily — so
-    ``planes[0]`` there is biased TOWARD being the wall, i.e. toward the inverted hint."""
+    ""
     try:
         if not points_npy or not os.path.exists(points_npy):
             return None
@@ -2042,9 +1851,7 @@ def wall_hints(
 
 
 def normalize_objects(objects: list[Any]) -> list[dict[str, Any]]:
-    """Accept structured objects or a flat list of category strings. Each object is
-    {category, instances:[{description, kind, support}, ...]} with per-instance
-    kind/support (legacy category-level kind/support is applied as a fallback)."""
+    ""
     out = []
     for o in objects:
         if isinstance(o, str):
@@ -2059,7 +1866,6 @@ def normalize_objects(objects: list[Any]) -> list[dict[str, Any]]:
         elif isinstance(o, dict) and str(o.get("category", "")).strip():
             cat = o["category"].strip()
             insts = _norm_instances(cat, o.get("instances") or [])
-            # back-compat: a legacy category-level support fills instances missing one.
             cs = str(o["support"]).strip().lower() if o.get("support") else None
             if cs:
                 for it in insts:
@@ -2132,15 +1938,6 @@ _MERGE_SYSTEM = (
     '("keep" is the chosen name; use "" when merge is false).'
 )
 
-# Tier-3 post-resegment merge rules (owner-approved 2026-07-30). Tier 3 = the text
-# concept never grounded; a Molmo point + tracker made the mask — the
-# phantom-COMPONENT class: a monitor's stand base proposed as a 'keyboard' or
-# 'docking station', a mic-stand cradle as a 'shock mount', a station's socket as a
-# 'clip'. Fleet-probed (audits/category_check_probe_2026_07_29/): 4/77 tier-3 pairs
-# merged = exactly the 4 known true positives, 0 false merges; every resting control
-# refused. The plain pair prompt answers merge=False on all of these — the rules
-# supply the alternative hypothesis + a decision procedure (key grid, structural
-# continuity, physical support) instead of asking the VLM to overturn its prior.
 _T3_COMPONENT_RULE = (
     "\nCOMPONENT RULE: ALSO merge when one region is a FIXED COMPONENT of the other "
     "object — a stand, base plate, foot, mount, bracket, knob, or housing that is part "
@@ -2278,28 +2075,9 @@ def _pair_overlay(
     Image.fromarray(arr.clip(0, 255).astype("uint8")).save(out_path)
 
 
-# NOTE (2026-08-03): the in-dedup containment-carve gate (DEDUP_CARVE_MAX = 0.15) was
-# RETIRED with the dedup -> merge -> carve reorder. Its size-ratio threshold could not
-# separate "part of one object" from "swallowed neighbour" on the 11-case labelled set
-# (1/6 correct in the ambiguous band; three further proxies — adjacency, container tier,
-# category relatedness — also falsified; see CHANGELOG 2026-08-03). Dedup now DEFERS
-# distinct-category contained pairs to `merge_objects` (calibrated on 3,105 pairs) and
-# `carve_overlaps` mechanically separates whatever merge declines to union.
-
-# Merge-cascade v2 (owner-ruled 2026-07-28, replay-validated over 3,105 historical pairs;
-# see CHANGELOG same date). Only VESSEL pairs and the ambiguous-overlap band reach the VLM:
-# historical volume 0.12 VLM calls/run vs 4.27 under judge-every-touching-pair.
 MERGE_IOU_AUTO = 0.45  # >= : dual-naming duplicate (mushroom<->toy), merge without VLM.
 # 0 false fires on the 3,082 clean historical pairs at this bar.
 MERGE_IOU_BAND = 0.25  # [BAND, AUTO): ask the VLM — recall safety for duplicates whose
-# pre-merge IoU is unknowable (history is union-contaminated); the
-# one clean-set pair in this band (key fob ON power bank, 0.30) is
-# a correct VLM "no".
-# Rule-W whitelist. ``flowerpot`` is REDUNDANT under today's substring matching (``pot``
-# already matches it) and is listed anyway on purpose: if the match is ever tightened to
-# the head noun (N2, 2026-07-31 audit — ``potato``/``nightstand`` currently false-match),
-# ``flowerpot``'s head noun is ``flowerpot``, not ``pot``, so it would silently drop out
-# of Rule W. Listing it now makes that tightening a no-op for this term.
 MERGE_VESSELS = {
     s.strip().lower()
     for s in os.environ.get(
@@ -2310,17 +2088,7 @@ MERGE_VESSELS = {
 
 
 def merge_rule(cat_a: str, cat_b: str, iou: float) -> str:
-    """Pure v2 cascade decision for one touching pair: 'merge' | 'skip' | 'vlm'.
-
-    A: iou >= MERGE_IOU_AUTO -> 'merge' (dual-naming duplicate, no VLM).
-    C: same category -> 'skip' (instancing was decided upstream; every historical
-       same-category VLM merge — hose/strap/stuffed-animal — was owner-labeled false,
-       and the VLM itself said no on all 411 clean same-category pairs).
-    W: a whitelisted vessel in a cross-category pair -> 'vlm' (current prompt decides:
-       flower->vase merges, cookware->utensil does not — 5/6 and 0/10 historically).
-    Band: MERGE_IOU_BAND <= iou < AUTO -> 'vlm' (duplicate-recall safety).
-    Else 'skip' — mere touching is not evidence of one object (0 wanted merges in
-    3,082 historical touching pairs outside the classes above)."""
+    ""
     a, b = cat_a.lower(), cat_b.lower()
     if iou >= MERGE_IOU_AUTO:
         return "merge"
@@ -2418,17 +2186,6 @@ def merge_objects(
             _i = (nodes[a]["ds"] & nodes[b]["ds"]).sum()
             _u = (nodes[a]["ds"] | nodes[b]["ds"]).sum()
             verdict = merge_rule(ra.category, rb.category, _i / _u if _u else 0.0)
-            # F1 (2026-08-06, audits/FLEET_UNDERSEG_AUDIT_2026_08_06.md): a dedup-DEFERRED
-            # pair is NEVER Rule-A eligible. Rule A's premise is the dual-naming duplicate
-            # (one object drawn twice at nearly the same extent), but dedup already
-            # established the opposite for a deferred pair — contained (contain > 0.8) and
-            # NOT a duplicate (iou <= dedup_iou, different category). Worse, the two
-            # conditions are geometrically coupled: iou ~ contain*|A|/|B|, so any contained
-            # object bigger than ~56% of its container lands at iou >= MERGE_IOU_AUTO and
-            # gets auto-merged with no VLM — 9 of 15 deferred pairs in 0806_fleet, incl.
-            # genai1's second book (magazine#0, contain 1.00, iou ~0.6, silently unioned
-            # into an already over-grabbing book#0). Deferral means "merge DECIDES", so
-            # send it to the judge; a declined pair is then separated by carve_overlaps.
             if verdict == "merge" and (
                 rid(rb) in (ra.overlap_with or []) or rid(ra) in (rb.overlap_with or [])
             ):
@@ -2564,7 +2321,7 @@ def tier3_component_merge(
     vlm: Optional[Callable] = None,
     adj_k: int = 3,
 ) -> None:
-    """Post-resegment merge pass for TIER-3 objects (owner-approved 2026-07-30).
+    """Post-resegment merge pass for tier-3 objects.
 
     For each tier-3 object, every partner within ``adj_k`` dilations at the ~200 px
     downscale (relaxed vs the merge stage's 1 px: the abc3 cradle<->stand assembly
@@ -2643,7 +2400,7 @@ def tier3_component_merge(
                 pairs.append((ka, kb))
     if not pairs:
         return
-    vlm = vlm or _make_vlm(model, effort="medium")  # probe-validated effort
+    vlm = vlm or _make_vlm(model, effort="medium")
     dead: set = set()
     changed = False
     for n, (ka, kb) in enumerate(pairs):
@@ -2745,35 +2502,7 @@ def tier3_component_merge(
 
 
 def carve_overlaps(masks_json_path: str, image_path: str) -> int:
-    """Post-merge mechanical cleanup — stage 3 of the dedup -> merge -> carve reorder
-    (2026-08-03). Any surviving OBJECT pair where one ACTIVE mask is >80% contained in
-    another is, by construction, two distinct objects: dedup already dropped genuine
-    duplicates (iou > 0.7) and same-category double detections, and every deferred pair
-    was offered to ``merge_objects`` (and ``tier3_component_merge``) and NOT unioned.
-    Declining to union *means* "not one object", so cutting the smaller out of the
-    larger needs no VLM and no tunable threshold — the semantic call was made upstream
-    (gate-1 probe 2026-08-03: book<-journal 6/6 no-merge -> reaches here and separates;
-    flower pot<-plant 6/6 merge -> one record remains, never reaches here).
-
-    Pairs are RECOMPUTED from the final masks — ``overlap_with`` is audit-only —
-    because merge unions change the geometry after dedup recorded them (this also
-    catches overlaps merge CREATES). Runs at SEGMENTATION time (2026-08-03, owner
-    call): ``segment_scene`` invokes it right after writing masks.json, on the
-    ``mask_merge`` arm only (the legacy/B3 arm still hard-drops in dedup, leaving no
-    pairs). Carving is semantically a MODAL (visible-pixels) operation — running
-    before generative resegment means (a) the resegment damage gates judge the carved
-    cut-out, so a carved container gets its occluder inpainted before mesh recon (the
-    0803 misc_online8 notebook baked a glasses texture because the pre-carve fused
-    mask read as "damage slight"), and (b) carve never sees AMODAL redetect masks,
-    whose by-design overlaps must not be carved (pre-move, book#1's amodal completion
-    "contained" book#2 and only the 50% bail saved it).
-
-    Guards: root surfaces never participate (same-kind rule, as ``_overlap_idx``);
-    the carve bails when it would cost the container >=50% of itself (the "container"
-    reading is then wrong). Mutates the container's mask file in place at its native
-    resolution (+ overlay; ``point_cam`` is deliberately not recomputed — placement
-    re-derives boxes from the mask files), stamps ``carved_px``, and appends
-    ``carve_log`` entries. Returns the number of carves performed."""
+    ""
     data = json.load(open(masks_json_path))
     masks_dir = Path(masks_json_path).parent
 
@@ -2912,11 +2641,6 @@ def drop_disconnected_from_support(
         resized = Image.fromarray(m.astype("uint8") * 255).resize((shape[1], shape[0]))
         return np.asarray(resized) > 127
 
-    # Contact is TRANSITIVE: on a cluttered desk the strip where an object meets its
-    # support is often hidden behind other objects (0709_eval3_wendy1: a resting mug
-    # and monitor failed the direct test and were wrongly dropped), so an object also
-    # passes by touching another object already accepted on the SAME support — the
-    # mug touches the boxes, the boxes touch the desk. Iterated to a fixpoint.
     checked, exempt = [], []
     for r in results:
         s = surf.get((r.support or "").lower()) if r.kind != "root_surface" else None
@@ -3119,13 +2843,6 @@ def describe_new_instances(
                     r.description = _positional(r)
 
 
-# --------------------------------------------------------------------------- #
-# Orchestrator                                                                 #
-# --------------------------------------------------------------------------- #
-# Recount GROUP-SPLIT thresholds (2026-09-15, make_toast on opus-5 preprocess): a proposer
-# that describes a repeated object as ONE instance ("toasted bread slices standing in the
-# rack") grounds onto the UNION of SAM3's per-slice masks, and the recount gate — which only
-# looked at categories proposed >=2 times — never ran, so four slices became one rigid block.
 GROUP_SPLIT_MIN_FRAC = 0.08  # a member must be >= this fraction of the group mask (no slivers)
 GROUP_SPLIT_CONTAIN = 0.80  # a member must lie >= this fraction inside the group mask
 GROUP_SPLIT_COVER = 0.70  # the members together must explain >= this fraction of the group
@@ -3169,8 +2886,6 @@ def segment_scene(
 
     masks_dir = Path(out_dir) / "masks"
     masks_dir.mkdir(parents=True, exist_ok=True)
-    # 'high', not 'xhigh': A/B'd over 3 runs (cartons, wendy1, bincond) the two are
-    # indistinguishable on instance counts, so take the cheaper one. See CHANGELOG 2026-07-31.
     caller_vlm = vlm  # a caller-supplied vlm (tests) also drives the router below
     vlm = vlm or _make_vlm(model, effort="high")
 
@@ -3185,16 +2900,8 @@ def segment_scene(
         )
 
     proposed = objects is None  # proposer ran -> the verifier audits it
-    # scene_kind is the router's RAW 3-way verdict (recorded even when unused, so
-    # batches stay auditable for routing stability); scene_form is the EFFECTIVE flag
-    # every downstream consumer reads. With room_mode OFF a 'room' verdict is DEMOTED
-    # to closeup:table — a room view always shows what holds the work surface up
-    # (owner rule 2026-07-31). mode stays derived, so the prompt-pair selection below
-    # is unchanged.
     scene_kind, scene_form_flag, mode = "closeup:table", "closeup:table", "closeup"
     if proposed:
-        # Router runs at MEDIUM (2026-08-07, owner): a one-word 3-way verdict does not
-        # need high-effort thinking; proposer/verifier/merge keep the high closure.
         scene_kind = route_scene(
             caller_vlm or _make_vlm(model, effort="medium"), image_path
         )
@@ -3213,8 +2920,6 @@ def segment_scene(
             mode=mode,
         )
     else:
-        # Pre-given objects skip the proposer, but same-size resolution still belongs to
-        # the later stable-inventory stage.  normalize_objects clears legacy raw flags.
         objects, relationships = normalize_objects(objects), []
     # First point of depth use is per-instance annotation inside the ladder below —
     # everything above (server spawns, proposer) is depth-free, so preprocess runs the
@@ -3243,12 +2948,6 @@ def segment_scene(
         # Name any recount-added instances (source='sam3_recount') before merge/verify and
         # masks.json read their descriptions (one VLM call per re-processed category).
         describe_new_instances(vlm, image_path, results, to_mask, masks_dir)
-        # over-segmentation pass: merge connected masks the VLM judges to be one object.
-        # `mask_merge` is BENCH-ONLY since 2026-08-03 (the production --no-mask-merge
-        # flag was removed with the dedup->merge->carve reorder — cascade v2 makes merge
-        # ~0.11 VLM calls/run, so the cost knob bought nothing). False = the B3 ablation
-        # arm (bench_segment_batch --no-mask-merge): skips merge AND disables dedup
-        # deferral above, i.e. the full legacy pipeline.
         if mask_merge:
             results, merge_log, merge_decisions = merge_objects(
                 vlm, image_path, results, masks_dir, moge_points
@@ -3273,10 +2972,6 @@ def segment_scene(
                 [r for r in results if r.kind == "root_surface"],
                 surf_composite,
             )
-            # wall_hints REMOVED from the audit (owner rule 2026-08-10,
-            # SLIVER_DROP_WALLHINT_REMOVAL_PLAN): it over-added walls. Walls come
-            # from masks or from the auditor's own judgment; the pure helpers and
-            # their tests remain for now (no other callers).
             hints = None
             results, relationships, dropped, unmasked_roots, review = (
                 verify_segmentation(
@@ -3330,8 +3025,6 @@ def segment_scene(
         "routing": {
             "room_mode_enabled": room_mode,
             "mode": mode,
-            # THE form flag (2026-07-31): 'room' | 'closeup:table' | 'closeup:tabletop'.
-            # Replaces the per-instance proposer "form" field — read it via scene_form().
             "form": scene_form_flag,
             "form_source": form_source,
             "form_reason": form_reason,
@@ -3355,12 +3048,6 @@ def segment_scene(
     }
     with open(masks_dir / "masks.json", "w") as f:
         json.dump(payload, f, indent=2)
-    # Stage 3 of dedup -> merge -> carve: mechanically separate the contained pairs
-    # merge declined to union. At segmentation time (not preprocess) so the generative-
-    # resegment damage gates judge the CARVED cut-out — a carved container then gets its
-    # occluder inpainted before mesh reconstruction — and so carve only ever sees modal
-    # masks (amodal redetect overlaps are by design and must not be carved). The legacy
-    # arm (mask_merge=False) hard-drops in dedup and leaves no pairs to carve.
     if mask_merge:
         try:
             carve_overlaps(str(masks_dir / "masks.json"), image_path)
@@ -3413,10 +3100,6 @@ def _sam3_instance_indices(
     min_area_frac: float = 0.0005,
     dedup_iou: float = 0.7,
 ) -> list[int]:
-    """Indices of the DISTINCT instance masks in a SAM3 ``segment_all`` stack: drop tiny
-    masks (< ``min_area_frac`` of the image) and near-duplicates (IoU > ``dedup_iou``, keep
-    the first). Used to estimate 'how many instances did SAM3 find' for the recount gate;
-    it is only a COUNT — acceptance still requires a corroborating Molmo point per mask."""
     if masks is None or not len(masks):
         return []
     h, w = masks.shape[1:]
@@ -3431,16 +3114,6 @@ def _sam3_instance_indices(
     return kept
 
 
-# Tier-3 scale adjudication (2026-08-02, audits/t3_multimask_probe_2026_08_02/):
-# a single click runs SAM's multimask (subpart/part/whole hypotheses) and the server
-# used to keep the argmax-predicted-IoU pick. On objects with printed detail the
-# argmax is systematically the logo/glyph/interior (card box -> its heart emblem,
-# book -> the letter 'O', bin -> its interior, table -> one plank), while the WHOLE
-# object sits in the discarded candidates with a LOW predicted IoU (0.02-0.22 for
-# perfect whole-bin/whole-table masks vs 0.80-0.95 for their parts) — predicted IoU
-# is anti-correlated with whole-object correctness across scales, so neither the
-# min_iou floor nor largest-above-floor can referee. A genuine scale dispute among
-# guard-passing candidates therefore goes to the VLM with the proposer's description.
 _T3_SCALE_SYSTEM = (
     "You referee a segmentation SCALE dispute. One object was clicked; the segmenter "
     "returned candidate regions of different extents around the SAME click. Answer one "
@@ -3537,9 +3210,6 @@ def _segment_objects(
         Callable[..., str]
     ] = None,  # tier-3 scale adjudicator; None = argmax only
     defer_dedup: bool = True,  # dedup DEFERS distinct-category contained pairs to
-    # merge_objects + carve_overlaps (2026-08-03 reorder). False (bench-only, wired to
-    # segment_scene's mask_merge) restores the legacy drop: with no merge stage running,
-    # nothing downstream may be left overlapping.
 ) -> tuple[list[InstanceMask], list[dict[str, Any]], list[dict[str, Any]]]:
     """Tiered masking, text-first with two escalating fallbacks.
     Returns ``(results, dropped, unmasked_roots)``.
@@ -3641,19 +3311,6 @@ def _segment_objects(
         )
         return chosen
 
-    # Full-image synonym candidate pools, lazily fetched and cached per category
-    # (A'/B', 2026-07-30 shelf probe): the base concept can ground at the wrong
-    # GRANULARITY — "shelf" returns the individual boards, never the shelving unit,
-    # while "shelving unit" returns exactly the unit. The old full-image synonym
-    # retry ran only when the base pool was EMPTY, so wrong-granularity candidates
-    # blocked it forever. Reused by tier-1 rescue/arbitration and the tier-2 clip
-    # escalation; recount builds its own novelty-filtered union separately.
-    # The per-(cat, syn) STACK cache below is the shared layer: _syn_pool wants the
-    # synonyms CONCATENATED while recount wants them SEPARATE (it tracks used_syns and
-    # a per-synonym syn_note), so the per-category pool cache alone could not serve
-    # both and recount re-grounded every synonym — the same (image, prompt) through
-    # SAM3 and the same `_all_syn_*.npy` written twice (verified 2026-07-31 with a
-    # call-counting stub). Caching raw stacks lets both consumers share ONE call.
     syn_stacks: dict[tuple[str, str], Optional[np.ndarray]] = {}
     syn_state: dict[str, Optional[np.ndarray]] = {}
     syn_used: dict[str, set] = {}
@@ -3779,24 +3436,9 @@ def _segment_objects(
         desc = inst["description"]
         kind = inst.get("kind", "object")
         mp = masks_dir / f"{slugify(cat)}_{pos}.npy"
-        # Molmo points for THIS instance — objects AND root surfaces alike (see the
-        # up-front pointing loop). Empty only when Molmo could not ground the
-        # description at all. (Until 2026-07-31 this read "[] for root surfaces",
-        # stale since roots started being pointed at up front.)
         pts = inst_points.get((cat, pos), [])
         mask, tier, point = None, None, None
 
-        # iter 1: SAM3 text mask (object = mask AT the Molmo point; surface = the mask
-        # containing its Molmo point). For a root surface the point is a VALIDATION
-        # GATE, not just a multi-candidate tiebreaker: SAM3's text concept can ground a
-        # single WRONG mask (0713_obb2_bridgeclean5: "table" fired on an orange shelf
-        # while the actual black-marble table went unmasked — accepted unconditionally
-        # under the old single-candidate path, poisoning z=0 and the whole graph). A
-        # point that no candidate contains -- nor comes within ~W/30 of (the NEAREST
-        # candidate inside that tolerance wins; index order is luck) -- fails tier 1 and
-        # escalates to the tier-3 tracker, whose whole purpose is recovering surfaces the
-        # text concept failed to ground. Only when Molmo gave NO point does the
-        # largest-mask fallback survive.
         if text_masks is not None and len(text_masks):
             if kind == "root_surface":
                 c = None
@@ -3839,17 +3481,6 @@ def _segment_objects(
                     used_text.add(c)
                     point, tier = [pu, pv], 1
                     if len(obj["instances"]) == 1 and len(text_masks) > 1:
-                        # ONE bound object the detector split into parts (e.g. the
-                        # keys/fobs of a single keychain): union the category's other
-                        # masks whose centroid is near the object into one node.
-                        # GUARD (2026-08-03, genai2 stacked books): never absorb a
-                        # candidate holding ANOTHER instance's Molmo point — that
-                        # candidate IS the other instance, not a part (the proposer
-                        # drew book x1 + notebook x1 over two stacked books; each
-                        # singleton unioned BOTH books, then dedup collapsed the
-                        # iou~1 twins and a real book vanished). Own children are
-                        # exempt, mirroring the C guard: a container's parts may
-                        # legitimately hold its contents' points.
                         win = crop_box(pu * W, pv * H, W, H)
                         um = text_masks[c] > 0
                         exempt = {(cat, pos)} | (children.get((cat, pos)) or set())
@@ -3876,18 +3507,6 @@ def _segment_objects(
                         mask = text_masks[c]
                     break
 
-        # A' (2026-07-30, probed on mugsjug/mugsshelf/cluttershelf): full-image
-        # synonym rescue against wrong-granularity grounding. Two triggers:
-        #   miss — the point sits in NO base candidate ("shelf" boards while Molmo
-        #          points at the unit's frame): pick a synonym candidate at the point.
-        #   part — the point DID hit a base candidate, but a synonym candidate at the
-        #          same point CONTAINS it (>=0.8) and is >=1.5x larger (cluttershelf:
-        #          the boards-union, 14k px, inside the 26k-px "shelving unit" —
-        #          ratio 1.87x, so a 2x gate missed it; a same-object synonym
-        #          re-grounding sits near 1.0-1.2x): prefer the WHOLE. Gated to
-        #          single-instance categories — multi-instance
-        #          categories point-hit their own member; the whole-vs-part failure
-        #          mode is a structure proposed once. The C guard below vets both.
         if kind != "root_surface" and pts:
             if mask is None:
                 pool = _syn_pool(obj, cat)
@@ -3938,16 +3557,6 @@ def _segment_objects(
         ):
             mask, tier, point = None, None, None
 
-        # tier 2: crop around the Molmo point + SAM3 text on the zoomed crop
-        # (recovers small objects the full-image text detector misses). The category
-        # is tried first, then the proposer's fallback synonyms — stop at first win.
-        # B' (2026-07-30, shelf probe): an object LARGER than the window gets a mask
-        # clipped at the window edges (0730_sel mugsjug/mugsshelf shipped half-shelves
-        # this way). A win whose mask rides a window edge that is NOT an image border
-        # is CLIPPED -> retry once with a 2x window; still clipped -> prefer a
-        # full-image synonym candidate at the point (the probe showed tier-3
-        # point-seg returns slivers on such structures); none -> keep the 2/3-window
-        # mask, which still beats the old behavior.
         if mask is None and pts and kind != "root_surface":
             u, v = pts[0]
             crop_path = str(masks_dir / f"{slugify(cat)}_{pos}_crop.png")
@@ -4103,28 +3712,9 @@ def _segment_objects(
         ):
             mask, tier, point = None, None, None  # C guard (see tier 1)
 
-        # tier 3 (root-surface fallback): a root surface gets no CROP (it fills the
-        # view), so a text miss would otherwise drop it. Feed the tracker this
-        # instance's Molmo points and let it recover the contiguous region (e.g. a
-        # wooden cutting-board the "table" concept failed to ground). NO min_iou gate
-        # here: this is the last resort for the (critical) supporting surface, and the
-        # tracker's predicted IoU on a large/partial surface is low; even a partial but
-        # correctly-located mask gives a good RANSAC plane fit. Dedup still applies.
-        # ``pts`` is REUSED, not re-queried: until 2026-07-31 this re-issued
-        # molmo.point(image_path, desc) — the identical query already answered by the
-        # up-front loop (13.3% of root surfaces reach tier 3 = 25 redundant calls per
-        # 71 scenes). Greedy decoding made the duplicate return the same points, so
-        # reuse is behaviour-preserving AND restores the "no second Molmo call"
-        # invariant: under sampling the two answers could otherwise disagree, letting
-        # tier 3 mask a location the tier-1 point gate had just rejected.
         if mask is None and kind == "root_surface":
             rpts = pts
             if rpts:
-                # Roots run the scale adjudicator too (no C guard — objects are
-                # SUPPOSED to sit inside a tabletop candidate). This is where the
-                # 0802 stack_blocks failure lived: the tracker's argmax was one
-                # plank (1.4%) while the whole tabletop (69.6%) sat discarded in
-                # the candidate set at predicted IoU 0.056.
                 mrc = (
                     _t3_scale_pick(cat, pos, desc, rpts[0], None, str(mp))
                     if len(rpts) == 1
@@ -4192,20 +3782,6 @@ def _segment_objects(
             and allow_supersede
             and defer_dedup
         ):
-            # DEFER (dedup -> merge -> carve reorder, 2026-08-03): dedup resolves only
-            # what merge structurally CANNOT — a genuine duplicate (iou > dedup_iou;
-            # merge Rule A would union it anyway) or a SAME-category double detection
-            # (merge Rule C skips same-category pairs unconditionally, so deferring
-            # would ship the phantom: the cartons_on_box printed band proposed as a
-            # second 'tin'/'can'). Everything else — a distinct-category contained
-            # pair — is DEFERRED: both instances survive, `merge_objects` decides
-            # whether they are one object (gate-1 probe 2026-08-03: book<-journal
-            # 6/6 no-merge, flower pot<-plant 6/6 merge), and `carve_overlaps` in
-            # preprocess mechanically separates whatever merge declined. The retired
-            # in-dedup carve gate's size-ratio threshold got 1/6 on the labelled set.
-            # Recount orphans (allow_supersede=False) and the bench-only
-            # defer_dedup=False (--no-mask-merge: no merge stage -> nothing may be
-            # left overlapping) keep the legacy drop behaviour.
             c = claimed[di]
             inter = int((mb & c).sum())
             iou = inter / max(int(mb.sum()) + int(c.sum()) - inter, 1)
@@ -4264,15 +3840,6 @@ def _segment_objects(
         if moge_points is not None:
             rec.point_cam, rec.depth = object_point_from_mask(mask, moge_points)
         if di is not None:  # fuller mask of the same object ->
-            # Supersede bookkeeping (2026-07-30, genai2 saucer/flowerpot): this was
-            # the ONE removal path that left no dropped record and no log line, and
-            # it orphaned support pointers — the flowerpot superseded its own saucer
-            # support, whose id then read as "intentionally excluded" at the
-            # off-main-support prune and the SURVIVOR got dropped. Record the loss
-            # and heal supports: the survivor inherits the victim's parent when its
-            # own support pointed at the victim; other dependents re-point at the
-            # survivor (both the live recs and the proposal dicts, so instances
-            # masked LATER copy the healed id).
             victim = results[di]
             vic_id = f"{victim.category}#{victim.instance}"
             new_id = f"{cat}#{pos}"
@@ -4305,14 +3872,7 @@ def _segment_objects(
         return True
 
     def _split_singleton_group(obj: dict, cat: str, insts: list) -> bool:
-        """Proposer under-count with a GROUP mask (2026-09-15). Returns True when the
-        singleton ``cat#0`` was re-booked on ONE SAM3 member and its other members were
-        released for the recount's orphan acceptance; False leaves everything untouched.
-        Guards: members are distinct SAM3 instances of the category stack, each >=
-        GROUP_SPLIT_MIN_FRAC of the group mask and >= GROUP_SPLIT_CONTAIN inside it,
-        together covering >= GROUP_SPLIT_COVER of it, and at least TWO members carry a
-        Molmo 'all the {cat}s' point — so a single object that SAM3 fragments (a laptop
-        into screen + base) does not split."""
+        ""
         di = next(
             (
                 i
@@ -4418,13 +3978,6 @@ def _segment_objects(
             cat = obj["category"]
             insts = obj["instances"]
             if any(it.get("kind") == "root_surface" for it in insts):
-                # ROOT-SURFACE categories never recount (2026-08-07, owner call).
-                # The appended instance was hard-coded kind="object", so a wall
-                # FIRE manufactured a wall-as-object that either got pruned as
-                # off_main_support (0807_pconv2_hangr wall#2 — a bounding surface
-                # dying by an OBJECT rule) or, worse, would be meshed and settled
-                # ON the table. Missing bounding surfaces have their own path:
-                # the verifier re-detects them as name-only roots.
                 continue
             if len(insts) < 2:
                 # Singleton categories recount ONLY through the group-split: when the
@@ -4569,11 +4122,6 @@ def _segment_objects(
         # Always run the text pass — we now attempt to mask every category, roots included.
         allp = str(masks_dir / f"{slugify(cat)}_all.npy")
         text_masks, _ = sam3.segment_all(image_path, cat, allp)
-        # A bare noun that didn't ground gets a FULL-IMAGE synonym retry: first the
-        # proposer's own synonyms (previously tier-2-crop-only, useless for a
-        # frame-filling instance — bridge5's "bin" grounds NOTHING while its synonym
-        # "container" grounds the whole bin), then the generic surface ladder for a
-        # supporting-surface root ("table" on a butcher-block). First hit wins.
         cat_is_root = any(it.get("kind") == "root_surface" for it in obj["instances"])
         if text_masks is None or len(text_masks) == 0:
             ladder = [s for s in (obj.get("synonyms") or []) if s]
@@ -4591,31 +4139,6 @@ def _segment_objects(
             _mask_one(obj, cat, pos, inst, text_masks, used_text)
         cat_state[cat] = (text_masks, used_text)
 
-    # --- Molmo-collapse salvage (one round) -----------------------------------------
-    # Stacked same-category instances often get ALL their Molmo points on ONE object
-    # ("Point to gray book on top" and "...black book at the bottom" both land on the
-    # black book): the dedup / C guards then correctly refuse to hand one mask to
-    # several instances and every collapsed instance is dropped — including the blob's
-    # rightful owner (0709_eval3: gpt1 white book, abc1 pastries, wendy1 mug#2). Retry
-    # those drops SEQUENTIALLY: cross out the claimed same-category masks, re-point
-    # Molmo on the crossed image (visual disambiguation instead of the failed
-    # linguistic one), and re-run the ladder on the ORIGINAL image. A retry whose
-    # fresh point lands on a claimed mask again is genuinely absent and stays dropped.
-    # A collapse ends under one of THREE reasons depending on which guard fires:
-    # every-tier-blocked -> "unsegmented"; accepted-then-deduped at the final
-    # overlap check -> "collapsed_into X" (2026-07-30, abc3: 'stand upper right'
-    # pointed at the near-identical left twin, its accepted mask collapsed into
-    # stand#0, and the reason filter here silently excluded it from this retry —
-    # the REAL right stand stayed unmasked); or accepted-then-REPLACED by a fuller
-    # mask of the same object -> "superseded_by X" (2026-08-01, tableverse1 egg#2:
-    # Molmo maps BOTH "front left" and "front right" to the same egg, egg#3
-    # superseded egg#2, and the front-LEFT egg was left with no mask at all).
-    # Supersede was the third reason and was missed when this gate was widened on
-    # 07-30 — it has since become the most common of the three (0.02 -> 0.75
-    # drops/run between the <=0730 and 0801 batches). Same failure, same retry:
-    # all three are suspects. Validated on the egg case: the crossed-out re-point
-    # returns front-left (0.679, 0.397) where the original image returns the
-    # already-claimed front-right.
     def _pt_yx(pt):
         return min(int(pt[1] * H), H - 1), min(int(pt[0] * W), W - 1)
 
@@ -4633,7 +4156,7 @@ def _segment_objects(
             continue
         y, x = _pt_yx(p0)
         hit = any(c[y, x] for c in claimed)
-        if not hit:  # no-owner cluster: the point sits in an unclaimed tier-1 candidate
+        if not hit:
             allp = masks_dir / f"{slugify(d['category'])}_all.npy"
             if allp.exists():
                 cands = np.load(allp)

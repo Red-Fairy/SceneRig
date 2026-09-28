@@ -41,23 +41,6 @@ except ImportError:
 # server indefinitely with no recovery. Override via GRASE_BLENDER_TIMEOUT.
 BLENDER_TIMEOUT = int(os.getenv("GRASE_BLENDER_TIMEOUT", "600"))
 
-# --- investigate() orbit steps ------------------------------------------------------ #
-# The camera sits on a sphere around the focused object: theta is azimuth, phi elevation
-# (see generate_camera_move_script). These are the per-CALL increments.
-#
-# They used to be derived as an arc-length-to-angle conversion — s/r vertically,
-# s/(r*cos phi) horizontally — which is geometrically right, but `step = self.radius` set
-# the arc length equal to the orbit radius, so every division cancelled to exactly ONE
-# RADIAN. Measured over the 20 real focus events on disk: 57 deg per move("up") (one call
-# from a typical 41 deg elevation hit the 84 deg clamp, i.e. straight top-down) and
-# 61-120 deg per move("left"). Fixing `step` to a fraction of the radius would make
-# phi_step that fraction exactly — algebraically identical to a constant — and would leave
-# the 1/cos phi factor, which is precisely what blew the azimuth step up at high elevation.
-# So: constant ANGULAR steps. They are also invariant to radius, whereas constant arc
-# length coarsens the angle as you zoom IN, which is backwards.
-#
-# Sizes are set by the round budget, not by smoothness: a verifier gets 10 rounds, so
-# ~8 moves after focus/end — and 45 deg is exactly one full orbit in 8.
 ORBIT_AZIMUTH_STEP = math.radians(45)
 ORBIT_ELEVATION_STEP = math.radians(30)
 ORBIT_PHI_LIMIT = math.pi / 2 - 0.1  # never quite straight up/down (gimbal-ish views)
@@ -72,17 +55,6 @@ ZOOM_FACTOR = 0.6
 RADIUS_MIN_FACTOR = 0.25  # x r0
 RADIUS_MAX_FACTOR = 4.0  # x r0
 
-# Every image-returning tool EXCEPT render_reference_view renders from some other camera.
-# The warning rides on the image rather than sitting in a tool description the model read
-# once, because that is where the judgment happens — the same reason initialize_viewpoint's
-# per-image prefix works. Before this, only initialize_viewpoint tagged its output, so
-# 1247 alternate-camera renders (focus/zoom/move/set_camera) arrived unmarked against 93
-# reference-view renders; a texture verifier judged root-surface materials off a
-# hand-picked set_camera pose in 0726_audit_abc4.
-#
-# Scope note: the old text warned about "framing/coverage" only. Appearance judgments —
-# exposure, contrast, material colour — are just as camera-dependent, and those are exactly
-# what the texture and lighting verifiers are for.
 ALTERNATE_VIEW_WARNING = (
     "ALTERNATE CAMERA — NOT the reference view. Use it for 3D topology only (which side "
     "of the scene something is on, floating, penetration, hidden geometry). NEVER judge "
@@ -178,7 +150,6 @@ class Executor:
         self.count += 1
         run_dir = self.render_path / f"{self.count}"
         run_dir.mkdir(parents=True, exist_ok=True)
-        # Clean old images if any
         for p in run_dir.glob("*"):
             try:
                 p.unlink()
@@ -463,13 +434,6 @@ class Investigator3D:
         )
         if result.get("status") != "success":
             return result
-        # The pristine blend carries no TRACK_TO, so the focus constraint is gone — but
-        # target/radius/theta/phi lived in Python and used to survive. A following
-        # zoom/move then passed the `if not self.target` guard and TRANSLATED the camera
-        # to an orbit position with NOTHING aiming it (the move script only writes
-        # translation), leaving it staring past the scene. 22 calls across 20 sessions.
-        # Re-anchoring means the next orbit needs a fresh focus, which the existing
-        # "call focus first" error already says.
         self.target = None
         # generate_render_script writes no camera_info sidecar, so the executor
         # returns text-only — attach the rendered png(s) from this run's dir

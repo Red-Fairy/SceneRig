@@ -105,9 +105,6 @@ def initialize_plan(
     Returns:
         Dictionary with the stored plan and success status.
     """
-    # No exhortation appended (2026-08-07): the stored text is replayed verbatim as
-    # the carried plan on 2nd+ attempts, where the flow instruction is to REVISE the
-    # previous plan — a trailing "Please follow the plan carefully." contradicted that.
     output_text = detailed_plan
     return {
         "status": "success",

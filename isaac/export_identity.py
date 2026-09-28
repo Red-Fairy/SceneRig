@@ -162,8 +162,6 @@ def validate_identity_manifest(data: dict) -> dict:
         if len(values) != len(set(values)):
             raise ExportIdentityError(f"duplicate {key} in object identity manifest")
 
-    # A dynamic object root below another dynamic root creates nested rigid bodies and
-    # makes collider ownership ambiguous.  Reject it at every manifest-consumption seam.
     paths = sorted(str(record["prim_path"]).rstrip("/") for record in objects)
     for i, parent in enumerate(paths):
         for child in paths[i + 1 :]:

@@ -2450,9 +2450,7 @@ def test_initializer_scene_lock_serializes_processes(tmp_path):
 def test_composition_startup_accepts_a_committed_mesh_marker_after_later_edits(
     tmp_path,
 ):
-    """2026-09-15 (v5accept robolab_clutter_shelf): the final-settle repair round starts a
-    SECOND composition session; a committed composition mesh marker must not be re-verified
-    against artifacts that later layout edits and the final certify legitimately rewrote."""
+    ""
     executor = _bare_executor(tmp_path)
     executor.root_stage_name = "composition"
     executor.harness_profile_manifest["capabilities"].update(

@@ -99,32 +99,7 @@ def _shift2d(a: np.ndarray, dy: int, dx: int) -> np.ndarray:
 
 
 def centered_iou(cov: np.ndarray, m: np.ndarray) -> float:
-    """Soft IoU after sliding the mask's centroid onto the render's — the
-    TRANSLATION-INVARIANT twin of ``iou``, so it reads SHAPE + ORIENTATION agreement only.
-
-    Why it exists: ``iou`` is the term that actually moves selection on the rotation axis
-    (``depth_penalty`` keys off translate[1] and cancels, ``size_loss`` ~cancels, and
-    ``LAMBDA_FEAT`` weights the appearance term only 0.2 against iou's 1.0) — and raw IoU is
-    NOT translation-invariant. Rotating about an object's own centre swings its extremities,
-    so on a DISPLACED object the IoU response to rotation is dominated by "which way swings me
-    onto the mask" rather than "which way aligns my axis". Measured on static_scene_eval: of 10
-    landed rotations with a paired reading, 6 RAISED the yaw, and their median
-    ``centered_overlap - iou`` was 0.346 vs 0.032 for the 4 that fixed it. See
-    audits/ROTATION_SIGN_DISPLACEMENT_PROPOSAL_2026_08_03.md.
-
-    Reported for EVERY axis, not just rotation: it costs two O(N) passes on arrays already in
-    hand (no extra render, no extra I/O) and it is the same quantity the SIZE hint logs as
-    ``overlap``, so having it in the objective dict makes a candidate's score self-describing.
-    Since phase C1 (2026-08-21) register.optimize_axis SELECTS rotation candidates on it
-    (against _ROT_CEN_MIN_GAIN), and since the same-day scale cutover the scale axis too
-    (there as ``score - iou + centered_iou`` — the full objective with the iou term
-    swapped for this twin, so the size/depth terms survive — against the raw-calibrated
-    min_gain bars; see the transfer comment there); on the translation axes it stays
-    diagnostic.
-
-    Intensity-weighted centroids via marginal sums (``np.indices`` would allocate two full
-    index arrays per candidate). Equals ``iou`` exactly when the two centroids coincide.
-    """
+    ""
     cs, ms = float(cov.sum()), float(m.sum())
     if cs <= 0.0 or ms <= 0.0:
         return 0.0

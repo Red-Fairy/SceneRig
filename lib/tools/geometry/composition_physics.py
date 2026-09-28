@@ -65,21 +65,8 @@ from lib.tools.geometry.physics import CAPSIZE_DEG, CAPSIZE_DISP_MM, capsized
 # move-rejection and carry-decision call sites read better with them.
 TILT_CAP_DEG = CAPSIZE_DEG  # reject a move whose settle capsizes any carried member
 FLIP_TILT_CAP_DEG = 35.0  # rotate_180: reject only a genuine capsize (60-90 deg).
-# 20 was too strict: an object that legitimately rests TILTED (a spoon propped on a
-# tray rim rests ~27 deg) re-tilts by up to ~2x its resting angle after a flip —
-# a semantically CORRECT spoon flip was rejected at 27 deg (0714_comp3_abc1).
-# Penetration gate on commit: a settle can end quiet-and-upright while wedged deep
-# inside a static (0715 abc3: desk released 300 mm inside a wall settled at tilt
-# 0.0 and the silhouette score REWARDED it; certify then ejected the whole stack).
-# Reject when the moved members end > PEN_CAP_MM inside another body AND the move
-# made it > PEN_NEW_MM worse — the delta test keeps objects near a pre-existing
-# overlap movable; both floors sit far above PhysX resting-contact noise (~2 mm).
 PEN_CAP_MM = HULL_SUBTOL_M * 1000.0  # 8 mm: the composition rules gate's generic hull allowance
 PEN_NEW_MM = 5.0
-# 2026-09-15 owner: the PhysX (hull) gate must not be stricter than the Blender BVH rules
-# gate. Side-by-side bodies on the same support (a donut beside a croissant on a tray) get
-# the rules gate's lateral-sibling hull allowance (20 mm); everything else keeps 8 mm. The
-# mesh-level rules gate (1-6 mm on the visual meshes) remains the authority at the end.
 PEN_SIBLING_CAP_MM = HULL_SIBLING_TOL_M * 1000.0
 # Pre-physics move clamp: the search winner's move is reduced to the largest fraction
 # (of its magnitude) that keeps the carried COMPOUND out of penetration (delta rule:
@@ -90,17 +77,6 @@ PEN_SIBLING_CAP_MM = HULL_SIBLING_TOL_M * 1000.0
 # rejects wedged landings when lift-to-clear cannot escape a wall. Scale is EXCLUDED (a genuine
 # size fix blocked by a neighbor should move the neighbor, not silently shrink).
 FEASIBLE_MIN_FRAC = 0.2
-# Carry decision (parent moves): children FOLLOW only when leaving them would
-# topple one (a free child re-tilts past FOLLOW_TILT_DEG when the parent slides
-# away — tray case) or when following scores a higher mean member IoU (group
-# mis-registration case). Otherwise children STAY — a late parent touch-up must
-# not drag already-corrected children off (0715 abc1 placemat counterfactual).
-# Raised 20 -> 25 (2026-07-16): carrying is COSTLY (children move the full parent
-# delta and take many rounds to re-correct) while a marginal lean is cheap, so bias
-# toward STAY for near-boundary tilts — a child that merely leans ~23deg on a
-# neighbour/edge after the parent slides is not really toppling (abc1 knife: 23deg).
-# Still far below a real capsize; consistent with FLIP_TILT_CAP_DEG (also relaxed
-# 20 -> 35 for legitimately-tilted rests).
 FOLLOW_TILT_DEG = 25.0
 # Class-aware stability: a ROLLABLE object (VLM-judged from the reference image —
 # a LYING marker/mic/bottle, a round pastry; falls back to server extents on old
@@ -109,25 +85,8 @@ FOLLOW_TILT_DEG = 25.0
 # abc3's lying mic. Rollables are gated on settle DISPLACEMENT instead: rolling
 # in place passes, rolling away rejects.
 FLAT_DISP_CAP_MM = CAPSIZE_DISP_MM
-# Certify REPORTING thresholds (2026-07-23: no longer accept/reject gates —
-# certify bakes the joint free-settle unconditionally, since the deliverable is
-# a SIM-READY file and a pose physics rejects would just topple at Isaac boot).
-# Drift past these is logged NOTABLE and recorded in pose_changes; a drift that
-# ``physics.capsized`` calls a capsize is additionally flagged toppled (a lolling
-# fruit is normal, a face-down mug is worth an eyeball). History: these were pin
-# caps when certify protected the composed pose (0715 wendy1 marker 88deg/0.85m
-# baked silently).
 CERT_DXY_CAP_M = 0.05
 CERT_TILT_CAP_DEG = 10.0
-# Contact-dependency tolerance: a leaner resting AGAINST a moved neighbor rarely
-# interpenetrates -- physics rest leaves a hair of gap, and CoACD convex hulls add
-# voxel-scale slack, so a visually-touching lean can sit well apart in hull space
-# (0719_dsupply_wendy1: a thin rollable marker leaning on mug#1 was >5mm off in hull
-# space, so the old 5mm query never freed it and it hung floating when the mug moved).
-# The dependency query dilates hulls by this so such near-rest leaners re-simulate;
-# over-inclusion is safe (a truly independent free body re-settles to ~its own pose).
-# The penetration GATE stays strict (tol=0) -- this widening only affects which
-# neighbours are re-simulated, never what counts as interpenetration.
 CONTACT_DEP_TOL = 0.020
 # ``supports_of`` deliberately reports a third, broad AABB-overlap class so its
 # other consumers keep complete telemetry.  Only these two relations are definite
@@ -135,14 +94,6 @@ CONTACT_DEP_TOL = 0.020
 # co-level leaner (``ambiguous_same_level``) must stay free when its neighbour moves.
 _PROTECTED_SUPPORT_RELATIONS = {"strict_below", "clear_below_or_container"}
 _SYNC_EPS = 1e-4  # matrix_world drift below this is numeric noise, not an edit
-# settle_edited's mover test is in PHYSICAL units, not a raw matrix eps: the
-# baseline (_synced) is read in-memory while the post-edit value comes back
-# through save -> main-blender -> save -> reload, and that asymmetric roundtrip
-# leaves float residue above 1e-4 on recently-composed poses (0722 robodepth:
-# the untouched bottle — fresh flip+move rebase — diffed >1e-4 and got
-# re-settled + boxed as "moved" by a strawberry-only edit). Real agent edits
-# are mm/degree scale; 2mm matches the object-freeze tolerance — a sub-2mm
-# "teleport" is by definition below what the freeze gate already accepts.
 _EDIT_MIN_MM = 2.0
 _EDIT_MIN_DEG = 0.5
 _EDIT_MIN_SCALE = 0.005
@@ -241,13 +192,6 @@ def _really_moved(D: np.ndarray) -> bool:
     return math.degrees(math.acos(max(-1.0, min(1.0, cos)))) > _EDIT_MIN_DEG
 
 
-# Mesh-DATA edit detection: a raw `v.co *= s` never touches matrix_world, so the
-# matrix-diff pipeline above is blind to it — 0722_bulk_groot2: an 18% vertex-scale
-# of a tray left the session's Isaac hull 18% too big, the penetration gate silent
-# (peppers rested fine against the stale fat collider), and certify (which boots
-# fresh colliders from the blend) shipped the wedge. Signatures are local-frame
-# vertex stats from the register server (cmd geom_sig): pose changes cancel out,
-# so any signature change IS a geometry edit.
 _GEOM_SPAN_EPS = 1e-6  # axis span below this: degenerate, per-axis scale unrecoverable
 _GEOM_NOEDIT_SCALE = 2e-3  # |s-1| below this on every axis: numeric noise, not an edit
 _GEOM_NOEDIT_M = 5e-4  # |t| below this (0.5mm local): noise, not an edit
@@ -354,11 +298,6 @@ def fit_local_affine(old: dict, new: dict) -> np.ndarray | str | None:
     return _affine_matrix(s, t)
 
 
-# Isaac<->blend pose invariant (verify_sync): the server's cumulative delta per body
-# must equal the blend's world motion since boot. The 0720_orinit3_abc1 audit proved
-# a silent divergence can persist for the rest of the stage (every later delta is
-# applied to both sides equally), letting a buried croissant pass every gate — so
-# the invariant is CHECKED after every accept and auto-healed with a resync.
 _VERIFY_TRANS_TOL_M = 1e-3
 _VERIFY_ROT_TOL_DEG = 0.1
 _VERIFY_SCALE_TOL = 1e-3
@@ -420,20 +359,7 @@ def _strict_settlement_rejection(
     requested: np.ndarray | None = None,
     settled: np.ndarray | None = None,
 ) -> str | None:
-    """Return the strict rejection reason for a settled direct pose, if any.
-
-    Resting modes are deliberately outcome-based. ``side`` and ``free`` allow the
-    target's intentional departure from the preprocessing attitude, but never a
-    capsized carried/bystander object. For ``preserve``, a sole
-    non-rollable target's boot-cumulative capsize is ignored only when authenticated
-    requested+settled matrices exist: those matrices isolate THIS edit's drift from
-    an old boot tilt. Their default limits are 15 degrees and 5cm. All bystander,
-    rollable, and missing-matrix capsizes retain the original hard rejection.
-    ``side`` retains its 35-degree rotation default; ``free`` remains uncapped.
-    Explicit per-intent limits override these defaults. ``settle_edited`` maps a
-    freeform code edit (no declared intent) to ``free`` before calling; the
-    ``None`` -> preserve default here is legacy.
-    """
+    ""
     if not bool(commit.get("converged", True)):
         moving = list(commit.get("unconverged_bodies") or [])
         return "physics settlement did not converge" + (
@@ -553,14 +479,7 @@ def _support_names(work: Path) -> set[str]:
 
 
 def _preprocess_records(work: Path) -> dict:
-    """Per-object preprocess ladder records (physics/pose_changes.json 'objects').
-
-    REQUIRED for stability: this is where raw-vs-pristine collider choice and the
-    stabilization bundles come from. Written ONLY by preprocess (physics.py), so a
-    --skip-preprocess staging must copy it along with the other artifacts — the
-    0729_ceiling batch staged without it and every previously pristine/stabilized
-    object (room vase, real8334 soldering stand) booted RAW and got certify-baked
-    TOPPLED at ~65-68 deg."""
+    ""
     path = work.parent / "pose_changes.json"
     try:
         return json.loads(path.read_text()).get("objects") or {}
@@ -635,11 +554,7 @@ def _joint_view(joint: dict, members: list[str]) -> dict:
 
 
 def _would_topple(free_probe: dict) -> list:
-    """Children (from the variant-U probe) that would topple if LEFT behind when the
-    parent slides — the carry-decision trigger. A ROLLABLE child is judged by settle
-    displacement (> FLAT_DISP_CAP_MM: rolling in place is fine, rolling away is not);
-    everything else by settle tilt (> FOLLOW_TILT_DEG). ``free_probe`` maps
-    name -> {tilt, disp, rollable}. Sorted for determinism."""
+    ""
     return sorted(
         k for k, p in free_probe.items()
         if (p["disp"] > FLAT_DISP_CAP_MM if p["rollable"]
@@ -663,11 +578,7 @@ def _hull_cap_mm(
 
 
 def _body_pen_report(r: dict, support: dict | None = None) -> tuple[dict | None, dict]:
-    """(overall_worst, {body: worst}) from a server response's per-body penetration
-    maps (``body_pen``). Each body is judged by the same delta rule as the legacy
-    stack gate (:func:`_pen_worst`); the overall worst carries a ``body`` key so
-    feedback can name WHO ended wedged (a freed neighbor, not just the mover).
-    (None, {}) when the server didn't send body_pen (legacy/mocks)."""
+    ""
     per: dict = {}
     for b, maps in (r.get("body_pen") or {}).items():
         after = maps.get("after") or {}
@@ -683,14 +594,7 @@ def _body_pen_report(r: dict, support: dict | None = None) -> tuple[dict | None,
 
 
 def _penetration_report(r: dict, support: dict | None = None) -> tuple[dict | None, dict]:
-    """Normalize a settle response's penetration report.
-
-    Current Isaac servers return ``body_pen`` for every moved/free body.  Its
-    *presence* is authoritative even when the mapping is empty: falling back on
-    the retired aggregate fields in that case can resurrect a stale false
-    positive.  The aggregate fallback exists only for focused legacy mocks while
-    they are migrated; production responses always take the per-body path.
-    """
+    ""
     if r.get("body_pen") is not None:
         return _body_pen_report(r, support)
     return _pen_worst(r.get("pen_before_mm") or {}, r.get("pen_after_mm") or {}), {}
@@ -784,10 +688,6 @@ def _mapped_stabilization_transport(
             raise ValueError("immutable settle-bake jobs are not a list")
 
         def _job_path(value) -> Path:
-            # Historical jobs contain a mix of absolute paths and repo-relative
-            # ``output/.../scene/meshes`` paths. The manifest artifact is portable,
-            # and every bake endpoint is scene-local, so re-root by basename instead
-            # of interpreting an old relative/absolute run root in this process.
             return scene / "meshes" / Path(value).name
 
         def _job_mesh_name(value) -> str:
@@ -924,12 +824,6 @@ def _boot_colliders(
         if binding:
             bindings[name] = binding
             continue  # fmt: skip
-        # 2026-09-15 owner: the LAST fresh cook of this object in this run is a reuse
-        # source too, under the same exact-similarity test. Without it every object the
-        # preprocess correspondence cannot cover — agent-authored replacements (no
-        # preprocess GLB/collider at all) and the few imports whose blend mesh lost a
-        # couple of faces — was CoACD'd again at EVERY boot (toast random: 36 cooks in
-        # one initializer, calculator_0 and bread_2 at all 7 simulated transactions).
         binding = _map_runtime_cook(
             work, paths[name], name, name in supports, out_npz,
             corner_similarity, transform_parts_npz,
@@ -1032,8 +926,6 @@ def _map_validated(
         if not pm_glb.endswith("_pm.glb"):
             return None
         chosen_value = pm_glb[: -len("_pm.glb")] + ".glb"
-        # Like immutable bake jobs, staged placement records may retain an old or
-        # repo-relative run root. Prefer the manifest-local portable scene copy.
         local_chosen = work.parent.parent / "meshes" / Path(chosen_value).name
         chosen_glb = str(local_chosen if local_chosen.is_file() else chosen_value)
         suffix = (
@@ -1101,10 +993,7 @@ def _map_validated(
 def _log_boot_overrides(
     work: Path, records: dict, applied: dict, bindings: dict | None = None
 ) -> None:
-    """Persist which physics overrides each object ACTUALLY booted with
-    (work/boot_overrides.json) — a stabilized object whose CoM silently failed to
-    apply was previously unrecoverable from artifacts (0720_orinit3_abc1 audit
-    P6). Best-effort."""
+    ""
     try:
         mapping = bindings or {}
         (work / "boot_overrides.json").write_text(
@@ -1217,10 +1106,6 @@ def _add_overrides(
                 return None
             lines = [ln for ln in r.stdout.splitlines() if ln.startswith("STAB")]
             decoded = json.loads(lines[-1][len("STAB") :]) if lines else None
-            # A subprocess exit is not proof of a usable rigid-body bundle: Python's
-            # JSON decoder accepts NaN and a partial dict used to let strict boot
-            # proceed with malformed/missing inertia companions.  Reuse the pure
-            # similarity primitive as the single complete/finite validation path.
             validated = transform_stabilization_bundle(
                 decoded, 1.0, np.eye(3), np.zeros(3)
             )
@@ -1242,8 +1127,6 @@ def _add_overrides(
         # silently strip the CoM a stabilized object NEEDS to stand
     if stab is not None:
         out["com"] = stab["com_world"]
-        # the CoM override's mandatory companion (CoM-only = self-inconsistent
-        # rigid body -> launch on edge contact, 0720_compfix_real8219)
         out["diagonal_inertia"] = stab["diagonal_inertia"]
         out["principal_axes"] = stab["principal_axes"]
         # solve_com's density-250 mass: _merge_vlm_physics rescales the inertia
@@ -1252,9 +1135,6 @@ def _add_overrides(
     elif (records.get(name) or {}).get("chosen") == "stabilized" or rec.get(
         "com_world"
     ) is not None:
-        # the object capsizes WITHOUT its CoM override (that's why the preprocess
-        # ladder stabilized it) — booting it raw must be loud, not silent
-        # (0720_orinit3_abc1: the one stabilized object was the wild tumbler)
         detail = (
             f"{name} requires a preprocess stabilization bundle but has neither "
             "a mapped stabilization nor a valid fresh-collider "
@@ -1298,8 +1178,6 @@ def _merge_vlm_physics(work: Path, name: str, dump_npz: str, ov: dict) -> dict:
         mass, _ = rescaled_mass(entry, obb_extents(v), label=name)
     except Exception:  # noqa: BLE001 - estimates are best-effort
         return out
-    # 1 mg floor + 6 decimals (2026-09-16): a 4-decimal round zeroed sub-50 mg bodies,
-    # which the server authored as mass 0 (PhysX default density) with a zero inertia
     out["mass"] = persistable_mass(mass, mass, mass)[0]
     if out.get("friction") is None and entry.get("friction") is not None:
         out["friction"] = float(entry["friction"])
@@ -1463,8 +1341,6 @@ class CompositionPhysics:
             ) from exc
         records = getattr(self, "_records", None) or {}
         roll = getattr(self, "_rollable", None) or {}
-        # This body now has different geometry. Its old visual/collider similarity
-        # must never authorize transport of the preprocess mass properties.
         if getattr(self, "_collider_bindings", None) is not None:
             self._collider_bindings.pop(name, None)
         strict = getattr(session, "harness_profile", "baseline") == "gpt6_v1" and bool(
@@ -1539,8 +1415,6 @@ class CompositionPhysics:
             except Exception:  # noqa: BLE001 - mocks/old servers: invariant unavailable
                 return fixed
             expected = cur[n] @ np.linalg.inv(boot[n])
-            # position error at the object's boot origin (a centroid-scale probe
-            # point), attitude error between the orthonormal parts, scale ratio
             p = np.append(boot[n][:3, 3], 1.0)
             t_err = float(np.linalg.norm((total @ p)[:3] - (expected @ p)[:3]))
             Rt, st = _rigid_of(total)
@@ -1640,8 +1514,6 @@ class CompositionPhysics:
                     )
                 )
         except Exception as exc:  # noqa: BLE001 - degrade to no contact re-settle
-            # Silent until 2026-09-16 (audit): under strict physics an empty list freezes
-            # every rider/leaner of ``name`` as a static collider, invisible to the gates.
             print(
                 f"[contact-deps] query failed for {name}: {type(exc).__name__}: {exc} "
                 "— no dependents will be re-settled (riders stay static)",
@@ -1704,24 +1576,7 @@ class CompositionPhysics:
     def max_feasible(
         self, session, name: str, aspect: str, resolution: float = 0.125
     ) -> float:
-        """Largest fraction f in [0,1] of the search winner's move that keeps the
-        carried COMPOUND (name + descendants, rigid) out of penetration — a geometric
-        dry-run (no physics). Feasibility per fraction is the delta rule vs the f=0
-        baseline (worst pair > PEN_CAP_MM after AND worsened > PEN_NEW_MM).
-
-        Probes f=1.0 FIRST (the common fully-feasible case: one probe, vs the old
-        ascending 0.1-grid's 10 — each probe is 1-45 s, wedged movers at the high
-        end), then binary-searches the boundary down to ``resolution``. SEMANTICS
-        NOTE (2026-07-24 decision): bisection returns the largest feasible f FOUND,
-        not the old largest contiguous-from-0 prefix — in the rare pass-through case
-        (mid-fractions wedge, f=1.0 clear) this accepts the full move where the old
-        scan clamped to the blocker's near side. Accepted because the commit never
-        sweeps the path (move_group lifts to clear, translates, drops), and the
-        post-settle capsize + penetration gates still guard the landing.
-
-        ``scale`` is excluded (returns 1.0). Translation (x/y/xy) and rotation are
-        single-axis, so f interpolates the parent move directly; children follow via
-        ``_carry_deltas`` at the fractional parent pose."""
+        ""
         if aspect == "scale":
             return 1.0
         kids = self._descendants(name)
@@ -1758,7 +1613,7 @@ class CompositionPhysics:
 
         before = _pen_at(0.0)
         if _pen_worst(before, _pen_at(1.0)) is None:
-            return 1.0  # common case: the full move is clean — one probe
+            return 1.0
         lo, hi = 0.0, 1.0  # lo feasible by definition (f=0 = baseline), hi infeasible
         while hi - lo > resolution:
             mid = (lo + hi) / 2.0
@@ -1775,28 +1630,7 @@ class CompositionPhysics:
         carry_children: bool = True,
         deps_cache: dict | None = None,
     ) -> dict:
-        """Physicalize the line-search winner for blend handle ``name``. When the
-        object has descendants, the carry is DECIDED, not assumed: a probe moves
-        the parent alone with the children as free bodies (variant U); children
-        follow (variant F, weld/radial carry) only if leaving them would topple
-        one (free tilt > FOLLOW_TILT_DEG — the tray sliding out from under its
-        cargo) or if following scores a higher mean member IoU (the whole group
-        was mis-registered). Otherwise the children STAY — a late parent touch-up
-        must not drag already-corrected children off. Both measurements are
-        post-settle. The caller re-scores and calls :meth:`accept` or
-        :meth:`reject`. Returns {members, totals, blend_deltas, cum_tilt_deg,
-        tilt_deg, lift_mm, penetration} (+ followed/carry_decision when a
-        decision ran).
-
-        ``carry_children=False`` (rotate_180): descendants stay put in BOTH senses —
-        not carried, and excluded from the settle's colliders (stationary cargo
-        would pin the flipping parent under itself). Sessions without a
-        ``mean_iou`` scorer (kinematic tests) keep the always-carry behavior."""
-        # SCALE routes to its own path (no carry decision): a resize happens about the
-        # object origin, so the parent never slides out from under its cargo — the U/F
-        # topple/stay probe answers a question that can't arise. It drops the resized
-        # parent, then re-seats descendants + contact-deps by gravity. ``carry_children``
-        # guards the flip (rotate_180) path out (that stays a pure rotation, s==1).
+        ""
         if carry_children:
             _, s = _rigid_of(
                 self._blend_matrices(session)[name] @ np.linalg.inv(self._synced[name])
@@ -1812,15 +1646,13 @@ class CompositionPhysics:
             getattr(session, "strict_post_edit_physics", False)
         )
         if not kids or mean_iou is None or strict:
-            # strict (gpt6_v1): riders ALWAYS come along (audit F-M1) — the joint path
-            # and the tool prose promise it; the U/F stay probe stays a baseline heuristic
             return self._commit_carry(session, name, kids, exclude, deps_cache)
         U = self._commit_solo(session, name, kids)
         topple = _would_topple(U["free_probe"])
         decision = {"topple": topple, "avg_iou_stay": None, "avg_iou_follow": None}
         if not topple:
             decision["avg_iou_stay"] = mean_iou([name] + kids)
-        self.reject(session, U)  # exact two-sided revert of the probe
+        self.reject(session, U)
         commit = self._commit_carry(session, name, kids, [], deps_cache)
         if not topple:
             decision["avg_iou_follow"] = mean_iou([name] + kids)
@@ -1830,8 +1662,6 @@ class CompositionPhysics:
             or decision["avg_iou_follow"] > decision["avg_iou_stay"]
         )
         if not follow:
-            # children stay: revert the carry and re-apply the probe result as
-            # exact transforms (its rested poses are known — no second settle)
             self.reject(session, commit)
             for m in U["members"]:
                 self.client.rpc(
@@ -1850,11 +1680,7 @@ class CompositionPhysics:
         return commit
 
     def _commit_solo(self, session, name: str, kids: list) -> dict:
-        """Variant U probe: the parent moves alone; children are FREE bodies at
-        their current poses (they drop/settle if the parent slid out from under
-        them — that reaction IS the measurement). Children are members of the
-        returned commit (their settle deltas are baked both sides) so
-        reject/accept bookkeeping stays uniform."""
+        ""
         W_cand = self._blend_matrices(session)[name]
         C = W_cand @ np.linalg.inv(self._synced[name])
         r = self.client.rpc(
@@ -1987,14 +1813,6 @@ class CompositionPhysics:
         members = [name] + kids
         W_cand = self._blend_matrices(session)[name]
         C = self._carry_deltas(name, kids, W_cand)
-        # Lateral/contact dependents (a mug leaning on this keyboard) re-settle as FREE
-        # bodies so they drop to a stable pose when their support moves, instead of
-        # hanging frozen at the old lean. They are NOT welded/carried and NOT part of the
-        # capsized gate (their falling is the expected reaction, not a move failure).
-        # free_static: during the members' settle the free bodies stay as STATICS
-        # (they block the lift-to-clear; the member lands ON its destination
-        # container instead of falling through an absent one), then re-settle
-        # sequentially server-side (phase B) — see cmd_move_group.
         free_deps = self._contact_deps(
             name, set(members), members=members, cache=deps_cache
         )
@@ -2024,10 +1842,6 @@ class CompositionPhysics:
             tilts[d] = float(fr.get("cum_tilt_deg", 0.0))
             disp[d] = float(fr.get("disp_mm", 0.0))
             roll[d] = bool(fr.get("rollable", False))
-        # per-body penetration (members AND freed deps — the old blanket skip hid a
-        # freed croissant ending 54 mm inside a donut); worst overall drives the
-        # move gate, per-body drives the feedback. Legacy stack fields remain the
-        # fallback for servers/mocks without body_pen.
         penetration, body_per = _penetration_report(r, self._settle_support_map())
         # freed contact-dependents that actually re-settled become members so
         # accept/reject bake them uniformly.
@@ -2067,19 +1881,7 @@ class CompositionPhysics:
     def _commit_joint(
         self, session, moved: list[str], deps_cache: dict | None = None
     ) -> dict:
-        """Strict freeform edit that moved SEVERAL objects: settle every moved
-        hierarchy TOGETHER in one sim (server ``settle_set``) with everything else
-        static — the 2026-09-15 owner rule (simulation stays within the moved
-        objects' hierarchies; nothing else moves). Sequential per-body commits let
-        the first body settle against a neighbor's STALE pose (abc_1: donut_1 ended
-        12 mm inside croissant_2, which the same call had also moved). ``moved`` is
-        parents-first. Each moved object takes its own requested pose; a descendant
-        that was not itself moved rides rigidly with its nearest moved ancestor (the
-        weld carry deltas); contact dependents resting on any moved body re-settle
-        as free bodies. No U/F carry decision: the agent wrote explicit world
-        transforms. Returns the :meth:`_commit_carry` commit contract over every
-        settled body (+ ``joint=True``) so :meth:`accept` / :meth:`reject` bake or
-        revert all of it atomically."""
+        ""
         W = self._blend_matrices(session)
         C: dict[str, np.ndarray] = {}
         groups: list[list[str]] = []  # one hierarchy per moved object (server lifts each alone)
@@ -2313,9 +2115,6 @@ class CompositionPhysics:
                 )
             current_rollable = _rollable_flags(self.work)
             for name in sorted(forced):
-                # Disk invalidation alone cannot invalidate this live server's
-                # boot-time caches. Old CoM/flattening or collider bindings belong
-                # to the deleted mesh, never to the newly authored replacement.
                 for attr in ("_records", "_collider_bindings", "_rollable"):
                     cache = getattr(self, attr, None)
                     if cache is not None:
@@ -2345,10 +2144,6 @@ class CompositionPhysics:
         )  # parents 1st
         pre = {n: self._synced[n].copy() for n in moved}
         pending, out = set(moved), []
-        # 2026-09-15 owner rule: SEVERAL objects moved by one strict freeform edit
-        # settle TOGETHER (each at its requested pose, everything else static) in one
-        # sim; a uniform rescale still needs _commit_scale's collider re-cook, so any
-        # scaled body keeps the sequential route.
         joint = None
         if strict and len(moved) > 1 and not any(
             abs(_rigid_of(cur[n] @ np.linalg.inv(self._synced[n]))[1] - 1.0) >= 1e-3
@@ -2512,9 +2307,6 @@ class CompositionPhysics:
                         )
                         rejection_code = "required_support_missing"
             if rejection is not None:
-                # Restores this commit exactly. The executor owns the outer Blend-file
-                # transaction and rolls back the original raw edit plus any earlier
-                # accepted member commits before returning the tool error.
                 report.update(
                     {
                         "accepted": False,
@@ -3104,31 +2896,7 @@ def certify_composed_scene(
     *,
     runtime_inventory_profile: bool = False,
 ) -> dict:
-    """Phase B: final free-settle bake, followed by actual-surface validation.
-    Boots a throwaway register server on the final blend + a throwaway Isaac
-    session at the final poses (validated preprocess colliders, see
-    ``_boot_colliders``), runs ONE all-dynamic joint free sim (capless
-    ``{"cmd":"certify"}``, including the preprocessing tabletop-height proxy)
-    and BAKES every resulting delta into the blend. Nothing is pinned or
-    repaired: the deliverable is sim-ready, so physics is the authority and the
-    settled pose is the truth — a topple is RECORDED (``toppled`` flag, NOTABLE
-    log lines past CERT_DXY_CAP_M / CERT_TILT_CAP_DEG) but ships settled.
-    Replaces the sequential build-up + pin + lift-to-clear-repair design
-    (2026-07-23): the joint free-sim study over 10 delivered scenes
-    (logs/certify_sim_videos/) showed composed scenes rest with mm-scale drift,
-    sequential drops manufacture wedges against absent bodies (groot7 pepper
-    pin), and residual shallow penetrations resolve as benign depenetration
-    pops. Records ``composition_certify`` + ``composition_certify_converged``
-    in physics/pose_changes.json and returns the drift. A second, diagnostic-only
-    ``validate_surfaces`` free settle omits that proxy, checks actual root meshes,
-    never bakes, and records ``actual_surface_validation``. This is not a substitute
-    for validating the separately converted Isaac USD export.
-
-    ``runtime_inventory_profile`` uses authenticated GPT-6 inventory and actual
-    static colliders for BOTH passes: its capless bake explicitly requests
-    ``actual_surfaces_v1`` and requires the server's policy/coverage acknowledgement
-    before applying any Blender matrices. Baseline retains its proxy-assisted bake.
-    """
+    ""
     from lib.tools.geometry.physics import (
         DEFAULT_ISAAC_PYTHON,
         SettleClient,
@@ -3390,9 +3158,6 @@ def certify_composed_scene(
         rc.close()
     drift = r["drift"]
     converged = bool(r.get("converged", True))
-    # Class-aware, like every other capsize test in the pipeline: an in-place roll is
-    # not a topple (before 2026-07-31 this was a bare tilt > 45 and disagreed with the
-    # server's own pin rule on exactly that case).
     for n, d in drift.items():
         d["toppled"] = capsized(
             d.get("tilt_deg", 0.0), d.get("dxy", 0.0) * 1000.0, bool(rollable.get(n))

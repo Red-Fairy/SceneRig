@@ -1,147 +1,4 @@
-"""Persistent PhysX settle server for the incremental (DFS) scene build.
-
-    $SCENERIG_ISAAC_PYTHON isaac/isaac_settle_server.py
-
-One SimulationApp per scene; JSON-RPC over stdin/stdout (one JSON object per line;
-non-JSON stdout lines are Isaac log noise the client skips — same contract as
-register_blender_server). The scene is PERSISTENT: a 100 m table slab at z=0 plus
-every committed object as a STATIC collider; exactly one object is dynamic at a time.
-
-Protocol (requests -> responses):
-  {"cmd":"add","name":n,"npz":path,"com":[x,y,z]?,"friction":f?,"damping":d?,
-   "flatten_mm":m?,"diagonal_inertia":[3]?,"principal_axes":[x,y,z,w]?,"mass":kg?}
-                                          -> {"ok":true}   (parts at their npz world pose;
-                                              a com override MUST carry its matching
-                                              inertia — CoM-only is self-inconsistent;
-                                              "mass" = explicit VLM mass, else uniform
-                                              DENSITY; rides uniform scales at s^3)
-  {"cmd":"swap","name":n,"npz":path,...}  -> {"ok":true}   (replace parts: pristine/CoM rung)
-  {"cmd":"add_static","name":n,"npz":path} -> {"ok":true}  (root surface: collider in every
-                                              sim incl. scoped ladders, never dynamic)
-  {"cmd":"drop","name":n,"scene":[..]?,"budget":"micro"?,"ancestors":[..]?}
-                                          -> {"ok":true,"R":3x3,"t":[..],"tilt_deg":..,
-                                              "cum_tilt_deg":..,"lift_mm":..,
-                                              "release_dz_mm":..,"down_cleared":bool,
-                                              "disp_xy_mm":..,"disp_xy_m":[dx,dy],
-                                              "rollable":bool,"converged":bool,
-                                              "drop_continued":bool,"steps_used":int}
-                                              (release from ~contact: lift-to-clear out of a
-                                              penetration, else SNAP-DOWN to first contact
-                                              when the pose floats (release_dz_mm signed; no
-                                              free-fall). With ``ancestors``: a big lift
-                                              forced by a NON-ancestor prefers a clear pose
-                                              BELOW (chair-under-table) over lifting on top.
-                                              ``scene`` limits the statics — LADDER drops
-                                              isolate vs ancestors only; omitted = full
-                                              committed scene; delta is world->world vs the
-                                              parts BEFORE the drop; budget "micro" caps sim
-                                              at 2 s for the composition winner-settle)
-  {"cmd":"move_group","members":[..],"deltas":{n:4x4},"budget":"micro"?,
-   "exclude":[..]?,"pen_ignore":[..]?,"free":[..]?,"sequential":bool?,
-   "free_static":bool?}
-                                          -> {"ok":true,"D":4x4,"tilt_deg":..,
-                                              "cum_tilt_deg":{n:..},"lift_mm":..,
-                                              "pen_before_mm":{n:..},"pen_after_mm":{n:..},
-                                              "disp_mm":{n:..},"rollable":{n:..},
-                                              "body_pen":{n:..},"converged":bool,
-                                              "free":{n:{D,tilt_deg,cum_tilt_deg}}?}
-                                              (free = individual dynamic bodies at their
-                                              current poses — the carry-decision probe)
-                                              (atomic: apply carry deltas, weld members into
-                                              ONE rigid body, settle, bake D into each; total
-                                              blend delta per member = D @ C_member;
-                                              pen_*_mm = members' overlap depth vs every
-                                              other body before/after — the client's
-                                              penetration gate; pen_ignore names skipped)
-  {"cmd":"settle_set","bodies":[..],"deltas":{n:4x4},"free":[..]?,
-   "groups":[[..],..]?,"budget":"micro"?}
-                                          -> {"ok":true,"D":{n:4x4},"tilt_deg":{n:..},
-                                              "cum_tilt_deg":{n:..},"disp_mm":{n:..},
-                                              "rollable":{n:..},"lift_mm":..,
-                                              "pen_before_mm":{n:..},"pen_after_mm":{n:..},
-                                              "body_pen":{n:..},"converged":bool}
-                                              (SEVERAL moved hierarchies settled in ONE
-                                              sim as individual dynamic bodies — no weld —
-                                              with the rest of the scene static; union
-                                              lift-to-clear vs the non-set bodies; free =
-                                              contact-dependents, dynamic at current poses)
-  {"cmd":"scale_resettle","parent":n,"delta":4x4,"free":[..]?,
-   "absent":[..]?,"budget":"micro"?}
-                                          -> {"ok":true,"D":{n:4x4},"tilt_deg":..,
-                                              "cum_tilt_deg":{n:..},"disp_mm":{n:..},
-                                              "rollable":{n:..},"lift_mm":..,
-                                              "pen_before_mm":{n:..},"pen_after_mm":{n:..},
-                                              "body_pen":{n:..},"converged":bool}
-                                              (destination-support order: lateral contacts stay
-                                              present while parent settles; true cargo is absent,
-                                              then re-seated support-first; a final no-lift local
-                                              all-dynamic closure lets both contact sides react)
-  {"cmd":"contacts","tol":m?,"pairs_only":bool?} -> {"ok":true,"pairs":[{"a","b","depth_mm"?}]}
-                                              pairs_only skips the depth scan (no depth_mm)
-                                              (hull-overlap pairs at current poses — the
-                                              composition rules gate)
-  {"cmd":"clearance","name":n,"scene"?}   -> {"ok":true,"dz":..}  (lift-to-clear height at
-                                              the current pose — the ICP overlap budget)
-  {"cmd":"clear_along","name":n,"cap":m,"exclude":[..]?,"budget":"micro"?}
-                                          -> {"ok":true,"cleared":bool,"push_mm":..,
-                                              "R","t","tilt_deg","cum_tilt_deg","lift_mm"}
-                                              (topple-retry: SLIDE the body to the nearest xy in
-                                              a cap-radius DISK where it clears the committed
-                                              bodies, then settle from contact — replaces the
-                                              lift+drop that topples tall/thin objects; exclude =
-                                              own support chain; cleared=false => vertical-drop
-                                              baseline)
-  {"cmd":"transform","name":n,"M":4x4}    -> {"ok":true}   (bake an external correction, e.g.
-                                              ICP similarity incl. scale, into the parts)
-  {"cmd":"penetration","members":[..],"deltas":{n:4x4}}
-                                          -> {"ok":true,"pen":{...}}
-  {"cmd":"resting_on","name":n}       -> {"ok":true,"support_body":n|null}
-  {"cmd":"supports_of","name":n}      -> {"ok":true,"supports":[{...,"relation":
-                                              "strict_below"|"clear_below_or_container"|
-                                              "ambiguous_same_level"}]}
-  {"cmd":"remove","name":n}               -> {"ok":true}
-  {"cmd":"pose","name":n}                 -> {"ok":true,"total":4x4,
-                                              "cum_tilt_deg":..}  (cumulative delta vs add)
-  {"cmd":"certify","dxy_cap":m?,"tilt_cap_deg":d?}
-                                          -> {"ok":true,"drift":{n:{dxy,dz,tilt_deg,pinned?}},
-                                              "converged":bool,
-                                              "total":{n:4x4}}  (unfreeze ALL, short free sim,
-                                              bake; the final simulation-ready guarantee.
-                                              drift = CENTROID displacement. With caps set,
-                                              an object drifting past them is PINNED at its
-                                              composed pose and the sim re-runs without it —
-                                              recorded, never baked)
-  {"cmd":"certify_sequential","dxy_cap":m?,"tilt_cap_deg":d?,
-   "order":[..]?,"repair":bool?}             -> {"ok":true,"drift":{...},"total":{...}}
-  {"cmd":"ping"}                          -> {"ok":true,"pid":..}  (liveness probe)
-  {"cmd":"reset"}                         -> {"ok":true}   (clear the object registry; the
-                                              next add starts a fresh scene — a reused warm
-                                              server is indistinguishable from a fresh boot)
-  {"cmd":"shutdown"}                      -> {"ok":true}
-
-Transport: stdin/stdout by default. With ``--port-file <path>`` the server instead
-listens on 127.0.0.1:<ephemeral> and atomically writes {"port","pid"} to <path>, so
-later pipeline stages (which run in different OS processes) can reconnect to the SAME
-SimulationApp instead of paying a fresh ~30-60 s Kit boot. One connection is served at
-a time; a NEW connection preempts the current one (stages are strictly sequential — a
-lingering idle client from a dying stage just sees EOF). The {"ready":true} stdout
-line is still printed so the spawning client's boot-wait is transport-agnostic.
-
-Being a daemon, it self-reaps two ways (see main_tcp): ``--owner-pid <pid>`` exits once
-the owning RUN is gone, and GRASE_ISAAC_IDLE_TIMEOUT (default 1800 s, 0 disables) exits
-after that long with no client connected. Without these a killed run stranded a
-SimulationApp holding ~11 GB across every visible GPU until someone noticed it in
-nvidia-smi — the client-side shutdown is a Python ``finally``, which SIGKILL skips.
-
-Committed objects are frozen by construction (static colliders re-authored from baked
-world-space parts), so a later release can never disturb them — no dominoes. The
-lift-to-clear search uses convex-hull half-space tests (scipy) with AABB prefilter:
-raise the probe in 2 mm steps until no vertex-level overlap with any committed part.
-Releases are from ~contact in BOTH directions: a floating pose (MoGE z error) is
-snapped DOWN to first contact before release (settle_geometry.drop_dz — exact
-intervals, no free-fall: 0725_arr_room1 chair_1 free-fell 400 mm and toppled 92 deg,
-falsely taking the pristine rung).
-"""
+""
 
 from __future__ import annotations
 
@@ -266,10 +123,6 @@ class Obj:
         # Explicit (VLM-estimated) mass in kg; None -> uniform DENSITY body.
         # Rides uniform scales at s^3 in _apply_delta.
         self.mass = None if mass is None else float(mass)
-        # Explicit inertia accompanying a CoM override (a CoM-only override is a
-        # self-inconsistent rigid body — 0720_compfix_real8219 launch-on-contact).
-        # diag_inertia: principal moments about the CoM; axes: world-frame
-        # principal basis, kept as a matrix so _apply_delta can rotate it along.
         self.diag_inertia = (
             None if diag_inertia is None else np.asarray(diag_inertia, dtype=float)
         )
@@ -327,9 +180,6 @@ def _author(stage, root, parts, mat, dynamic=False, com=None, damping=None,
         if com is not None:
             mass.CreateCenterOfMassAttr(tuple(float(c) for c in com))
             if diag_inertia is not None:
-                # the physically-consistent tensor that MUST accompany a CoM
-                # override (CoM-only = self-inconsistent rigid body: launched a
-                # plush on edge contact, 0720_compfix_real8219)
                 mass.CreateDiagonalInertiaAttr(
                     tuple(float(v) for v in diag_inertia)
                 )
@@ -357,18 +207,7 @@ def _author(stage, root, parts, mat, dynamic=False, com=None, damping=None,
 
 
 def _rebuild_scene(dynamic=None, scene_names=None, exclude=None, free=None):
-    """Author the scene fresh: slab + the listed statics (None = every committed
-    object), plus ``dynamic`` (a list of names) welded into ONE rigid body — a
-    single-element list is a normal drop; several elements weld a carried group
-    (parent + cargo) so it settles as the loaded assembly with no self-collision.
-    ``free`` names are authored as INDIVIDUAL dynamic bodies (not welded, not
-    static): the carry-decision probe moves a parent alone with its children
-    free, so a child losing its perch is OBSERVED (topple) instead of frozen.
-    ``scene_names`` scopes the LADDER's isolated stability drops (slab + ancestors
-    only — a cluttered neighborhood must not masquerade as intrinsic instability);
-    ``static`` surfaces are always included regardless. A fresh stage per (re)build
-    sidesteps PhysX prim-mutation edge cases; authoring ~a dozen compound bodies is
-    milliseconds next to the sim itself."""
+    ""
     global _world, _prims
     World.clear_instance()
     stage_utils.create_new_stage()
@@ -540,12 +379,6 @@ def _delta(M):
 
 
 def _tilt(R):
-    # Normalize uniform scale out of the block before reading the cosine —
-    # composition scale deltas ride o.total (s*I, det=s^3), so a raw R[2,2]
-    # reads acos(s*cos(tilt)): a 0.70 resize of an UPRIGHT body read 45deg and
-    # tripped the capsize cap (0725_comfix2_room1 vase), and every later read
-    # of a scaled body kept the fake baseline. Same cbrt(det) idiom as
-    # _apply_delta's inertia rescale; no-op for rigid deltas (det=1).
     Rm = np.asarray(R, dtype=float)
     s = np.cbrt(max(float(np.linalg.det(Rm)), 1e-12))
     return math.degrees(math.acos(max(-1.0, min(1.0, float(Rm[2, 2]) / s))))
@@ -577,12 +410,7 @@ def _clear_dz(name, scene_names=None):
 
 
 def _release_dz(name, scene_names=None):
-    """Signed release shift for cmd_drop: +lift to clear a penetration (the
-    legacy lift-to-clear), else -drop to FIRST CONTACT when the pose floats
-    (never below the slab). Killing the free-fall keeps the ladder's tilt gate
-    a statement about the PLACEMENT, not the drop height (0725_arr_room1
-    chair_1: a 400 mm MoGE float free-fell, toppled 92 deg, and wrongly took
-    the pristine rung)."""
+    ""
     up = _clear_dz(name, scene_names)
     if up > 0.0:
         return up
@@ -664,9 +492,6 @@ def cmd_drop(name, scene_names=None, budget=None, ancestors=None):
     dz += NUDGE
     _apply_delta(o, np.eye(3), np.array([0.0, 0.0, dz]))
     _rebuild_scene(dynamic=[name], scene_names=scene_names)
-    # F0b (2026-08-08): a cap hit is MID-MOTION, not a rest. Continue the SAME
-    # live rigid body for one full extra budget: no stage rebuild, stop/play cycle,
-    # velocity reset, or loss of contact/solver state at the phase boundary.
     Ms, conv, continued, steps_used = _run_to_rest_phases(
         [_prims["__dyn__"]], (_steps(budget), MAX_STEPS)
     )
@@ -710,12 +535,7 @@ def _aabb(parts):
 
 
 def cmd_resting_on(name, tol=0.008):
-    """The OBJECT directly BENEATH ``name`` that supports it: the highest committed body
-    whose XY footprint overlaps ``name`` and whose top is at/below ``name``'s base within
-    ``tol``. Returns {support_body, static, support_top_z, footprint_frac}; support_body is
-    None when ``name`` rests only on the slab. A LATERAL neighbor (the keyboard a mug leans
-    on) has its top ABOVE the mug's base, so it is NOT returned — only true under-supports.
-    Used to detect an object physics-stacked on a NON-parent (pliers on a box)."""
+    ""
     o = _objs.get(name)
     if o is None:
         return {"ok": True, "support_body": None}
@@ -836,14 +656,6 @@ def cmd_clear_along(name, cap, exclude=None, budget=None, **_):
                 return False
         return True
 
-    # ALL disk cells, nearest-first. AABB-disjoint is a cheap ACCEPT (disjoint boxes
-    # => disjoint hulls); AABB-OVERLAPPING cells are NOT rejected but HULL-tested --
-    # an elongated object wedged among wide-AABB neighbors (a mic on a splayed tripod)
-    # clears with a few-cm slide even though its whole box never escapes theirs within
-    # the cap. Old code only hull-tested AABB-disjoint cells, so the truly-clear
-    # near-neighbor cells were never tried (abc3 microphone_1/stand_1 -> cleared=False
-    # in a 10cm disk that physically had room). Bounded hull budget so a genuinely
-    # boxed-in object still gives up cheaply.
     cells = sorted(
         (math.hypot(i * HCLEAR_STEP, j * HCLEAR_STEP), i * HCLEAR_STEP, j * HCLEAR_STEP)
         for i in range(-steps, steps + 1) for j in range(-steps, steps + 1)
@@ -1071,17 +883,6 @@ def _drop_free_sequential(free, absent, budget, sup_before,
         fhulls = o.hulls
         if base:
             fhulls = [h.translated([0.0, 0.0, base]) for h in fhulls]
-        # NEVER lift a body over its OWN riders/contents: a re-dropped container
-        # whose clearance saw the member seated in its well lifted OVER it and
-        # re-dropped ON TOP, inverting the stack + cascading support_lost re-drops
-        # of every rider (0720_settlefix_abc1 edit #3: tray perched on its
-        # pastries). Riders stay as colliders in the SIM (normal resting contact);
-        # they just don't force the release height up.
-        # ``clear_always`` (the members, in group 3) can never be exempted: the
-        # member settled with its dependents ABSENT, so it cannot genuinely rest
-        # on one — but a deep entanglement fakes the rider signature (e2 replay:
-        # the settled member read as the entangled free body's rider, was dropped
-        # from its clearance, and the pair re-entangled 46mm).
         riders = {r for r, ob in _objs.items()
                   if r != f and not ob.static and r not in set(clear_always)
                   and f in _support_names(r)}  # fmt: skip
@@ -1111,36 +912,7 @@ def _drop_free_sequential(free, absent, budget, sup_before,
 
 def cmd_move_group(members, deltas, budget=None, exclude=None, pen_ignore=None,
                    free=None, sequential=False, free_static=False):
-    """Atomic carry + weld-settle: apply each member's 4x4 carry delta, lift the
-    UNION to clear, settle all members as one compound rigid body, bake the single
-    settle delta D into every member. Returns D (vs the post-carry parts) so the
-    client's total blend delta per member is D @ C_member. ``exclude`` names are
-    absent from the sim entirely (rotate_180: children deliberately stay put — as
-    stationary colliders they'd pin the flipping parent under its own cargo).
-    Also reports the members' interpenetration depths vs every other body before
-    and after (pen_before_mm/pen_after_mm) — the client's penetration gate; a
-    wedged body can settle quiet-and-upright, so tilt/lift alone cannot see it.
-    ``pen_ignore`` names are skipped in that measurement (scale moves re-seat
-    siblings right after, so member-vs-member overlap there is transient).
-    ``free`` names are the bodies to re-settle around the move. With
-    ``free_static`` (the COMMIT path) the commit runs in DESTINATION SUPPORT
-    ORDER: (1) independent free bodies settle first, one at a time, with the
-    members + member-dependents absent (skip-if-no-support-lost); (2) the member
-    weld lift-to-clears the settled scene — independents BLOCK the lift, so the
-    member lands ON its destination container, never through an absent one —
-    and drops; (3) free bodies transitively riding a member re-seat last,
-    unconditionally, on its new pose; (4) the member weld and every free body run
-    one no-lift reciprocal closure as independent rigid bodies.  Lateral leaners
-    therefore remain colliders throughout and both sides may react before the
-    pose is returned. Nothing ever drops before the thing it will rest on, so
-    container/cargo stack inversions cannot occur. Without
-    ``free_static`` (the carry-decision PROBE) free bodies are individual
-    dynamic bodies left at their current poses, invisible to the members' lift —
-    a child losing its perch topples observably. Their rest deltas come back
-    under ``free``. Also returns per-body penetration maps (``body_pen``) for
-    members AND free bodies — the blanket pen_skip once hid a freed croissant
-    ending 54 mm inside a donut (0720_orinit3_abc1) — and ``converged`` (False =
-    some sim ended at the step cap mid-motion)."""
+    ""
     excl = set(exclude or ())
     free = list(free or ())
     pen_skip = set(members) | excl | set(pen_ignore or ()) | set(free)
@@ -1197,14 +969,6 @@ def cmd_move_group(members, deltas, budget=None, exclude=None, pen_ignore=None,
     free_out = {}
     conv_all = True
     if free and free_static:
-        # COMMIT: destination support order (2026-07-20 user design).
-        #   Group 1 — independent free bodies settle FIRST, with the members AND
-        #   the member-dependents ABSENT (a container re-seats with nothing in
-        #   its well to lift over); skip-if-no-support-lost keeps untouched
-        #   bodies exactly put.
-        #   Group 2 — members (welded) lift-to-clear the settled scene and drop.
-        #   Group 3 — member-dependent free bodies (transitively riding a
-        #   member) re-seat LAST, unconditionally, on the member's new pose.
         dep = _dependent_free(free, members, sup_before)
         indep = [f for f in free if f not in dep]
         out1, conv1 = _drop_free_sequential(
@@ -1259,11 +1023,6 @@ def cmd_move_group(members, deltas, budget=None, exclude=None, pen_ignore=None,
                 np.linalg.norm(_objs[f].centroid() - c_pre[f]) * 1000.0
             )
     elif free and sequential:
-        # SEQUENTIAL probe: settle the moved parent ALONE first (children absent),
-        # then settle each child ONE AT A TIME onto the now-static settled scene, so
-        # the parent's own motion/lift and sibling collisions can't perturb a child
-        # mid-fall. The topple decision is unchanged (a child the parent slid out
-        # from under still falls), but the STAY-poses that get committed are cleaner.
         lift, up = _lift_members(set(members) | excl | set(free))
         _rebuild_scene(dynamic=list(members), exclude=list(excl | set(free)))
         Ms, conv = _run_to_rest([_prims["__dyn__"]], _steps(budget))
@@ -1338,24 +1097,7 @@ def _body_stacked(members, free, excl, pen):
 
 
 def cmd_settle_set(bodies, deltas, free=None, budget=None, groups=None):
-    """Joint settle of SEVERAL independently moved hierarchies — the gpt6_v1 freeform
-    ``execute_and_evaluate`` that moved more than one object (2026-09-15 owner rule:
-    only the moved objects' hierarchies simulate; everything else is a static
-    collider). Apply each body's 4x4 world delta (its requested pose; the client
-    carries descendants), lift the UNION of ``bodies`` straight up until it clears
-    every body NOT in the set (relative arrangement preserved; a wall overlap that
-    never clears releases in place, as in move_group), then run ONE sim with every
-    body in ``bodies`` + ``free`` (contact-dependents resting on them, at their
-    current poses, no lift) as INDIVIDUAL dynamic rigid bodies against the rest of
-    the committed scene as statics, and bake each settle into its total. No weld:
-    two bodies the agent left overlapping depenetrate against each other instead of
-    being frozen into one compound, and every body is measured against every other
-    (``body_pen``), so the client's penetration gate sees a body wedged in its
-    co-moved neighbor. Returns per-body D (net vs the post-delta pose, lift
-    included: the client's total blend delta per body = D @ C_body), this-settle
-    tilt, cumulative tilt, settle displacement, rollability, ``lift_mm``,
-    ``pen_before_mm``/``pen_after_mm`` (bodies vs the rest, move_group metric),
-    ``body_pen`` and ``converged``."""
+    ""
     bodies = list(bodies)
     free = [f for f in (free or ()) if f not in bodies]
     for b in bodies:
@@ -1436,17 +1178,7 @@ def cmd_settle_set(bodies, deltas, free=None, budget=None, groups=None):
 
 
 def cmd_scale_resettle(parent, delta, free=None, budget=None, absent=None):
-    """Scale-specific commit (NOT a carry), in the same DESTINATION SUPPORT ORDER
-    as the move commit: (1) lateral contacts remain in place; (2) the resized
-    parent lift-to-clears and drops AGAINST their colliders while only true cargo
-    is absent; (3) that cargo re-seats last, support-first; (4) parent, lateral
-    contacts, and cargo run one no-lift all-dynamic local closure. Returns, per
-    body, the rest delta D
-    (parent's D is vs its POST-SCALE pre-lift pose so the client can do
-    ``D @ scale``; a free body's D is vs its synced pose),
-    tilt/displacement/rollability, the parent lift, the stack's interpenetration
-    before/after (legacy gate), per-body penetration maps (``body_pen``), and
-    ``converged``."""
+    ""
     free = list(free or ())
     absent = [a for a in (absent or ()) if a in set(free)]
     stack = [parent] + free
@@ -1555,15 +1287,6 @@ def cmd_scale_resettle(parent, delta, free=None, budget=None, absent=None):
 
 
 def cmd_penetration(members, deltas):
-    """DRY-RUN feasibility probe for the pre-physics move clamp: apply each member's
-    4x4 ``delta``, measure the deepest overlap of the members vs every OTHER body
-    (statics included; member-vs-member skipped — they move as a rigid compound),
-    then EXACTLY restore the pre-probe state. Returns {other_name: depth_mm}. No
-    physics is run — this is a geometric hull test at the candidate pose."""
-    # snapshot EVERYTHING _apply_delta mutates — com/axes/inertia/mass ride the
-    # body too; restoring only the geometry leaked the probed translation into
-    # the CoM override, making every stabilized object tip on all later settles
-    # (0725_tipfix2_room1 vase: 86-110 deg on every composition move)
     snap = {
         m: ([(v.copy(), f) for v, f in _objs[m].parts], _objs[m].total.copy(),
             list(_objs[m].hulls),
@@ -1617,9 +1340,6 @@ def cmd_contacts(tol=0.0, pairs_only=False):
             elif other.static:
                 depth = min_clear_dist(probe.hulls, other.hulls, step=LIFT_STEP, cap=0.2)
             else:
-                # object<->object: SYMMETRIC — registry order (sorted names) must not
-                # pick the probe; a container pushed out of its cargo reads the escape
-                # distance (plate<->tomato 44 mm vs 4-6 mm, 0904 fruits_plate_to_bowl).
                 depth = pair_clear_dist(probe.hulls, other.hulls, step=LIFT_STEP, cap=0.2)
             pairs.append({"a": a, "b": b, "depth_mm": depth * 1000.0})
     return {"ok": True, "pairs": pairs}
@@ -1698,22 +1418,7 @@ def _com_drift(o, R, t):
 def cmd_certify(
     dxy_cap=None, tilt_cap_deg=None, *, support_policy=None, rest_policy=None
 ):
-    """Unfreeze ALL objects, free-sim to rest, bake the drift. With caps set, an
-    object drifting past them is PINNED — kept at its composed pose, authored as a
-    static — and the sim re-runs without it, so a capsize/ejection is RECORDED
-    (drift entry + pinned:true) instead of baked into the deliverable. Without
-    caps (the preprocess certify) behavior is the old single pass.
-
-    ``support_policy="actual_surfaces_v1"`` explicitly omits the global proxy,
-    requires registered static colliders, and acknowledges their exact names.
-    An absent policy retains the legacy proxy and response shape. This is a
-    per-request policy only; it never changes later simulations' defaults.
-
-    ``rest_policy="export_velocity_v1"`` additionally requires the existing quiet
-    streak to satisfy the export speed limits. The response acknowledges it and
-    includes bounded per-object measurements under ``rest``. Without it, legacy
-    stopping and response fields remain unchanged.
-    """
+    ""
     _validate_rest_policy(rest_policy)
     if support_policy is not None and support_policy != "actual_surfaces_v1":
         raise ValueError(f"unsupported certification support_policy={support_policy!r}")
@@ -1873,10 +1578,6 @@ def cmd_certify_sequential(dxy_cap=None, tilt_cap_deg=None, order=None, repair=N
                 _apply_delta(o, np.eye(3), np.array([0.0, 0.0, -lift]))  # undo the lift
         else:
             _apply_delta(o, R, t)  # commit; later objects land on this settled pose
-            # penetration-aware pin (rollables NOT exempt — penetration is
-            # pose-independent, unlike the tilt cap): a certify drop that ends the
-            # object newly wedged (delta rule, 0720_orinit3_abc1) reverts to the
-            # composed pose instead of baking the burial.
             worst = _srv_pen_worst(pen_pre, _member_penetration_mm([name], {name}))
             if worst is not None:
                 _apply_delta(o, R.T, -(R.T @ t))  # exact inverse of the settle
@@ -2032,21 +1733,7 @@ def _owner_alive(owner_pid):
 
 
 def main_tcp(port_file: str, owner_pid: int = 0, idle_timeout: float = IDLE_TIMEOUT):
-    """Serve the same protocol over 127.0.0.1 so later pipeline stages (other OS
-    processes) reconnect to this SimulationApp instead of booting their own.
-
-    Two self-reaping guards, since the client-side teardown is a Python ``finally``
-    that SIGKILL/OOM-kill/eviction skips entirely (leaked servers pinned ~11 GB
-    across all 8 GPUs until noticed by hand). Both are checked only on an IDLE
-    select() tick, so neither can interrupt an in-flight rpc:
-      * ``--owner-pid``: exit once the process that owns the RUN is gone. Not the
-        parent — under a standalone main.py the spawner is a per-stage exec.py MCP
-        child that dies before certify reuses the server (see SettleClient).
-      * ``idle_timeout``: exit after this long with NO client connected (0 = never).
-        Backstop for callers that never shut the server down at all. Must stay
-        comfortably above the longest legitimate inter-stage gap — a stage that
-        holds the socket while doing Blender work is NOT idle and never trips it.
-    """
+    ""
     srv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     srv.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     srv.bind(("127.0.0.1", 0))
@@ -2121,7 +1808,7 @@ if __name__ == "__main__":
         _owner = (
             int(sys.argv[sys.argv.index("--owner-pid") + 1])
             if "--owner-pid" in sys.argv
-            else 0  # 0 = no owner known: idle_timeout is then the only guard
+            else 0
         )
         main_tcp(sys.argv[sys.argv.index("--port-file") + 1], owner_pid=_owner)
     else:

@@ -376,9 +376,6 @@ def _composition_effective_base(
             prompt = _replace_contract_text(prompt, old, new)
 
     if freeform_layout:
-        # strict_post_edit_physics: settle_edited REJECTS non-convergence, penetration and
-        # topples and the executor rolls the edit back; the baseline keeps the settled
-        # result for the agent's keep/undo call (2026-09-16 owner: keep both behaviours).
         prompt = _replace_contract_text(
             prompt,
             "Both support-parent moves and committed direct layout code edits are "
@@ -443,8 +440,6 @@ def _composition_effective_base(
                 "execute_and_evaluate code for any pose change you can state yourself, single "
                 "or multi-object.",
             ),
-            # 2026-09-15 owner-approved: the two remaining sentences that framed code as
-            # the route AFTER a failed move; both routes are peers under strict physics.
             (
                 "If a smaller, non-180-degree yaw mismatch remains, call move(object, "
                 "'rotation') even when no YAW HINT was available. If that move is rejected "
@@ -512,12 +507,7 @@ def composition_generator_system(
     harness_profile: str = "baseline",
     harness_profile_manifest: dict | None = None,
 ) -> str:
-    """Return the profile-specific composition prompt without changing baseline.
-
-    The legacy exported constant above intentionally remains the complete baseline
-    prompt.  Callers opt into this addendum only through the resolved ``gpt6_v1``
-    profile and its corresponding explicit tool capabilities.
-    """
+    ""
     if harness_profile != "gpt6_v1":
         return static_scene_composition_generator_system
     runtime_inventory = composition_capability_enabled(
@@ -539,8 +529,6 @@ def composition_generator_system(
         freeform_layout=strict_physics,
     )
     if strict_physics and not direct_pose:
-        # D1-a (2026-09-16): execute_and_evaluate is no longer layout-only under strict
-        # physics; a geometry change re-cooks the collider before the settle.
         prompt = _replace_contract_text(
             prompt,
             "Fix it (move() or a layout-only execute_and_evaluate).",

@@ -1,24 +1,4 @@
-"""SHARP raw renders for the pseudo-GT cameras — runs under the SHARP venv (SHARP_PY).
-
-One process per scene: predict the 3DGS once from the source image (MoGE's focal at
-predict AND render time, so geometry and cameras agree), then render every novel
-camera. Per view it writes
-
-  render_raw.png  un-premultiplied render, NOTHING masked — the gpt-polish input.
-                  gsplat composites over black, so colour comes back premultiplied
-                  by alpha; divide it out in LINEAR space (the renderer already
-                  does exactly this for depth).
-  hole_mask.png   L, white=keep / black=hole (alpha < 0.8, dilated long_side//100).
-                  Not consumed by the maskless gpt call — it defines the observed
-                  region for the drift check in build_pseudo_gt.
-
-Thresholds are the 2026-07-28 sweep values: 0.9+ punches holes through solid
-surfaces because fully-covered pixels sit at alpha 0.99-0.999.
-
-    <SHARP_PY> lib/tools/geometry/sharp_render.py \
-        --image <scene>/input.png --moge-json <scene>/moge/moge.json \
-        --cameras-json <pseudo_gt>/cameras.json --out-dir <pseudo_gt>
-"""
+""
 
 from __future__ import annotations
 

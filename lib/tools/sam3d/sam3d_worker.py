@@ -28,10 +28,6 @@ if "CONDA_PREFIX" not in os.environ:
 
 from inference import Inference, load_image
 
-# GLB mesh (Y-up) -> pose frame (Z-up), a PROPER rotation (det +1). Matches REST3D's
-# reference (`_R_ZUP_TO_YUP.T`). The earlier `R_flip_z @ R_yup_to_zup` chain was a det -1
-# REFLECTION that MIRRORED every reconstructed object left/right (wallet zip on the wrong
-# side, AirPods flipped, etc.) -- see CHANGELOG 2026-06-30.
 R_YUP_TO_ZUP: torch.Tensor = torch.tensor(
     [[1, 0, 0], [0, 0, 1], [0, -1, 0]], dtype=torch.float32
 )

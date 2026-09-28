@@ -1,25 +1,4 @@
-"""VLM physics estimation core (material + mass + friction), preprocess-stage.
-
-Extracted from ``isaac/vlm_physics.py`` per
-``audits/VLM_PHYSICS_PREPROCESS_PROPOSAL_2026_07_22.md``: estimation now runs in
-preprocessing right after ``generate_meshes`` (all inputs — pristine renders,
-photo crop, placed metric size — exist there and need no colliders), writing the
-canonical ``<scene>/physics/physics_vlm.json`` keyed by PIPELINE mesh names
-(``obj_<slug>``, the pose_changes.json dialect). The settle ladder, composition
-boot and the isaac export all consume this one file.
-
-Anchor semantics (the resize story): mass is estimated ONCE at a known size and
-each consumer rescales it statelessly by the OBB-extents-product ratio
-(``rescaled_mass``) — exact s^3 under uniform scale, a no-op under rotation
-(OBB extents are rotation-invariant), robust to ANY accumulated resize path
-(ICP scale, composition ``_commit_scale``, mesh-data affine edits). A
-scale-change event ledger was explicitly rejected (see the audit doc). Volume
-is computed exactly once, here, for the density sanity gate; downstream it only
-appears as an optional cross-check.
-
-Friction is a table lookup from ``isaac/materials.yaml`` (size/pose-invariant),
-never predicted; material-table density is gate-only, never used to set mass.
-"""
+""
 
 from __future__ import annotations
 
@@ -45,9 +24,6 @@ PROMPT_PATH = REPO_ROOT / "isaac/prompts/physics_estimation.yaml"
 DENSITY_BAND = 3.0  # accept mass/volume within [band/3, band*3] of the material density
 N_SIDE_VIEWS = 4
 MIN_VOLUME = 1e-7  # m^3, guard against degenerate meshes
-# Persisted mass resolution. 4 decimals (0.1 g) zeroed the lower bound of a 0.1 g
-# tea-bag tag (IMG_8226, 2026-09-14) and the inventory contract then rejected every
-# GPT-6 transaction in that scene. 1 mg keeps the parser's ">0" invariant intact.
 MASS_PERSIST_DECIMALS = 6
 MASS_FLOOR_KG = 1e-6
 
@@ -63,10 +39,6 @@ def persistable_mass(mass: float, lo: float, hi: float) -> tuple[float, float, f
     lo = max(round(float(lo), MASS_PERSIST_DECIMALS), MASS_FLOOR_KG)
     hi = max(round(float(hi), MASS_PERSIST_DECIMALS), MASS_FLOOR_KG)
     return mass, min(lo, mass), max(hi, mass)
-# Concurrent VLM calls in estimate_scene. 5 (was 8, owner 07-29): the API key is
-# company-shared and up to 8 lanes run at once, so per-lane width times lanes is
-# the real in-flight count against the rate limit (8x8=64 was the risk case).
-# Override per-run via --vlm-physics-batch (static_scene.py / run_e2e.sh).
 VLM_JOBS = int(os.environ.get("GRASE_VLM_PHYSICS_BATCH", "5"))
 # extents-product vs mesh-volume rescale-ratio disagreement that triggers a warning
 # (OBB solver noise and small decomposition drift stay well under this)
@@ -139,9 +111,6 @@ def rescaled_mass(
     return mass * ratio, [x * ratio for x in rng]
 
 
-# --------------------------------------------------------------------------- #
-# VLM plumbing (shared with the legacy isaac/vlm_physics.py path)              #
-# --------------------------------------------------------------------------- #
 def density_gate(mass: float, volume: float, material: str) -> tuple[str, float]:
     """('ok'|'high'|'low', gated_mass). 'high' clamps to band*3 x volume; 'low' is
     flag-only — hollow objects (mugs, electronics) legitimately undershoot."""
@@ -273,9 +242,7 @@ def call_vlm(
     *,
     log_stream=None,
 ) -> dict:
-    """VLM estimate with balanced-JSON parsing (parse_json, not the greedy `{.*}`
-    regex that RC6 already retired elsewhere) and a 3x retry feeding the parse or
-    validation error back (HARNESS_AUDIT_2026_07_26 V4)."""
+    ""
     from lib.tools.geometry.agentic_mask import parse_json
     from lib.utils.common import get_image_base64, get_model_response
 
@@ -293,8 +260,6 @@ def call_vlm(
             if err
             else []
         )
-        # Material+mass from clean renders is an easy question — medium effort
-        # (owner 07-29); the ledger's per-call "effort" field verifies the rollout.
         response = get_model_response(client, {
             "model": model,
             "messages": [
@@ -792,9 +757,6 @@ def translate_to_isaac(exp: Path) -> int:
         mass, rng = rescaled_mass(
             entry, obb_extents(v), mesh_volume(v, f), label=prim
         )
-        # persist at the 1 mg contract (2026-09-16): 4-decimal rounding here zeroed
-        # anything below 50 mg although persistable_mass had floored it upstream, and
-        # the inventory contract rejects a non-positive mass at conversion time
         mass, lo, hi = persistable_mass(mass, rng[0], rng[1])
         out[prim] = {
             **{k: entry[k] for k in

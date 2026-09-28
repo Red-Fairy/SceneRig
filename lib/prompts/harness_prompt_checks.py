@@ -96,8 +96,6 @@ def test_gpt6_prompts_match_reviewed_contract_and_missing_manifest_policy() -> N
     for key, expected in _GPT6_SHA256.items():
         prompt = get_system_prompt(key, "gpt6_v1", _manifest())
         assert hashlib.sha256(prompt.encode()).hexdigest() == expected
-        # 2026-09-15 owner decision: a missing manifest FAILS CLOSED — it renders exactly
-        # like a manifest with every capability off (never re-enables a withdrawn tool).
         missing_manifest = get_system_prompt(key, "gpt6_v1")
         all_off = _manifest(**{c: False for c in _manifest()["capabilities"]})
         assert missing_manifest == get_system_prompt(key, "gpt6_v1", all_off)
@@ -298,10 +296,8 @@ def test_effective_prompts_have_no_profile_labels_or_superseded_contracts() -> N
     initializer = prompts[0]
     assert "NO physics simulation runs" not in initializer
     assert "`nudge_object` is the only initializer object-edit path" not in initializer
-    # 2026-09-15 owner: gpt6_v1 has no nudge_object at all (menu, hint, prompts)
     assert "There is no nudge_object in this harness" in initializer
     assert "nudge_object for its" not in initializer and "bounded nudge" not in initializer
-    # 2026-09-16: one direct-support contract for BOTH harnesses
     assert "COVER ALL OBJECTS WITH THE MAIN SUPPORT" not in initializer
     assert "COVER EACH OBJECT WITH ITS EXACT DIRECT SUPPORT" in initializer
     assert "COVER EACH OBJECT WITH ITS EXACT DIRECT SUPPORT" in get_system_prompt(
@@ -320,8 +316,6 @@ def test_effective_prompts_have_no_profile_labels_or_superseded_contracts() -> N
     assert "Every mask-bearing imported object must be inspected" in composition
     assert "Prefer move() for routine single-object pose fixes" not in composition
     assert "CLEARED by any execute_and_evaluate/undo" not in composition
-    # 2026-09-15 owner-approved: no sentence frames code as the route AFTER a failed
-    # move; the baseline keeps its move-first wording
     for after_failure in (
         "If that move is rejected or dead",
         "also qualifies for direct execution when",

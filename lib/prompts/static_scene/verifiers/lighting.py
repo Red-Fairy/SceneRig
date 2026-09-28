@@ -7,10 +7,6 @@ from ..scopes import (
     verifier_decision_tail,
 )
 
-# Calibration history belongs in source, not in the model-facing rubric: on
-# 2026-07-30 the previous zero-tolerance wording was removed after it rejected
-# 63% of first attempts for pixel-level tone differences while retries rarely
-# resolved them. The actionable result is the clear-failure threshold below.
 static_scene_lighting_verifier_system = f"""{TASK_PREAMBLE}
 
 [Role]

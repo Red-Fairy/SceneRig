@@ -1,10 +1,4 @@
-"""Render a scene blend from its LOCKED reference (source-view) camera.
-
-One background Blender launch, no scene state of its own — the camera is whatever the
-blend already has. Split out of the retired ``register_legacy`` module (2026-07-27): the
-one-shot register stage went away with ``--legacy-register``, but this helper is on the
-ACTIVE path as the verifier fallback render.
-"""
+""
 
 from __future__ import annotations
 

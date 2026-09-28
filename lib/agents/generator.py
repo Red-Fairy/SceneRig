@@ -114,8 +114,6 @@ class GeneratorAgent:
         append-only runaway guard can discard it. Best-effort and flag-gated
         (GRASE_STAGE_PRESEED=0 reverts): a failed preseed must never block the stage —
         the model can still ask."""
-        # Fetch + failure-shape validation live in scene_preseed.fetch_scene_info
-        # (shared with the verifier since 2026-08-07); the contract notes moved there.
         info = await fetch_scene_info(self.tool_client)
         if info is None:
             return
@@ -162,15 +160,8 @@ class GeneratorAgent:
         if not self._post_flip_followup_pending():
             await self._preseed_scene_info()
         ended = False
-        # Track the check_rules_enforced gate: the last reported all-pass, and whether the scene
-        # was edited since (which would stale that pass). Used to reject a voluntary `end` that
-        # never actually passed the rules (see _build_result "rules_passed").
         self._rules_all_pass = False
         self._edited_since_rules = False
-        # Bind a gate decision to the exact revision it inspected. Revisions include
-        # persisted scene edits, undo, and rule-bypass changes. The legacy boolean is
-        # retained as a readable/debug-compatible mirror, but freshness is decided by
-        # the revision equality below.
         self._gate_input_revision = 0
         self._rules_revision: Optional[int] = None
         # Machine-readable evidence belongs to the same scene revision as the gate
@@ -195,9 +186,6 @@ class GeneratorAgent:
         # disturbing prompt-cache prefixes.
         self._last_bev_revision: Optional[int] = None
         max_rounds = int(self.config.get("max_rounds") or 1)
-        # A grace response is deliberately narrower than another round: it is earned
-        # only when the final normal call itself produces a fresh ALL-RULES-PASS, and
-        # exposes only ``end``. A pass from any earlier round is insufficient.
         terminal_end_grace_eligible = False
         self._terminal_end_grace_offered = False
         self._terminal_end_grace_accepted = False
@@ -250,10 +238,6 @@ class GeneratorAgent:
                     )
                 else:
                     self.memory.append({"role": "assistant", "content": "No output"})
-                # Truncation is NOT disobedience: at the old 16000 cap the modal failure
-                # was a reply cut off inside the thinking block (no text, no tool call).
-                # Tell the model what actually happened so the retry economizes instead
-                # of re-thinking its way into the same cutoff.
                 _fr = getattr(response.choices[0], "finish_reason", None)
                 self.memory.append(
                     {
@@ -277,9 +261,6 @@ class GeneratorAgent:
                 try:
                     tool_arguments = json.loads(tool_call.function.arguments)
                 except (TypeError, json.JSONDecodeError) as exc:
-                    # 2026-09-16: unparseable arguments (a truncated or runaway call the
-                    # transport did not flag) used to raise here and abort the whole
-                    # run (0916 push_T_standard). Spend the round instead.
                     print(f"Tool {tool_name}: arguments are not valid JSON ({exc})")
                     self.memory.append(
                         {
@@ -352,11 +333,6 @@ class GeneratorAgent:
                 tool_name, tool_response
             )
             tool_committed = not bool(tool_response.get("_tool_error", False))
-            # A retained rotate_180 can be durably committed before its MCP response
-            # fails.  In that case the ordinary ``tool_committed`` bit is false even
-            # though the rules input changed.  Detect the ambiguous/committed error
-            # before formatting strips the private marker, then stale the old gate
-            # independently of the normal successful-tool path below.
             post_flip_error_invalidates_rules = self._post_flip_error_invalidates_rules(
                 tool_name, tool_arguments, tool_response
             )
@@ -519,10 +495,6 @@ class GeneratorAgent:
             if path:
                 path = resolve_display_path(path, self.config.get("scene_root"))
             if path and os.path.exists(path):
-                # problem_images paths come from the verifier VLM: it sometimes
-                # lists a non-image artifact (scene_graph.json killed the whole
-                # 0730_all_rl93ae run at texture attempt 2). Skip anything PIL
-                # can't open instead of crashing the retry.
                 try:
                     url = get_image_base64(path, max_edge=AGENT_VLM_EDGE)
                 except Exception:
@@ -907,8 +879,7 @@ class GeneratorAgent:
         """The messages actually sent to the model. With ``memory_window`` set
         (composition only — root.py nulls it for every other stage) old rounds collapse
         to a text ledger and only the last M rounds keep their images. Every other stage
-        sends its memory verbatim: append-only, no truncation, no image aging
-        (2026-08-07, audits/WINDOW_SIMPLIFICATION_DESIGN_2026_08_07.md)."""
+        sends its memory verbatim: append-only, no truncation, no image aging."""
         window = self.config.get("memory_window")
         if window:
             return self.prompt_builder.build_memory_windowed(
@@ -1317,11 +1288,8 @@ class GeneratorAgent:
     ) -> None:
         """Record the newest full-scene render this attempt produced, with its viewpoint.
 
-        Root hands this to the paired verifier (root._latest_normal_render). It is REPORTED
-        here rather than globbed off disk because since the pseudo-GT compare path landed
-        (07-21) the round's render is written to tmp/arbitrary_views/, not renders/ — the
-        old glob then silently found nothing and every verifier from 07-22 on judged from
-        text alone. See audits/VERIFIER_RENDER_2026_07_26.md."""
+        Root hands this explicit artifact to the paired verifier instead of discovering
+        renders by filesystem glob."""
         if tool_name not in self._FULL_SCENE_RENDER_TOOLS or not tool_response:
             return
         if tool_response.get("image_kind") == "relocation_crop":
@@ -1476,10 +1444,6 @@ class GeneratorAgent:
         # retry, instead of a KeyError killing the whole run.
         if tool_call_name == "initialize_plan" and message["user"].get("plan"):
             self.init_plan = "\n".join(message["user"]["plan"])
-            # The plan is the agent's own (first-person) text, just submitted via
-            # initialize_plan; append it at its TRUE chronological position. Mutating the
-            # protected first-user message here used to invalidate the prompt-cache prefix and
-            # made saved traces look as though the plan predated its own tool call.
             self.memory.append(
                 {
                     "role": "user",
@@ -1498,25 +1462,7 @@ class GeneratorAgent:
         tool_name: Optional[str] = None,
         image_kind: Optional[str] = None,
     ) -> str:
-        """Stage-specific guidance shown before image tool results.
-
-        Derived from the shared per-stage scope (lib/prompts/static_scene/scopes.py) so this
-        render-feedback can never drift from the stage's system prompt. ``n_images`` is the number
-        of images the tool actually returned: 2 = a PAIR (render + its reference); 1 = a lone
-        image with NO reference — so we don't claim "two images" when only one was attached.
-        ``tool_name`` routes render_bev to its OWN note: the generic lone-image text told the
-        agent to compare the BEV against the target photo (nonsense for a top-down id-tint map
-        vs a perspective photo) and to consider undo_last_step (render_bev is read-only —
-        nothing was just edited).
-
-        ``image_kind`` is the payload tag the tool sets inside its ``output`` (currently only
-        ``relocation_crop``, from execute_and_evaluate's physics-settled relocation path). It
-        exists because a COUNT cannot distinguish the two 2-image shapes: a relocation returns
-        two region CROPS at the locked reference camera, a normal edit returns a full-scene
-        render + its (azimuth, elevation) reference. Keying on ``n_images == 1`` instead meant
-        the relocation text never fired for relocations (they return 2) and instead described
-        a lone full-scene render as a "settled crop" (HARNESS_AUDIT_2026_07_26 M1).
-        """
+        ""
         from lib.prompts.static_scene.scopes import (
             LIGHTING_SCOPE_SHORT,
             TEXTURE_SCOPE_SHORT,
@@ -1592,10 +1538,6 @@ class GeneratorAgent:
                 "undo_last_step only if they show the object wrong or toppled."
             )
         if image_kind == "deduped_pair" and scope:
-            # CT3: the render IS paired — its reference is the head's target photo, not
-            # re-attached (byte-identical every time). Without this branch the count
-            # fallback below called it "no paired reference", flatly contradicting the
-            # pointer text inside the same tool result (caught in 0729_noreseg_real8334_r2).
             return (
                 "The next message contains ONE image: your scene render for the reference "
                 "view. Its GROUND-TRUTH pair is the target photo attached in the FIRST "
@@ -1780,9 +1722,6 @@ class GeneratorAgent:
             "terminal_end_grace_accepted": bool(
                 getattr(self, "_terminal_end_grace_accepted", False)
             ),
-            # Transaction-bound composition requirement.  Exposing both fields makes
-            # budget-exhausted traces distinguish an ordinary cutoff from a retained
-            # flip whose mandatory current-pose measurement was never completed.
             "post_flip_required_followup": deepcopy(
                 getattr(self, "_post_flip_required_followup", None)
             ),
@@ -1868,10 +1807,6 @@ class GeneratorAgent:
             self._edited_since_rules = True
             return
         self._rules_all_pass = bool(resp.get("rules_all_pass", False))
-        # Focused tests and third-party subclasses may construct an agent with
-        # ``__new__`` and therefore lack the revision counter. Production agents
-        # always initialize it, but treating the legacy state as revision zero keeps
-        # the fail-closed recheck compatible with those callers.
         self._rules_revision = getattr(self, "_gate_input_revision", 0)
         self._capture_rules_evidence(resp)
         self._edited_since_rules = False
@@ -1879,13 +1814,7 @@ class GeneratorAgent:
 
     @staticmethod
     def _yaw_note_from_evidence(evidence: Any) -> Optional[str]:
-        """Return a legacy-sized visual-check note from structured yaw evidence.
-
-        The structured record is authoritative.  This adapter exists only for old
-        root/verifier consumers and mixed-version tool servers; it deliberately emits
-        no warning for a measured pass or for an axisless/room-mode support whose yaw is
-        explicitly not applicable.
-        """
+        ""
         if not isinstance(evidence, dict):
             return None
         applicability = evidence.get("applicability") or {}

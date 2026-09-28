@@ -116,12 +116,6 @@ if __name__ == "__main__":
             "lens": _c.data.lens,
             "sensor": _c.data.sensor_width,
             "sensor_height": _c.data.sensor_height,
-            # LOCKED framing: preprocessing sets sensor_fit=HORIZONTAL so the MoGE
-            # fov_x maps to the image WIDTH at any aspect. A fresh camera defaults to
-            # AUTO, which fits the sensor to the LARGER dimension -- identical to
-            # HORIZONTAL while width >= height, but on a PORTRAIT frame it silently
-            # becomes a vertical fit and the render zooms by tan(fov_x/2)/tan(fov_x'/2)
-            # (1.50x on 0802_bulk_misc_desk_potrait, 1022x1536). Must be snapshotted.
             "fit": _c.data.sensor_fit,
             "shift": (_c.data.shift_x, _c.data.shift_y),
             "clip": (_c.data.clip_start, _c.data.clip_end),
@@ -223,9 +217,6 @@ if __name__ == "__main__":
                     )
                 }
             if obj.type == "MESH" and obj.data is not None:
-                # 2026-09-15: numpy digests instead of per-vertex JSON lists (exact
-                # float32 coordinates + full topology + UVs; same equality, 25x faster
-                # — 0.5 s -> 0.02 s on a 55k-vertex scene, and it scales with vertices).
                 me = obj.data
                 co = np.empty(len(me.vertices) * 3, dtype=np.float32)
                 me.vertices.foreach_get("co", co)
@@ -304,13 +295,7 @@ if __name__ == "__main__":
         _json_dumps=json.dumps,
         _sha256=hashlib.sha256,
     ):
-        """Snapshot one object with pose split from protected/content state.
-
-        Typed direct-code mutations need a stricter field partition than the legacy
-        initializer guard: mesh edits may change content but not pose, while pose edits
-        may change one rigid hierarchy pose but not content. Blender references and
-        parents are retained separately by the caller and never serialized here.
-        """
+        ""
 
         def matrix_payload(matrix):
             return [[float(component) for component in row] for row in matrix]
@@ -506,8 +491,6 @@ if __name__ == "__main__":
                 "added_objects",
                 "removed_objects",
             }
-            # gpt6_v1 initializer only: material-only edits on AUTHORED objects pass
-            # the unchanged-member guard (2026-09-17, misc_genai1 lens fix rejected x2).
             optional_keys = (
                 {"authored_material_edit"} if expected_stage == "initializer" else set()
             )
@@ -741,9 +724,6 @@ if __name__ == "__main__":
                 build_root_binding = json_module.load(stream)
             if not isinstance(build_root_binding, dict):
                 raise RuntimeError("trusted build-root result must be an object")
-        # Blender can leave matrix_world stale after a direct location assignment in
-        # background mode. Flush the depsgraph before comparing or the raw move may be
-        # saved while the guard still sees its old matrix.
         bpy_module.context.view_layer.update()
 
         if object_transaction is not None:
@@ -875,9 +855,6 @@ if __name__ == "__main__":
                         f"unchanged object pose is not finite positive-affine for {member_name}"
                     )
 
-            # A removal is about Blender object identity, not merely the old name.
-            # Every saved member must be gone so rename/reparent remnants cannot be
-            # laundered into a declared addition or an unrelated scene hierarchy.
             for name in sorted(removed):
                 record = object_transaction_root_records[name]
                 for member_name, member_record in record["members"].items():
@@ -889,10 +866,6 @@ if __name__ == "__main__":
                             f"{current_name}"
                         )
 
-            # Composition mesh editing is target-only. Its before/after object set
-            # may differ solely by deleting the old target hierarchy and creating the
-            # replacement hierarchy. This protects root surfaces, cameras, lights,
-            # helpers, and other non-canonical scene objects as well as obj_* trees.
             if object_transaction_kind == "composition_mesh":
                 target_name = next(iter(removed))
                 before_target_names = set(
@@ -1215,12 +1188,6 @@ if __name__ == "__main__":
                 + ". Imported objects may be translated only with nudge_object; "
                 "this edit was rejected before save."
             )
-    # Independent reconstructed objects must remain direct Blender roots. Support-stack
-    # carrying is implemented by the composition physics backend, never by parenting one
-    # canonical object root under another. A canonical handle may be a legacy MESH or a
-    # transaction-added EMPTY whose descendant meshes form its visual body. Limit the
-    # invariant to exact placement-table names so internal mesh hierarchies remain legal.
-    # Raising here happens before save_as_mainfile, so an invalid edit never persists.
     _pipeline_identity_errors = []
     _hierarchy_errors = []
     for _child_name, _child in _pipeline_object_records:
@@ -1339,10 +1306,6 @@ if __name__ == "__main__":
         if _keep.name != _base:
             _keep.name = _base  # canonical name; later refs stay stable
 
-    # Keep this identity validation after every wrapper-side scene mutation, especially
-    # the duplicate-name collapse above.  Otherwise agent code can leave the protected
-    # root in place, create ``wall_N.001``, and let dedup replace the backend-created
-    # object only after an earlier guard has passed.
     if _root_stage_name == "initializer":
         _build_root_ref = None
         if _build_root_binding is not None:
@@ -1536,8 +1499,6 @@ if __name__ == "__main__":
                         )
                         continue
                     if _finite_error:
-                        # 2026-09-17 census: 6/6 of these in the 0916 batch were metre-scale,
-                        # from copying an un-updated identity matrix_world (0916 push_T etc.).
                         _stale_hint = (
                             _worst_overshoot > 0.5
                             or _detail.matrix_world.translation.length < 0.05
@@ -1683,15 +1644,6 @@ if __name__ == "__main__":
         exit(0)
 
     if rendering_dir:
-        # FALLBACK-ONLY render path (audit §12 A, 2026-07-28). In a healthy run every
-        # agent-visible render goes through exec.py's novel-view path (768 long side,
-        # samples<=96): execute_and_evaluate passes "__norender__" whenever the pseudo-GT
-        # camera set exists, and render_current_scene routes ALL calls (bare ones too)
-        # through _render_novel_view. This loop fires only when pseudo_gt/cameras.json is
-        # missing (pseudo-GT build failure) — the graceful-degradation path that keeps the
-        # agent sighted. Reference run 0728_isaacfix_9096 hit it exactly once, pre-fix; do
-        # not spend optimization effort here (the samples=512 below is a measured no-op:
-        # Cycles cost is scene-sync-bound, audit §3.2/§10.4).
         render_engine = os.environ.get("VIGA_RENDER_ENGINE", "CYCLES")
         try:
             bpy.context.scene.render.engine = render_engine
@@ -1704,10 +1656,6 @@ if __name__ == "__main__":
             ].preferences.compute_device_type = "CUDA"  # or 'OPTIX' if your GPU supports it
             bpy.context.preferences.addons["cycles"].preferences.get_devices()
 
-            # Select the GPUs. (Cycles reports device types CUDA / OPTIX / CPU — the old
-            # `device.type == "GPU"` test never matched, so this loop was dead; CUDA
-            # devices happen to default to enabled, which is why renders still ran on
-            # the GPU. Made explicit 2026-09-15.)
             for device in bpy.context.preferences.addons["cycles"].preferences.devices:
                 device.use = device.type in ("CUDA", "OPTIX")
 

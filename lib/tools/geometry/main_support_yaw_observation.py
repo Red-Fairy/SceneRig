@@ -63,11 +63,6 @@ EXTRACTOR_PARAMETERS: dict[str, float | int] = {
     "pair_corner_top_bbox_diag_fraction": 0.020,
     "axisymmetric_circle_residual_fraction": 0.05,
     "axisymmetric_max_angular_gap_degrees": 60.0,
-    # Occluder-silhouette test (2026-09-17): a walked boundary run is an object's rim,
-    # not a table edge, when the band just BEYOND it (away from the top face) is above
-    # the plane AND its world XY lies inside the visible top face's convex footprint.
-    # A wall flush behind a true edge is above the plane but outside the footprint;
-    # the 2 cm inset keeps a flush wall base from counting as inside.
     "silhouette_probe_min_px": 6,
     "silhouette_probe_max_px": 24,
     "silhouette_probe_steps": 5,
@@ -362,14 +357,7 @@ def _silhouette_fraction(
     top_plane_z_m: float,
     plane_clearance_m: float,
 ) -> float:
-    """Fraction of segment samples whose beyond-edge band holds geometry standing ON the table.
-
-    The inward side is the one the top face supports at 1-3 px.  Probes then step
-    outward ``silhouette_probe_min_px..max_px``; a sample counts when any probe lands on
-    finite geometry higher than ``top_plane_z_m + plane_clearance_m`` whose world XY is at
-    least ``silhouette_footprint_inset_m`` inside the footprint hull.  Out-of-frame probes
-    never count, so a genuine edge at the frame border is not penalised.
-    """
+    ""
     if footprint_hull is None or len(samples) == 0:
         return 0.0
     h, w = top_mask.shape
@@ -1585,7 +1573,7 @@ def _finite_point(value: Any, *, label: str, normalized: bool = False) -> None:
 
 
 def validate_main_support_yaw_observation(artifact: Any) -> dict[str, Any]:
-    """Strictly validate schema-v1; there is intentionally no legacy adapter."""
+    ""
 
     if not isinstance(artifact, dict):
         raise YawObservationArtifactError("yaw observation artifact must be an object")
@@ -1594,9 +1582,6 @@ def validate_main_support_yaw_observation(artifact: Any) -> dict[str, Any]:
             "unsupported main-support yaw observation schema version: "
             f"{artifact.get('schema_version')!r}; rerun preprocessing"
         )
-    # v2 artifacts (2026-08-20 .. 09-17) stay loadable so finished runs can still seed
-    # agent-only reruns; they simply lack the v3 silhouette field. v1 is upgraded at a
-    # restart boundary by ``refresh_legacy_yaw_observation``.
     if artifact.get("extractor_version") not in {
         MAIN_SUPPORT_YAW_EXTRACTOR_VERSION,
         "observable_top_edges_v2_visibility",
@@ -1640,9 +1625,6 @@ def validate_main_support_yaw_observation(artifact: Any) -> dict[str, Any]:
             raise YawObservationArtifactError(
                 f"source_binding.{key} is not a lowercase SHA-256 digest"
             )
-    # The parameter digest pins CURRENT-version artifacts only: an accepted legacy
-    # version was built with its own (older) parameter set by definition, and staying
-    # loadable is what lets ``refresh_legacy_yaw_observation`` upgrade it.
     if artifact.get(
         "extractor_version"
     ) == MAIN_SUPPORT_YAW_EXTRACTOR_VERSION and binding[
@@ -1915,18 +1897,12 @@ def write_main_support_yaw_observation(
 
 
 def refresh_legacy_yaw_observation(scene_dir: str | os.PathLike[str]) -> bool:
-    """Upgrade known legacy source evidence at a restart boundary, without VLM calls.
-
-    Recompile the dependent initializer contract as well. Runtime readers never
-    rewrite frozen evidence; unknown/corrupt schemas retain their normal failure.
-    """
+    ""
     root = Path(scene_dir)
     path = root / MAIN_SUPPORT_YAW_OBSERVATION_FILENAME
     artifact = json.loads(path.read_text())
     if artifact.get("extractor_version") == MAIN_SUPPORT_YAW_EXTRACTOR_VERSION:
         return False
-    # Any accepted legacy version (v1, v2) is rebuilt from its immutable source inputs;
-    # unknown/corrupt versions still fail inside validate.
     validate_main_support_yaw_observation(artifact)
     rebuilt = build_main_support_yaw_observation(root)
     # Circular dependency: relationship constraints themselves consume yaw artifacts.
@@ -1936,8 +1912,6 @@ def refresh_legacy_yaw_observation(scene_dir: str | os.PathLike[str]) -> bool:
 
     graph = json.loads((root / "scene_graph.json").read_text())
     write_initializer_constraints(root, graph, yaw_observation=rebuilt)
-    # Publish the version marker LAST. If constraint compilation/writing fails, the
-    # old observation still triggers a retry instead of masking a partial upgrade.
     write_main_support_yaw_observation(root, rebuilt)
     return True
 

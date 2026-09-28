@@ -26,9 +26,6 @@ PSEUDO_GT_VIEWS_AZ_EL: list[tuple[float, float]] = [
     (0.0, -15.0),
 ]
 
-# Evidence-backed repeat-run gate (123 same-input camera pairs from benchmark_0821..0824).
-# Rebuilding segmentation/canonicalization moved the support-derived orbit by as much as
-# 12.5 mm / 0.50 degrees even though the source pixels and intrinsics were identical.
 _ROTATION_TOL_DEG = 0.6
 _CAM_TRANSLATION_TOL_M = 0.015
 _LOCATION_TOL_M = 0.015
@@ -159,7 +156,6 @@ def _camera_matrix_close(actual: Any, expected: Any, label: str) -> None:
         f"{label}.translation",
         distance_tol=_CAM_TRANSLATION_TOL_M,
     )
-    # For proper rotations, trace(A^T B) = 1 + 2 cos(theta).
     trace_relative = sum(
         actual_matrix[row][column] * expected_matrix[row][column]
         for row in range(3)
@@ -321,11 +317,6 @@ def load_complete_pseudo_gt(
         _verify_image(completed, f"{tag} completion")
         view["pseudo_gt"] = str(completed)
 
-        # Older bundles predate the manifest trust fields but already carry these
-        # on-disk quality markers.  Reconcile them here so a copied known-bad reference
-        # cannot become implicitly trusted merely because its legacy JSON omitted the
-        # newer metadata.  The executor receives this normalized value even when the
-        # caller does not persist a path rebase.
         view_dir = root / tag
         if (view_dir / "gpt_fallback.txt").is_file():
             view["pseudo_gt_trusted"] = False

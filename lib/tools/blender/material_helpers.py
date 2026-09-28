@@ -69,20 +69,7 @@ ROOT_IMAGE_TAG = (
 
 
 def image_from_array(name: str, pixels: np.ndarray):
-    """Create or REFRESH a packed RGBA root image from finite HxWx3/4 floats.
-
-    Texture edits re-run the whole (patched) script on the live scene, so the second
-    run meets the image the first run created. An image THIS helper made (stamped with
-    ``ROOT_IMAGE_TAG``) is refreshed in place — resized if needed, pixels replaced,
-    repacked — so a patch never fails on the unchanged ``image_from_array`` line and
-    leaves no orphan textures (2026-09-17; 15 of 16 texture-stage code errors in the
-    0916 batch were this collision). An image the helper did not create (an imported
-    asset texture, or anything hand-made) is still protected: that raises.
-
-    The returned image is packed. Repacking after ``pixels.foreach_set`` + ``update`` is
-    the sequence that survives on both Blender 4.2 and 4.5 (a bare second ``pack()`` on
-    4.2 discarded the buffer). Changing ``colorspace_settings.name`` needs no repack.
-    """
+    ""
     data = np.asarray(pixels, dtype=np.float32)
     if data.ndim != 3 or data.shape[2] not in (3, 4) or not np.isfinite(data).all():
         raise ValueError(f"Expected finite HxWx3/4 pixels, got shape={data.shape}")

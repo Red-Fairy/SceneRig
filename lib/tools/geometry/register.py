@@ -1,31 +1,4 @@
-"""Per-object planar pose alignment to the reference — the composition backend.
-
-``PoseSession`` is the live machinery behind the composition stage's
-investigate_objects/move tools: isolate the object (IoU render = object + its
-object-ancestors, transparent silhouette), score candidate poses with the IoU+depth
-objective (``register_objective``; ROTATION moves additionally weigh a DINO
-patch-similarity term — ``feature_metric`` — since IoU is blind to a ~180-yaw on
-near-symmetric objects), and gate accepted winners through the Isaac physics
-authority (``composition_physics``). Also home to the hint machinery (orientation /
-position / scale) and the shared low-level pieces (RenderClient, _score_pose,
-candidate ladders). Renders/transforms run on the warm ``register_blender_server``.
-
-This is the ONLY pose-refinement path. The pre-agent ONE-SHOT register stage (DFS + VLM
-axis proposer, ``register_legacy.py``) and its ``--legacy-register`` flag were deleted on
-2026-07-27; its one still-live helper now lives in ``ref_render.py``.
-
-World convention: the scene is GRAVITY-ALIGNED -- +Z is up and the XY plane is
-horizontal (the ground/table). The camera sits at the world origin, tilted to look down
-into the scene. So objects are aligned with 4 DoF: the two horizontal translations (x, y),
-the in-plane spin about +Z (rotation), and uniform scale. After EVERY candidate pose, the
-render server (a) pushes the object out of any penetration with its support (parent object
-+ root surfaces) by a minimal-translation separation (``_resolve_penetration``), then (b)
-SEATS it vertically on whatever is actually below it — an all-scene probe (``_seat_z``),
-deadbanded so an already-seated candidate keeps its z bit-exact. (b) replaced the old
-graph-support-only drop on 2026-08-07: with a wrong support edge it seated candidates
-THROUGH un-graphed neighbors (0806 food_packing: every xy candidate re-buried the can
-28 mm inside its tray, silently undoing each physics commit's rescue).
-"""
+""
 
 from __future__ import annotations
 
@@ -68,126 +41,27 @@ _SCALE = (0.8, 0.9, 1.1, 1.25)
 _SCALE_EST_RANGE = (0.6, 1.6)
 _SCALE_CAND_CLAMP = (0.7, 1.4)
 _SCALE_MIN_OVERLAP = 0.2
-# Elongated-silhouette regime for _scale_estimate: when both silhouettes'
-# covariance elongation (sqrt eigenvalue ratio) clears _ELONG_MIN, scale is the
-# major-axis extent ratio at P_ELONG_PCT instead of the radial median (which a
-# pixel-dense bowl swamps — see _scale_estimate). Values validated offline on
-# the fleet's saved scale-hint overlays (logs/replay_0715/scale_elong/).
 _ELONG_MIN = 3.0
 _ELONG_PCT = 95.0
 _SCALE_PCTS = (50, 70, 90)
 _SCALE_HINT_THRESH = 0.10
-# ASPECT-MISMATCH ceiling for the SIZE hint (see size_hint_aspect_suppressed). `area_scale`
-# is an AREA ratio, blind to rotation; `scale_est` is a principal-axis EXTENT ratio. For a
-# UNIFORMLY mis-sized object the two measure the same thing and agree; they diverge only
-# when the SHAPE disagrees (wrong mesh aspect, occlusion-truncated mask, wrong pose). Since
-# move('scale') applies a UNIFORM factor, |log(scale_est/area_scale)| is close to a direct
-# measure of how much of the mismatch a resize CANNOT reach. Tuned on the 0721-0803 corpus
-# (audits/HINT_LADDER_FALLBACK_PROPOSAL_2026_08_03.md) over 1198 landed scale moves and
-# 1416 scale-move outcomes:
-#     spread          median dIoU   gained <0.01   moves that DIED
-#     < 0.07             +0.120         10%           9% / 25%   (too small / too large)
-#     0.07-0.15          +0.040         24%          11% / 30%
-#     >= 0.15            +0.030         38%          24% / 47%
-#     >= 0.15 & too big  +0.020         43%              47%
-# i.e. in that last cell ~70% of the moves return nothing. 0.10 was too aggressive (28% of
-# SIZE hints), 0.20 too weak (6%).
 _SIZE_ASPECT_MAX = 0.15
-# Displacement symptom: how much better the shape fits once translation is
-# factored out (centered_overlap − IoU). Gap-based, NOT absolute IoU — thin
-# objects (cutlery) sit at low IoU even when perfectly placed (abc2 spoon:
-# placed at IoU 0.26, gap 0.04, its 1.47 scale estimate CORRECT; misplaced at
-# IoU 0.09, gap 0.33, estimate 1.16 vs true 1.47). Two thresholds, tuned on the
-# 125 investigate points of the 0715 fleet (logs/replay_0715 + poshint sweep):
-# - POSITION hint fires at gap >= 0.12: precision 0.82 / recall 0.60; the
-#   0.125-0.15 band holds 7 confirmed position fixes at identical precision,
-#   while 0.10 sits inside the 2-dp IoU rounding noise of well-placed objects.
-# - The scale MAGNITUDE is deferred at gap >= 0.25: in the 0.12-0.25 band 3/15
-#   flagged estimates were correct and immediately useful (abc1 croissant#2,
-#   abc2 cup#0, abc3 stand#1) — there the number is shown with a may-change
-#   caveat; every gap >= 0.28 estimate was wrong-or-moot until the object was
-#   placed.
-#
-# WHICH THRESHOLD HIDES THE SIZE NUMBER DEPENDS ON THE SITE — the two disclose
-# differently ON PURPOSE, so retuning one constant moves only half the surface:
-#   gap        investigate (_object_hint_lines)   post-move (_post_move_size_note)
-#   < 0.12     SIZE/DEPTH HINT with the number    number, no caveat
-#   0.12-0.25  NO number ("unreliable until       number + "placement may still be
-#              placed" — POSITION hint instead)   slightly off" caveat
-#   >= 0.25    NO number (same)                   "size not re-measured"
-# The 0.25 band above therefore describes the POST-MOVE note only; _SCALE_DEFER_GAP
-# is imported at that site alone. Investigate keys its withholding off _POS_HINT_GAP
-# because the object has not moved yet: a tempting "~30% too small" there steers the
-# agent to move('scale') when the right next call is move('xy'), and scale distorts a
-# mesh whose real-world size is trusted. After a move the reading is credible enough
-# to show with a caveat. (HARNESS_AUDIT_2026_07_26 N8: the comment used to state the
-# 0.25 rule as if it were global.)
 _POS_HINT_GAP = 0.12
 _SCALE_DEFER_GAP = 0.25
-# ROTATION (small-yaw) hint: principal-axis angle of the render silhouette vs the
-# GT mask (translation/scale-invariant, so it isolates in-plane yaw from
-# position/size). Fires in a BAND, not a floor: below _YAW_HINT_MIN is noise
-# (well-aligned median ~2.8 deg on the 0715 fleet). Gated on anisotropy (a
-# near-circular silhouette has no defined axis). Tuned on
-# logs/replay_0715/rot_probe: 12 keeps the abc4 shelf (14.6) + abc3 mics (24-37),
-# drops the occluded abc1 tray (10.9) and near-symmetric mug (11.8).
-# The UPPER edge is conditional on elongation — see yaw_hint_fires.
 _YAW_HINT_MIN = 12.0
 _YAW_HINT_MAX = 40.0
 _YAW_HINT_MAX_ELONG = 90.0
 _YAW_ANISO_MIN = 1.5
-# The hint is an IMAGE-PLANE angle; the move is a world-Z rotation. _yaw_jacobian
-# measures the local ratio between them so the seed can be expressed in move degrees.
-# Probe size: big enough to clear silhouette quantisation, small enough to stay local.
 _YAW_PROBE_DEG = 5.0
-# Below this |ratio| the mapping is too degenerate to invert (a 20deg hint would demand
-# >80deg of yaw): fall back to seeding the raw hint angle, i.e. the pre-2026-07-27
-# behaviour. Guard rails, not tuned values — no fleet distribution measured yet.
 _YAW_JACOBIAN_MIN = 0.25
 # Past ~90deg of yaw the footprint's orientation has flipped: that is a different pose,
 # not a correction, and rotate_180/the coarse ladder own that regime.
 _YAW_SEED_MAX_DEG = 90.0
-# YAW-REGRESSION tolerance: how much the measured yaw may RISE across a rotation with a
-# reliable SUB-band pre reading (pre < _YAW_HINT_MIN) before the move is refused (see the
-# gate in optimize_axis). One repeatability p90 — two consecutive readings of an object
-# that did NOT rotate differ by p90 1.9-2.8 deg for aniso >= 1.5 (0730 fleet, 1258
-# same-object pairs), so 3.0 is the noise band and anything above it is a real regression.
-# Every one of the 6 harmful landings measured on static_scene_eval rose by +5.9 to
-# +36.7 deg; none of the 4 successes comes near 3.
 _YAW_REGRESS_TOL = 3.0
-# YAW-IMPROVEMENT demand (2026-08-21): with a reliable pre reading AT/ABOVE _YAW_HINT_MIN
-# — an actionable error — mere non-regression is not enough: the misc_online5 stapler's
-# round-13 wrong-direction pick re-measured within +3 deg of pre 17 on its foreshortened
-# silhouette and slipped through, shipping a ~45 deg residual. A landed rotation must
-# either REDUCE the yaw by _YAW_IMPROVE_MIN or END below _YAW_DONE_DEG (safely under
-# the 12-deg actionable band — well-aligned objects measure median ~2.8; a landing
-# there needs no demand on the delta, e.g. a correct 48-deg fix ending at ~5). 2.0
-# clears only the LOWER end of the 1.9-2.8 deg repeatability p90 band above, so at
-# the 2.8-deg end a wrong pick can still re-measure lower by noise alone and pass;
-# accepted because every wrong-pick post observed on the corpus regressed PAST pre
-# (16.7/20.3/21.7/26.5/46.6 deg — all refused), so the residual hole is empirically
-# narrow.
 _YAW_IMPROVE_MIN = 2.0
 _YAW_DONE_DEG = 8.0
-# NEAR-MISS clause (2026-08-21, G4): the two rules above leave a hole just past the
-# actionable edge — a real partial fix from mid-band pre that lands a hair ABOVE
-# _YAW_DONE_DEG but UNDER the actionable band's edge+1 was refused for missing the full
-# 2-deg delta (toast-rack 14.3 -> 12.5: a genuine improvement to a sub-actionable
-# residual, refused). Accept when the post BOTH moved down by >= _YAW_NEAR_MISS_IMPROVE
-# (rules out the flat retry: pre 12.6 -> 12.5 still refuses) AND landed under
-# _YAW_NEAR_MISS_DEG = _YAW_HINT_MIN + 1 (rules out far-from-done shuffles: pre 17 ->
-# 16 still refuses).
 _YAW_NEAR_MISS_IMPROVE = 1.0
 _YAW_NEAR_MISS_DEG = 13.0
-# 180-FLIP hint deferral: for a STRONGLY elongated silhouette (near-straight —
-# cutlery reads 4.2-11, vs ~2.1 for a bent V-shaped tool), an in-band yaw
-# misalignment means the DINO flip compare ran on non-comparable stretched crops
-# and its margin is noise — defer the flip recommendation until the yaw lands.
-# Tested 2026-07-21 on all 229 new-era flags (see CHANGELOG): >= 3.0 suppresses
-# exactly the 7 abc2 fork/knife false positives (aniso 4.2-6.8, yaw 12.4-44.8)
-# and keeps every known true flip, incl. the reversed+yawed wendy1 screwdrivers
-# (aniso 2.1) — a 180-yaw preserves the principal axis for ANY shape, so an
-# in-band yaw does NOT rule out a reversal; only the compare's reliability.
 _FLIP_DEFER_ANISO_MIN = 3.0
 # Which cached hint channels a LANDED move invalidates. Anything absent invalidates
 # nothing — see PoseSession._invalidate_hints for the per-channel reasoning.
@@ -200,35 +74,7 @@ _HINT_STALE = {
     "rotate_180": ("orient", "yaw", "scale", "appearance"),
     "rotation": ("orient", "yaw", "scale", "appearance"),
 }
-# When a HINT fired for an object, its move accepts a smaller gain than the default:
-# the measurement is a WEAK contributor to IoU (a correct resize can even LOWER IoU
-# until a follow-up placement re-aligns it — abc2 spoon#1: scale gain 0.0077 at one
-# pose, 0.0121 after an xy move), so a real hint-backed move hovers at the normal gate.
-# The hint is the reliable signal, so trust it at a lower bar. SCALE (size hint) only
-# since phase C1: rotation selects and gates on the centered metric, whose response to
-# a correct yaw is strong enough to need no relaxation (see _ROT_CEN_MIN_GAIN).
-# NOTE those anchor gains are raw-score-era numbers: since the scale cutover the gated
-# gain swaps iou for centered_iou, which removes most of the misalignment dip that
-# motivated the relaxation. Retained anyway (a lower bar on a stronger-responding
-# metric only ADMITS moves the size hint already vouches for) pending a centered-era
-# recalibration — the scale rounds' `selection` log now records what it needs.
 _HINT_MIN_GAIN = 0.005
-# ROTATION acceptance bar on the CENTERED selection score (phase C1, 2026-08-21 — the
-# translation-invariant metric now SELECTS rotation candidates, see optimize_axis).
-# The raw-IoU bars above/min_gain are calibrated on raw-IoU gains and do NOT carry
-# over. Calibrated on the logged 0819+0820+0821 static_scene_benchmark corpus (198
-# rotation rounds with a shadow_centered.gain, 66 of them 0821). The bands OVERLAP —
-# there is no clean noise/signal gap in 0.010-0.020: the noise population (dead
-# rounds whose pick is a fine rung jittering the pose at raw gain 0.0) reads
-# <= 0.0032 on 0821 but reaches 0.0104/0.0150/0.0198 across the three days
-# (misc_wendy1 screwdriver#0, robodojo mallet#0, robolab spoon#0), while 9
-# previously-applied rotations carried centered gains 0.000-0.010 (e.g. 0820 box#0
-# 0.0000 at raw 0.0191, 0821 bin#0 0.0100) and every audited CORRECT fix reads
-# 0.098-0.52. 0.012 sits inside the audit's sanctioned ~0.01-0.02 window, above
-# most of the noise mass; rounds it flips in the marginal band are UNAUDITED —
-# the logged gains understate the new search (the fine ladder now recenters on the
-# centered winner) and the strengthened yaw gate (see _YAW_IMPROVE_MIN) backstops
-# wrong-direction winners there. One bar for seeded and unseeded rotations.
 _ROT_CEN_MIN_GAIN = 0.012
 
 
@@ -352,9 +198,7 @@ _FINE_SCALE = (0.95, 0.975, 1.025, 1.05)
 
 
 def _fine_candidates(axis: str, winner: dict, size: float) -> list[dict]:
-    """Stage-2 probes around the coarse winner at 1/4 of the smallest coarse step.
-    When ``keep`` won stage 1 this polishes around the current pose — the case
-    where every coarse step overshoots a near-optimal placement."""
+    ""
     kind, idx = _AXES[axis]
     if kind == "s":
         return [
@@ -440,33 +284,6 @@ def _yaw_discrepancy(
 
 
 def yaw_hint_fires(yaw: Optional[float], aniso: Optional[float]) -> bool:
-    """Is a measured (yaw, aniso) a RECOMMENDABLE move('rotation')? The single
-    predicate behind BOTH the agent's YAW HINT and the search's hint seed —
-    they must not drift apart.
-
-    The upper edge widens with elongation. `aniso` measures how well DEFINED the
-    axis is (it is min(render, mask), so both silhouettes must be elongated), and
-    the fleet outcome of every rotation move splits on it, not on the yaw
-    magnitude (306 moves, 244 with a known pre-move hint):
-
-        aniso >= 3    yaw 12-40:  31% applied,  6% no-improve, median IoU +0.12
-        aniso >= 3    yaw 40-60:  62% applied,  0% no-improve, median IoU +0.24
-        aniso >= 3    yaw 60-90:  67% applied,  0% no-improve, median IoU +0.10
-        1.5-3         yaw 60-90:  27% applied, 27% no-improve, median IoU +0.01
-        aniso < 1.5   yaw 40-90:   0% applied, 75% no-improve
-
-    So a strongly elongated silhouette is recommendable at ANY measured yaw: the
-    old "beyond the search's reach (~40 deg)" cap does not hold, because world-Z
-    yaw maps non-linearly to the image-plane angle under a tilted camera — the
-    +-40 rung took 0716_e2e4_wendy1 marker#0 from 71.4 to 23.1 deg. NOTE that this
-    non-linearity cuts BOTH ways (an earlier version of this docstring claimed only
-    the favourable direction): the ratio was 0.66 on the 0726_audit_abc4 shelf, where
-    the same rung reaches only ~26 deg of image angle. The band above is justified by
-    measured OUTCOMES, not by that mechanism; _yaw_jacobian handles the conversion.
-    Below
-    _FLIP_DEFER_ANISO_MIN the axis is weak, a large reading is as likely to be an
-    attitude error (a lying rod at ~90 deg is neither a 'rotation' nor a 180), and
-    the move buys ~nothing — so the 40 deg cap stands there."""
     if yaw is None or aniso is None or aniso < _YAW_ANISO_MIN:
         return False
     hi = _YAW_HINT_MAX_ELONG if aniso >= _FLIP_DEFER_ANISO_MIN else _YAW_HINT_MAX
@@ -752,13 +569,12 @@ def _profile_capability_enabled(
 ) -> bool:
     """True only for an explicitly selected GPT-6 harness capability.
 
-    The resolved manifest is authoritative, including an explicit false capability; a
-    missing manifest fails CLOSED (2026-09-15 owner decision). Baseline never opts in.
+    The resolved manifest is authoritative, including an explicit false capability;
+    a missing manifest fails closed. Baseline never opts in.
     """
     if harness_profile != "gpt6_v1":
         return False
     capabilities = (harness_profile_manifest or {}).get("capabilities")
-    # 2026-09-15 owner decision: a missing manifest fails CLOSED.
     return bool(capabilities.get(capability, False)) if capabilities else False
 
 
@@ -1142,12 +958,6 @@ class PoseSession:
         # objects whose SIZE hint fired (area mismatch) -> the scale move relaxes its
         # accept gate to _HINT_MIN_GAIN (set in scale_hint).
         self._scale_hint: dict[str, float] = {}
-        # cached 180-orientation verdict per object. Computed ONCE at the object's
-        # first (stable, ~post-settle) pose and frozen -- recomputing on the agent's
-        # perturbed poses each investigate made the DINO margin swing sign (0720 abc1
-        # spoon: −0.106 → +0.072 across inv5/6/7) and false-flagged the moved mug.
-        # Invalidated on an APPLIED rotate_180 so the post-flip re-check reflects the
-        # new orientation (see rotate_180 / orientation_hint).
         self._orient_hint: dict[str, dict] = {}
         # pose-parameterized appearance scores (obj_id -> {pose digest: sim}) — the
         # FACING check's sim0 quantity served per pose (see appearance_agreement).
@@ -1158,11 +968,6 @@ class PoseSession:
         # per-object photo-side appearance crop (_orient_object_crop of obj_image
         # under the GT mask) — the photo never changes within a session.
         self._photo_crop_cache: dict = {}
-        # per-object occluders (obj_id -> [occluder obj_id]) from the preprocessing
-        # generative-resegment pass (objects resting on / in front of it). Held out in the
-        # size-metric render so its silhouette carries the SAME holes as the modal SAM3
-        # mask -- otherwise the isolated (full) render vs the occluded mask reads as a
-        # false size mismatch (0720 abc1 placemat: 5 objects on it -> a bogus "17% too large").
         self._occluders_of: dict[str, list] = {}
         try:
             _edges = json.loads(
@@ -1175,16 +980,6 @@ class PoseSession:
                     )
         except Exception:  # noqa: BLE001 - occlusion record is best-effort
             pass
-        # SUPPORT-GRAPH CHILDREN, transitively (parent obj_id -> [descendant obj_id]).
-        # Unioned into the holdout below: a child resting ON the parent is excluded from
-        # the parent's MODAL mask by construction (SAM3 gives those px to the child), so
-        # it holes that mask whether or not the VLM occlusion pass listed it. The VLM
-        # catches 87% of parent<-child edges fleet-wide (299 of 343) — this is the
-        # deterministic backstop for the other 44. 0727_tl_e2e_abc4 stand#0 listed only
-        # 1 of its 4 cups: the render came out 12416 px too full against a 68246 px mask
-        # (area_scale 0.802 vs 0.854 corrected, IoU 0.579 vs 0.634, yaw 24.2 vs 19.1deg).
-        # A holdout that does not overlap the target punches nothing, so a false
-        # inclusion costs zero while a false exclusion is a permanent size bias.
         self._children_of: dict[str, list] = {}
         for _n in graph["nodes"]:
             if _n.get("kind") != "object":
@@ -1193,11 +988,6 @@ class PoseSession:
             while _p and _p in nodes and nodes[_p].get("kind") != "root_surface":
                 self._children_of.setdefault(_p, []).append(_n["id"])
                 _p = nodes[_p].get("parent")
-        # occluders ERASED from a redetected object's amodal mask (redetect['removed']).
-        # For a redetected object the mask is the de-occluded extent, so those occluders
-        # must NOT be held out in the size render -- holding them out re-punches holes the
-        # mask no longer has (0720 abc1 tray#0 read a false 37% "too small"). See
-        # _occluder_holdout: for a redetected object we hold out occluders MINUS removed.
         self._removed_of: dict[str, list] = {}
         try:
             for _r in json.loads(Path(masks_json).read_text()).get("instances", []):
@@ -1307,31 +1097,14 @@ class PoseSession:
                 c["depth"],
                 str(self.work / f"{c['mesh_name']}_iou.png"),
             )
-            # Persist the baseline as soon as it exists. _dump() is otherwise only reached
-            # from a move round / flip / rebuild, so a scene where every placement was
-            # accepted as-is finished with NO register.json at all and read as unmeasurable
-            # downstream — robodojo_fold_clothes_standard did exactly that in 3 of 7
-            # benchmark passes (it has a single registerable object, so "no move" is common;
-            # its obj_*_iou.png was written here while the score died with the process).
-            # An end-of-session dump would not help: PoseSession.close() is never called.
             self._dump()
         return self.cur[obj_id]
 
     def _snap_candidates(self, obj_id: str, pose: dict) -> list[dict]:
-        """The ``xy`` snap: phase-correlate the current silhouette against the GT
-        mask for the pixel offset, estimate the pixel<-world Jacobian with two
-        eps-probes (one render each), and solve the 2x2 for the planar jump. One
-        computed diagonal move instead of two axis line-searches. Returns [] when
-        registration is unusable (empty/occluded silhouette, singular Jacobian,
-        implausibly large jump) — the caller then just runs the refinement ring."""
         from PIL import Image
 
         c = self.ctx[obj_id]
         name = c["mesh_name"]
-        # GT resolution (matches the gt_w x gt_h renders below): _phase_shift FFT-
-        # correlates cur against gt and needs identical shapes -- a raw np.load of a
-        # mask stored at a different resolution than gt_w/gt_h broadcast-fails
-        # (0717 e2e8 abc1 placemat: render 768x681 vs mask 864x769).
         gt = self._gt_mask_full(obj_id)
         tmp = str(self.work / "_snap.png")
 
@@ -1371,29 +1144,7 @@ class PoseSession:
         return [{**pose, "translate": v, "_tag": "snap"}]
 
     def _occluder_holdout(self, obj_id: str) -> list:
-        """Mesh names of ``obj_id``'s preprocessing occluders (objects resting on / in
-        front of it, from generative_resegment) UNION its support-graph children, that
-        are in the session and not already in its ``visible_iou``. Held out during the
-        SIZE-metric render so the rendered silhouette carries the SAME holes the mask
-        has (an object on a placemat punches a hole in both), instead of a full
-        silhouette that reads as 'too large'.
-
-        The children term (2026-07-27) is a deterministic backstop for the VLM pass,
-        which misses some of them — see _children_of for the fleet split and the
-        stand#0 measurement. It changes nothing for an object without children, and a
-        child that does not overlap the parent on screen punches no hole, so a false
-        inclusion is free.
-
-        The holes must match WHICH mask the object uses (see the ctx build):
-        - NON-redetected (case A, incl. boundary-cut that wasn't redetected, and boundary
-          redetects where ``is_rd`` is False): the mask is the ORIGINAL modal mask with
-          every object hole -> hold out ALL occluders.
-        - REDETECTED by object occlusion (case B1, ``ctx['redetect']``): the mask is the
-          AMODAL de-occluded extent with the ``redetect['removed']`` occluders erased ->
-          hold out occluders MINUS ``removed`` (empirically all of them, so usually none;
-          holding an erased occluder re-punches a hole the mask no longer has -> false
-          'too small', 0720 abc1 tray#0). Any un-removed occluder still holes the amodal
-          mask, so it IS held out (correct even if de-occlusion is only partial)."""
+        ""
         c = self.ctx[obj_id]
         seen = set(c.get("visible_iou") or [])
         removed = (
@@ -1402,10 +1153,6 @@ class PoseSession:
             else set()
         )
         out = []
-        # occluders FIRST, then children, deduped — the `removed` and `seen` filters
-        # below then apply to both, which is what keeps the redetect cases correct: a
-        # child erased from an amodal mask is subtracted here and ends up HIDDEN, not
-        # held out (re-punching that hole is the 0720 abc1 tray#0 false 'too small').
         cand = list(
             dict.fromkeys(
                 list(getattr(self, "_occluders_of", {}).get(obj_id, []))
@@ -1441,11 +1188,6 @@ class PoseSession:
             )
         )
         _isolate_iou(self.client, isolation)
-        # render_only (F0a): a measurement must not mutate the pose it measures. The
-        # plain set_pose re-ran the penetration resolver + vertical seat even when
-        # RESTORING the current pose, silently re-seating physics-rested cargo onto the
-        # render mesh (~6 mm inside its CoACD hull in a concave support) — the origin of
-        # the still_life certify topples (CARGO_STABILITY_FIX_PLAN_2026_08_08 R1).
         self.client.rpc(
             {"cmd": "set_pose", "name": c["mesh_name"], "translate": pose["translate"],
              "euler": pose["euler"], "scale": pose["scale"], "render_only": True}  # fmt: skip
@@ -1458,20 +1200,7 @@ class PoseSession:
         return sil
 
     def _yaw_jacobian(self, obj_id: str, pose: dict) -> Optional[float]:
-        """d(image-plane principal-axis angle) / d(euler[2]), measured locally by a
-        central difference around ``pose``. None when it cannot be measured.
-
-        The ROTATION hint is an IMAGE-PLANE angle (``_yaw_discrepancy``: the angle
-        between two 2D silhouettes' principal axes) but the move rotates about world
-        Z. Under an oblique camera those are different quantities that happen to share
-        a unit, and the ratio between them is neither 1 nor constant — measured 0.66 on
-        the 0726_audit_abc4 shelf (a 21.7deg seed removed only 14.4deg of discrepancy)
-        and >1.1 on the 0716_e2e4_wendy1 marker. It also depends on the CURRENT yaw, so
-        it is a local derivative, not a per-object constant: measure it, don't cache it.
-
-        Cost: 2 renders, on top of the 11-13 a rotation move already spends.
-        Best-effort like every other advisory measurement here: a failed probe returns
-        None and the caller seeds the raw hint angle (the pre-2026-07-27 behaviour)."""
+        ""
         try:
             angs = []
             for sgn in (1, -1):
@@ -1490,7 +1219,7 @@ class PoseSession:
             # principal axes live in [0,180): wrap the difference into (-90, 90]
             d = (angs[0] - angs[1] + 90.0) % 180.0 - 90.0
             return d / (2.0 * _YAW_PROBE_DEG)
-        except Exception as exc:  # noqa: BLE001 - probe is advisory; fall back to raw
+        except Exception as exc:
             print(f"[yaw-jacobian] {obj_id}: {exc}", file=sys.stderr)
             return None
 
@@ -1634,12 +1363,6 @@ class PoseSession:
         # objects. Selection/gain use score + LAMBDA_FEAT*sim; the stored/reported
         # objective stays unaugmented (comparable across axes and physics checks).
         feat = self._rotation_feat(obj_id) if axis == "rotation" else None
-        # yaw HINT active? (the SAME band the agent's YAW HINT used — ONE
-        # predicate, yaw_hint_fires, so the two can never drift). A firing hint SEEDS
-        # a candidate at the hint angle. The hint no longer buys a relaxed gain bar:
-        # rotation gates on the centered score (_ROT_CEN_MIN_GAIN), whose response to
-        # a correct yaw is strong (audited fixes 0.098-0.52 vs the ~0.01 raw-IoU
-        # hover that motivated the old _HINT_MIN_GAIN relaxation).
         yaw_hint, yaw_aniso = getattr(self, "_yaw_hint", {}).get(obj_id, (None, None))
         yaw_seed = axis == "rotation" and yaw_hint_fires(yaw_hint, yaw_aniso)
         # A fired SIZE hint relaxes the scale gate (see _HINT_MIN_GAIN): a correct
@@ -1658,16 +1381,6 @@ class PoseSession:
             sc["feat_sim"] = round(s, 4)
             return sc["score"] + LAMBDA_FEAT * s
 
-        # PHASE C1 (2026-08-21) — the CENTERED metric SELECTS on the rotation axis. `iou` is
-        # the term that actually moves selection, and it is not translation-invariant: rotating
-        # about an object's own centre swings its extremities, so on a displaced object the IoU
-        # preference between the two seeded directions tracks "which way swings me onto the
-        # mask", not "which way aligns my axis". Six of ten landed rotations on static_scene_eval
-        # RAISED the yaw while IoU rose in all ten; the phase-C0 shadow run then measured the
-        # centred metric disagreeing with the production pick on 46/66 of the 0821 benchmark's
-        # rotation rounds, correct in every case audited by eye (misc_online5 stapler,
-        # airoa power plug). audits/ROTATION_SIGN_DISPLACEMENT_PROPOSAL_2026_08_03.md and
-        # audits/ROTATION_HINT_AUDIT_2026_08_21.md.
         def _cen(sc: dict) -> Optional[float]:
             # None when the field is absent — a score dict not produced by ro.objective (a
             # stub, an older cached entry). Selection then falls back to `aug` for that
@@ -1677,27 +1390,10 @@ class PoseSession:
             if v is None:
                 return None
             if axis == "scale":
-                # Swap ONLY the iou term of the objective for its translation-
-                # invariant twin, KEEPING scale's axis-tuned auxiliary terms: the
-                # w_size size loss (IoU is a poor SIZE signal on an imperfect
-                # shape — the term was tuned FOR this axis, abc2 0717 grows an
-                # under-sized spoon 1.0->~1.3) and the depth regularizer (which
-                # cancels across same-translate scale candidates anyway). This is
-                # the true mirror of rotation below, which keeps ITS axis-specific
-                # feat term — and it is what makes the raw bar transfer exact at
-                # aligned centroids (see the acceptance comment).
                 return sc["score"] - sc["iou"] + v
             return v + (LAMBDA_FEAT * sc.get("feat_sim", 0.0) if feat is not None else 0.0)
 
         rot = axis == "rotation"
-        # SCALE CUTOVER (2026-08-21): scale joins rotation on centered selection — raw
-        # IoU's response to a resize on a DISPLACED object tracks "which way grows me
-        # onto the mask" the same way it tracks rotation direction (the 0819-0822
-        # corpora hold applied scale rounds whose raw-IoU delta is NEGATIVE while the
-        # size actually improved). Same machinery as C1: per-candidate fallback to
-        # ``aug`` when centered_iou is absent; the snapscale rung stays in the ladder;
-        # xy/x/y/depth untouched. On scale ``_cen`` is the full objective score with
-        # iou swapped for centered_iou (size/depth terms retained — see above).
         cen_sel = rot or axis == "scale"
 
         def _sel(sc: dict, aug: float) -> float:
@@ -1709,11 +1405,6 @@ class PoseSession:
             cen = _cen(sc)
             return aug if cen is None else cen
 
-        # rotation/scale diagnostics: the raw (aug) preference over the candidates the
-        # NEW search scores — logged as the trace `selection` field (the inverse of
-        # the retired phase-C0 shadow_centered log). `cen_seen` records whether any
-        # candidate carried the centered field, i.e. whether the centered metric
-        # actually chose.
         iou_base = iou_best = None
         sel_pick = iou_pick = None
         cen_seen = False
@@ -1803,54 +1494,11 @@ class PoseSession:
                 if iou_best is None or aug > iou_best + 1e-6:
                     iou_best, iou_pick = aug, cand.get("_tag")
         gain = best_sel - base_sel
-        # rotation gates on its own centered bar (see _ROT_CEN_MIN_GAIN); the other axes
-        # keep the raw-IoU bars — a fired SIZE hint still relaxes scale.
-        #
-        # SCALE BAR TRANSFER (2026-08-21): scale now SELECTS on the centered metric but
-        # keeps the raw-calibrated numbers, unlike rotation. The rotation recalibration was
-        # needed because its raw gains hover at the noise floor (a correct yaw barely moves
-        # raw IoU), so a raw-tuned bar sat inside the centered signal band. Scale's
-        # transfer is EXACT by construction, not by analogy: the gated gain has the same
-        # composition as the recorded raw-score gains — iou swapped for centered_iou with
-        # the w_size/depth terms retained (see _cen) — and centered_iou equals raw iou at
-        # aligned centroids, where scale rounds run (post-xy; final centered/raw IoU ratio
-        # median 1.03 over the 761 scale-round objects logging both in the 0819-0822
-        # corpora). So every previously-applied aligned round gates on the SAME number it
-        # cleared before, and those gains sit far above the bar (901 applied / 224 dead
-        # scale rounds: applied gains median 0.124, p10 0.035, only 7 of 901 inside
-        # [0.005, 0.01) and NONE below 0.005 — b3_scale_bar_check.py). Displaced rounds
-        # gate on a gain that differs only through the centered_iou term (typically >=
-        # raw there — the intended rescue direction). NOTE the earlier bare-centered
-        # draft of this cutover did NOT
-        # transfer: dropping the w_size term left a bare-IoU gain whose aligned-case
-        # proxy put 16% of previously-applied rounds under the 0.01 bar
-        # (rev3_diou_check.py) — the size term is load-bearing for the bar as well as
-        # for selection. The truly-centered gain distribution on scale is still
-        # unmeasured pre-cutover; the selection log below makes it a one-benchmark-day
-        # recalibration if the marginal band ever needs a scale-specific bar.
         applied = gain >= (
             _ROT_CEN_MIN_GAIN
             if rot
             else (_HINT_MIN_GAIN if scale_active else min_gain)
         )
-        # YAW GATE (2026-08-21, extends the 08-03 seeded-only regression gate). Whenever a
-        # PAIRED reliable yaw reading exists — pre-yaw at the pre-move pose with
-        # aniso >= _YAW_ANISO_MIN, post-yaw re-measured at the winner — gate seeded AND
-        # unseeded rotations: the 08-19 UNKNOWN-routing prompt sends agents to unseeded
-        # rotations exactly where the old gate was blind. Strengthened from non-regression
-        # to IMPROVEMENT for an actionable pre (>= _YAW_HINT_MIN): refuse unless
-        # post <= pre - _YAW_IMPROVE_MIN, or post <= _YAW_DONE_DEG, or the NEAR-MISS
-        # clause fires (down by >= _YAW_NEAR_MISS_IMPROVE AND under _YAW_NEAR_MISS_DEG —
-        # see the constants). The stapler round-13 pick re-measured within +3 deg of
-        # pre 17 and slipped through the old tolerance.
-        # A sub-band pre keeps the old noise tolerance (_YAW_REGRESS_TOL). No reliable
-        # paired reading -> no gate: can't gate blind.
-        #
-        # Measured through _object_sil — the SAME silhouette source scale_hint derived
-        # yaw_hint from — so pre and post are apples-to-apples. The iou_png already on disk
-        # from the scoring loop is cheaper but is rendered under a different isolation set and
-        # is NOT comparable. Costs 1 render, +1 more only for an unseeded rotation with no
-        # cached pre reading, against the 11-13 a rotation already spends.
         yaw_regressed = None
         # P3: the pair the gate measures doubles as the applied-rotation
         # feedback's "measured yaw pre -> post" evidence — hoisted (with the post
@@ -1864,13 +1512,6 @@ class PoseSession:
             # don't change the yaw), so reuse it; render only when nothing is cached.
             pre_yaw, pre_aniso = yaw_hint, yaw_aniso
             try:
-                # MASK PARITY: measure against _gt_mask_full, NOT the raw `mask` this method
-                # loaded. scale_hint derived yaw_hint from _gt_mask_full (resized to
-                # gt_h x gt_w) and _object_sil renders at that same resolution, whereas the
-                # raw np.load is NOT resized and the stored mask is not always already that
-                # shape (0717_e2e8_abc1 placemat: mask 864x769 vs render 768x681). The
-                # mismatch would be SILENT — _axis_angle reads each silhouette's OWN principal
-                # axis, so mismatched shapes do not raise, they return a wrong angle.
                 gt = self._gt_mask_full(obj_id)
                 if pre_yaw is None:
                     pre_yaw, pre_aniso = _yaw_discrepancy(
@@ -1886,11 +1527,7 @@ class PoseSession:
                 # every later render in this call loses the holes the photo mask has. Same
                 # re-restore _yaw_jacobian already has to do.
                 _isolate_iou(self.client, c["visible_score"])
-            except Exception as exc:  # noqa: BLE001 - guarded like every silhouette probe here
-                # Best-effort for the same reason _yaw_jacobian and scale_hint are: this runs
-                # AFTER the winner was applied to the blend, so an unhandled raise would abort
-                # mid-commit and leave a pose the trace never records. Failing open is also the
-                # safe direction — no measurement means no rejection, exactly as a None angle.
+            except Exception as exc:
                 print(f"[yaw-regress] {obj_id}: {exc}", file=sys.stderr)
             if post_yaw is not None:
                 if pre_yaw >= _YAW_HINT_MIN:
@@ -1988,9 +1625,6 @@ class PoseSession:
         # "repeat this SAME aspect" nudge). Snapshot the winner before the rebase.
         moved_pose = None
         if applied:
-            # trace diagnostics (2026-07-21): the attempted winner — recorded even
-            # when physics later rejects it (a rejected round's target pose was
-            # previously unrecoverable from artifacts: the real8219 plush round-1).
             winner_pose_rec = {k: (list(v) if isinstance(v, (list, tuple)) else v)
                                for k, v in best_pose.items()}  # fmt: skip
             winner_world_t = self._world_t(name)
@@ -1999,16 +1633,6 @@ class PoseSession:
             # the f<1.0 lerp branch re-applied its clamped pose, so the blend is current.
             from lib.tools.geometry.composition_physics import TILT_CAP_DEG
 
-            # STABILITY CLAMP (2026-07-21): a winner whose settle CAPSIZES is retried
-            # at a smaller fraction of the move (mirrors the pre-physics feasibility
-            # clamp) so the agent gets partial progress toward the photo instead of a
-            # flat reject. Capsize-only — pen/score failures keep single-shot
-            # semantics; scale keeps its own drop-based gate (no fractions).
-            # Ladder trimmed [1.0, 0.75, 0.5, 0.25] -> [1.0, 0.5] (2026-07-24):
-            # 55 clamp-era runs measured 4 rescues vs 37 exhausted ladders, and
-            # 3 of the 4 rescues landed at >=0.5 — most capsizes are 90-170 deg
-            # flips where the instability is at the destination, so shorter
-            # fractions can't help; each rung costs a full deps+settle commit.
             winner_full = dict(best_pose)
             fractions = [1.0] + ([0.5] if axis != "scale" else [])
             # freed-dependency cache shared across the rungs: every failed rung
@@ -2071,22 +1695,11 @@ class PoseSession:
                     break
                 rested_world_t = self._world_t(name)
                 tilt = max(commit["cum_tilt_deg"].values(), default=0.0)
-                # the carry decision's mean_iou() re-isolated per MEMBER — restore
-                # OUR isolation before scoring the rested pose, or the moved object
-                # renders invisible and "rested WORSE" fires spuriously
-                # (0715_fix3_abc1: both stay-decisions rejected this way)
                 _isolate_iou(self.client, c["visible_score"])
                 rested = _score_pose(
                     self.client, name, best_pose, mask, c["center_y"], c["depth"],
                     iou_png, apply=False,
                 )  # fmt: skip
-                # don't-lose-ground, NOT a second min_gain: selection already charged
-                # the full anti-churn margin, so re-charging it here rejected marginal
-                # winners for ordinary mm-scale seating drift (0715_hint_real8226
-                # mouse: gain +0.013, settle tilt 1.2 deg, rejected for ~0.003 drift).
-                # caps: per-member class-aware stability (rollable -> displacement,
-                # else cum tilt); replaces the old blanket max-tilt check, which read
-                # a lying mic's benign roll as a 118-180 deg capsize.
                 caps = commit.get("capsized")
                 if caps is None:  # kinematic/legacy commit without the field
                     caps = (
@@ -2160,13 +1773,6 @@ class PoseSession:
                     zero = {"translate": [0.0, 0.0, 0.0], "euler": [0.0, 0.0, 0.0],
                             "scale": 1.0}  # fmt: skip
                     mesh2oid = {v["mesh_name"]: k for k, v in self.ctx.items()}
-                    # members that FOLLOWED a reorientation turned with the parent:
-                    # their yaw/orient/scale/appearance channels were measured at
-                    # the pre-carry pose and are stale exactly like the moved
-                    # object's (the moved object gets its own _invalidate_hints
-                    # below). No-op off the reorienting axes (_HINT_STALE) and when
-                    # the carry decision left the children in place (followed False
-                    # — a solo-probe commit whose kids only settled as free bodies).
                     carried_turned = commit.get("followed", True)
                     for m in commit["members"]:
                         oid = mesh2oid.get(m)
@@ -2220,16 +1826,6 @@ class PoseSession:
         # heuristics on a pose that PhysX already owns.
         if physics is None or not physics["accepted"]:
             if self.physics is not None:
-                # A move that did NOT stick with an active physics session (physics
-                # REJECT, feasibility-clamp reject, or gain-fail) must leave the scene
-                # EXACTLY as it was. A kinematic set_pose "restore" is NOT identity: it
-                # re-runs _resolve_penetration (which separates only from the object's
-                # SUPPORT, never a lateral sibling) + the all-scene _seat_z (whose
-                # deadband makes a rested pose a no-op, but a tilted rest expressed as
-                # (t,euler,s) still isn't reachable), and it swaps a physics-rested
-                # attitude for a kinematic one (0717 knife-into-spoon after a rejected
-                # rotation). reject() already restored Isaac + any carried members;
-                # restore the blend handle to its exact synced (pre-move) matrix.
                 self.physics.restore_blend(self, name)
             else:
                 # kinematic session (no Isaac): set_pose both COMMITS an accepted
@@ -2243,21 +1839,6 @@ class PoseSession:
                     c["depth"],
                     iou_png,
                 )
-        # P1 applied-rotation capture (bridge_6 / misc_online5): the appearance
-        # pair is the reliable pose-comparison instrument where raw IoU dips and
-        # a weak-axis yaw pair aliases across a CORRECT landed yaw fix. Two
-        # appearance_agreement calls on a LANDED rotation only (vs the 11-13
-        # renders the search spent, and zero cost on every other axis): pre at
-        # the snapshotted pre-move world matrix, post at the final (rested)
-        # pose — ALSO as a world matrix, so the cache entry lives in the
-        # absolute "m:" namespace: a zero-delta "p:" digest written here would
-        # name a DIFFERENT world pose after any later physics rebase (which by
-        # _HINT_STALE design invalidates nothing for translations), and on the
-        # kinematic lane the world matrix carries the commit's resolve/seat
-        # offset the deltas don't. Falls back to the delta pose only when the
-        # snapshot RPC hiccups (best-effort, one extra get_matrix). AFTER
-        # _invalidate_hints so the fresh values survive in the cache; a dead
-        # feature worker just yields None-None.
         app_pre = app_post = None
         if applied and rot:
             if pre_world_m is not None:
@@ -2277,9 +1858,6 @@ class PoseSession:
                 "iou": round(after["iou"], 4),
                 "gain": round(max(gain, 0.0), 4),
                 **({} if applied else {"dead": True}),
-                # T3b (2026-07-23): boxed-in / clamped-gain rejects were bare
-                # `dead` rows — indistinguishable from no-gain searches in
-                # artifacts, and the reason never reached the agent either
                 **({"clamp_reason": clamp_reason} if clamp_reason else {}),
                 # a rotation refused by the yaw-regression gate is NOT a no-gain search —
                 # it FOUND gain and was vetoed. Recorded as [pre, post] degrees so the
@@ -2320,8 +1898,6 @@ class PoseSession:
                     else {}
                 ),
                 **({"physics": physics} if physics else {}),
-                # diagnostics: the attempted winner + world poses — recorded for
-                # REJECTED rounds too (previously unrecoverable from artifacts)
                 **({"winner_pose": winner_pose_rec} if winner_pose_rec else {}),
                 **({"winner_world_t": winner_world_t} if winner_world_t else {}),
                 **({"rested_world_t": rested_world_t} if rested_world_t else {}),
@@ -2374,10 +1950,6 @@ class PoseSession:
             "yaw_post": yaw_pair[1] if yaw_pair else None,
             "yaw_pre_aniso": round(float(pre_aniso), 2) if yaw_pair else None,
             "yaw_post_aniso": round(float(post_aniso), 2) if yaw_pair else None,
-            # winner landed at the coarse ladder's outermost rung — the per-call
-            # search is bounded, so the optimum may lie beyond; a SAME-aspect
-            # repeat searches onward from the new pose. xy is excluded (snap
-            # candidates solve the offset directly, not a bounded ladder).
             "range_limited": bool(
                 applied and clamped_frac is None and (
                     (_AXES[axis][0] == "t" and axis != "xy" and abs(
@@ -2542,20 +2114,8 @@ class PoseSession:
                     if roll_p
                     else tilt <= FLIP_TILT_CAP_DEG
                 )
-                # neighbours: the commit's class-aware per-member list — welded
-                # members only, freed contact-deps EXCLUDED by design ("a leaner
-                # falling once its support moved is the expected reaction, not a
-                # failure of this move"). The old blanket max over cum_tilt_deg
-                # re-included them and let a bystander that tumbles on EVERY
-                # settle veto a clean flip with a bogus reason (0721_perffix5
-                # gpt1: pen at 54.4 killed the notebook flip that rested at 0.0;
-                # a freed dep ending WEDGED still rejects via the penetration
-                # gate, which covers every settled body). Legacy commits without
-                # the field keep the old cum check.
                 caps = commit.get("capsized")
                 if caps is None:
-                    # legacy/kinematic commit: old blanket max-cum check, but
-                    # attributed to the worst body (incl. the target)
                     tilts = commit["cum_tilt_deg"]
                     worst = max(tilts, key=tilts.get, default=None)
                     cum = float(tilts.get(worst, 0.0)) if worst else 0.0
@@ -2565,9 +2125,6 @@ class PoseSession:
                         if cum > TILT_CAP_DEG
                         else []
                     )
-                # caps covers the WELDED members (for a flip: the target alone —
-                # its lifetime-cum 45-deg cap, complementing target_ok's
-                # this-settle 35-deg cap, exactly the old tilt<=35 AND cum<=45)
                 converged = bool(commit.get("converged", True))
                 ok = (
                     target_ok
@@ -2637,9 +2194,6 @@ class PoseSession:
             self.pose[obj_id] = flipped
         if applied:
             self.cur[obj_id] = after
-            # every hint measured at the pre-flip pose is stale now (this used to drop
-            # the flip verdict ALONE, leaving the yaw + size channels armed from the
-            # reversed pose to feed the next move's relaxed gate).
             self._invalidate_hints(obj_id, "rotate_180")
             mesh2oid = {v["mesh_name"]: k for k, v in self.ctx.items()}
             for m in self._descendant_meshes(name):
@@ -2914,25 +2468,7 @@ class PoseSession:
             return None
 
     def scale_hint(self, obj_id: str, prefix: str = "hint") -> Optional[dict]:
-        """Closed-form silhouette scale check at the CURRENT pose. Returns
-        {"scale_est", "area_scale", "overlap", "flagged", "shift_px", "yaw_deg",
-        "yaw_aniso", "render_px", "mask_px", "overlay_png"} or None on failure.
-        ``area_scale`` (= sqrt of the mask/render AREA ratio) is the uniform resize the
-        operator can achieve, and is **None when either silhouette is empty** — no
-        measurement, NOT agreement (it used to fall back to 1.0, which reported perfect
-        size for an object that rendered nothing). ``render_px``/``mask_px`` are the two
-        pixel counts, logged so a degenerate row is self-diagnosing and so the caller can
-        say WHICH side was empty. ``scale_est`` is the principal-axis EXTENT ratio (None
-        when gated out — still logged) used only to detect an aspect mismatch: it never
-        reaches the agent, but ``size_hint_aspect_suppressed`` reads it to withhold a
-        SIZE hint whose extent and area disagree, and this method clears the
-        ``_scale_hint`` gate channel on the same predicate so hint and search cannot
-        drift. Flags when |area_scale - 1| >= ``_SCALE_HINT_THRESH``. ``shift_px`` is the phase-
-        correlation (du, dv) moving the render silhouette onto the mask — the
-        POSITION hint's measured offset, free since both silhouettes are already
-        in hand. Every computation is appended to work/scale_hints.jsonl; a
-        centered red(render)/green(mask) silhouette overlay is saved under
-        work/scale_hints/ for inspection. Best-effort."""
+        ""
         try:
             from PIL import Image
 
@@ -2974,15 +2510,6 @@ class PoseSession:
             # EXTENT (`scale_est`): the mesh is trusted, so scale_est is kept only as a
             # logged diagnostic (see scale_hints.jsonl) and is NEVER surfaced to the agent.
             a_ren, a_msk = float(sil.sum()), float(mask.sum())
-            # An EMPTY silhouette on either side is NO MEASUREMENT -> None, like every other
-            # field in this row. The old `else 1.0` fallback asserted PERFECT size agreement
-            # for an object that rendered no pixels, so `flagged` came out False and nothing
-            # downstream ever reported the object missing: 40 of 11248 fleet rows / 31
-            # objects (0802_bulk_misc_online5 pen#0 at IoU 0.000 -- GT mask intact at 7133
-            # px, render silhouette empty, fully occluded by its own stacking ANCESTOR,
-            # which _isolate_iou deliberately keeps as a non-contributing holdout).
-            # `render_px`/`mask_px` are logged so the degenerate rows are self-diagnosing and
-            # so _object_hint_lines can say WHICH side was empty.
             area_scale = (a_msk / a_ren) ** 0.5 if a_ren and a_msk else None
             flagged = bool(
                 area_scale is not None and abs(area_scale - 1.0) >= _SCALE_HINT_THRESH
@@ -3029,35 +2556,6 @@ class PoseSession:
             return None
 
     def _invalidate_hints(self, obj_id: str, axis: str) -> None:
-        """Drop the cached hint channels a LANDED ``axis`` move made stale. The ONE
-        place that knows this rule — it used to be spelled out at two call sites and
-        missing from a third (an applied flip cleared only the flip verdict, leaving
-        the yaw + size channels holding pre-flip numbers; 9 fleet moves consumed one).
-
-        Four caches feed different consumers, so "stale" differs per channel:
-
-            channel            written by            read by                 cleared after
-            _orient_hint       orientation_hint      the composer's chain    reorientation
-            _yaw_hint          scale_hint            search: seed + yaw gate reorientation
-            _scale_hint        scale_hint            search: gate only       reorientation
-            _appearance_cache  appearance_agreement  move/freeform feedback  reorientation
-
-        A REORIENTATION (rotate_180 / rotation) invalidates all four: the flip
-        verdict was scored at the pre-move orientation (for a yaw fix, at the exact
-        yaw that made it unreliable — see _FLIP_DEFER_ANISO_MIN), both silhouette
-        readings were measured at the pre-move pose, and the appearance entries name
-        poses by digest — after the physics rebase the SAME zero-delta digest names a
-        DIFFERENT world pose, so a stale appearance number would be served for the
-        new orientation. Left stale, the next move('rotation') re-seeds +-(old angle)
-        — and the yaw gate would treat the pre-fix angle as the current pre-move
-        reading.
-
-        A TRANSLATION or RESIZE invalidates nothing, on purpose: the frozen flip
-        verdict is deliberately immune to pose perturbation (the 0720 moved-mug false
-        flag), a translation does not change the object's yaw, the size channel is
-        re-measured by exec's _post_move_size_note, which re-runs scale_hint for
-        exactly those aspects, and the appearance crop is position/scale-invariant
-        (_orient_object_crop) — the same reason the flip verdict survives."""
         chans = _HINT_STALE.get(axis, ())
         # getattr: sessions built via __new__ in tests may not define every cache
         if "orient" in chans:
@@ -3073,8 +2571,7 @@ class PoseSession:
     def full_render(self, out_png: str, hide: tuple = ()) -> str:
         """Full-scene render (nothing isolated) from the GT camera at GT resolution.
         ``hide`` (mesh names) renders the scene WITHOUT those objects — investigate's
-        de-occluded crops hide exactly the occluders a redetect's edit removed, so
-        IMAGE 1 matches the edited photo (owner-approved 2026-08-04)."""
+        de-occluded crops hide exactly the occluders removed by a redetect edit."""
         req = {"cmd": "isolate", "visible": None}  # None = show all
         if hide:
             req["hide"] = list(hide)
@@ -3140,7 +2637,7 @@ class PoseSession:
             pass
 
     def _dump(self) -> None:
-        """register.json in the legacy schema so the demo panels keep working."""
+        ""
         objs = []
         for oid in self.ctx:
             if not self.trace[oid] and self.cur.get(oid) is None:

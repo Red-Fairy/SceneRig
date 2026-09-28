@@ -57,7 +57,6 @@ Return JSON only, with exactly this schema:
 
 Output exactly one resolution for every input term, in the same order, and no others. For "matched", selected_category must be the one exact category and candidate_categories must contain exactly that same category. For "ambiguous", selected_category must be null and candidate_categories must contain at least two distinct exact categories. For "unmatched", selected_category must be null and candidate_categories must be empty."""
 
-# This is the exact V6 prompt that was probed with Opus-5 on 2026-08-19.
 AUTOMATIC_AUDIT_SYSTEM_PROMPT = """You are a HIGH-PRECISION physical-size-group auditor for single-image 3D reconstruction. You receive one photo and one JSON object containing "automatic_candidates".
 
 The caller has already resolved any explicit user-declared same-size terms outside this audit. Categories covered by an accepted user declaration are completely omitted from automatic_candidates. You must neither assess nor reproduce user declarations; make decisions only for automatic_candidates. If automatic_candidates is empty, the caller will skip this audit rather than call you.
@@ -88,9 +87,6 @@ Output exactly ONE decision for EVERY category in automatic_candidates and no de
 
 _ACTIVE_STATUSES = frozenset({"active", "applied"})
 _TERMINAL_STATUSES = frozenset(
-    # detected_unlocked: an automatic group the 09-16 auto-lock-off policy recorded but did not
-    # normalize; a valid terminal state for --skip-preprocess reuse (0917 batch: 5 scenes died
-    # at startup because the reuse validator still called it invalid).
     {"active", "applied", "ineligible_count", "normalization_failed", "detected_unlocked"}
 )
 

@@ -81,27 +81,7 @@ COM_HEIGHT_FLOOR_FRAC = 0.3
 
 
 def solve_com(npz_path, theta_deg):
-    """Returns (com_world, r_cheb, h, h_uniform, inertia).
-
-    CoM xy is MINIMALLY displaced (2026-07-21): keep the NATURAL (uniform-density)
-    centroid xy whenever its footprint-edge margin is adequate — a well-based
-    object keeps its real, empirically-robust balance point (the unconditional
-    Chebyshev jump moved it ~13 mm downhill on 0720_compfix_real8219's plush and
-    lost a marginal edge landing that the natural point survived). Only when the
-    natural xy is marginal/outside the footprint (the leaning class the
-    stabilization exists for) is it pulled toward the Chebyshev center — just far
-    enough to reach MARGIN_FLOOR_M of edge clearance, not all the way. z is then
-    lowered against the ACHIEVED margin: z = zmin + min(h_uniform,
-    margin/tan(theta)), FLOORED at COM_HEIGHT_FLOOR_FRAC * h_uniform — the
-    override may claim a weighted base, never an impossible one; when the floor
-    binds, the empirical drop test (not the theta target) decides, and an object
-    that cannot stand with an honest CoM topples and keeps its fallen pose.
-
-    ``inertia`` is ``{"mass", "diagonal_inertia", "principal_axes"}`` — the
-    physically self-consistent (mass, inertia-about-com_world) pair that MUST
-    accompany the CoM override (see mass_properties.py: a centerOfMass override
-    with no matching inertia tensor is a self-inconsistent rigid body — it
-    produced a real launch-on-contact failure, 0720_compfix_real8219)."""
+    ""
     from lib.tools.geometry.mass_properties import (
         assembly_natural_properties,
         stabilized_mass_properties,
@@ -207,9 +187,6 @@ def main():
             overrides[name] = {
                 "com_world": com, "flatten_base_mm": args.flatten_mm,
                 "angular_damping": 1.5, "friction": 0.9,
-                # accompany the CoM with its physically-consistent inertia tensor
-                # (a CoM-only override is a self-inconsistent rigid body that can
-                # launch on contact — 0720_compfix_real8219)
                 "diagonal_inertia": inertia["diagonal_inertia"],
                 "principal_axes": inertia["principal_axes"],
                 # density-250 reference mass: isaac_add_physics rescales the

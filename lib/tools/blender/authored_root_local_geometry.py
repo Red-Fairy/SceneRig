@@ -586,11 +586,6 @@ def _refine_triangle_plans(mesh, plans, root_linear):
     vertices = np.asarray([tuple(v.co) for v in mesh.vertices], dtype=np.float64)
     polygon_ids = [index for index, triangles in plans.items() for _ in triangles]
     triangles = [triangle for group in plans.values() for triangle in group]
-    # Blender >= 4.3 exposes custom normals as the `custom_normal` CORNER INT16_2D
-    # attribute (4.2 kept them in a hidden layer). Its encoded values have no affine
-    # reading; the decoded normals are checked via `mesh.corner_normals` below and
-    # re-set from the float carrier after retriangulation, so it is not a field here.
-    # Listing it vetoed every flip on any mesh with custom normals (2026-09-16).
     fields = [
         attribute
         for attribute in mesh.attributes
@@ -714,9 +709,6 @@ def _explicit_triangles(mesh, bmesh, *, root_linear=None, part_labels=None):
     for triangle in mesh.loop_triangles:
         key = tuple(sorted(triangle.vertices))
         if key in triangle_sources:
-            # 2026-09-17 probe (4/4 cases): a large non-planar n-gon of one part meets a
-            # sub-mm sliver of another where their surfaces graze; nothing local repairs
-            # it, so name the two parts (operand stamp survives the exact Boolean).
             where = ""
             if source_parts is not None and part_labels:
                 a = int(source_parts.data[triangle_sources[key]].value)
@@ -1320,9 +1312,6 @@ def authored_union(root, parts, *, bpy, bmesh):
             vertices = np.asarray(
                 [tuple(vertex.co) for vertex in mesh.vertices], dtype=np.float64
             )
-            # Per-part triangles for the collider cook (topology is untouched by the
-            # re-centering below): agent parts are the cut planes CoACD cannot infer
-            # from the fused union (2026-09-17 clutter_shelf launch).
             mesh.calc_loop_triangles()
             triangles = np.asarray(
                 [tuple(t.vertices) for t in mesh.loop_triangles], dtype=np.int64
@@ -1482,9 +1471,6 @@ def authored_union(root, parts, *, bpy, bmesh):
             if "Boolean seam" not in str(first_error):
                 raise
             retried, first_seam_error = True, first_error
-            # 2026-09-17 probe: 3/5 seam-weld vetoes of the 0916 batch were near-tangent
-            # rims that a 0.02 mm operand offset unions cleanly; the other 2 were parts that
-            # only touch, which the retry cannot (and must not) fix — name them instead.
             for obj in list(collection.objects):
                 bpy.data.objects.remove(obj, do_unlink=True)
             contacts = contact_note(_mesh_part_contacts(snapshots))
@@ -1560,9 +1546,6 @@ def authored_union(root, parts, *, bpy, bmesh):
         except RuntimeError as exc:
             if not retried:
                 raise
-            # The offset union passed the seam weld but failed a later solid/round-trip
-            # check: that is the retry's own artifact — report the ORIGINAL failure with
-            # the touching/grazing pairs named (0916 glasses bridge x joints).
             raise RuntimeError(str(first_seam_error) + contacts) from exc
         yield {
             "temporary_object": union,

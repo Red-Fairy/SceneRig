@@ -407,9 +407,6 @@ def test_initialize_tool_menus_preserve_baseline_and_only_extend_gpt6(
         } & (set(names) | effects)
 
     composition_names, composition_effects = menu("composition", "gpt6_v1")
-    # gpt6_v1 v4 (2026-09-14): the typed pose tool is withdrawn. Composition pose edits
-    # go through move() (measured) or execute_and_evaluate (free code, physics-settled
-    # after every call); edit_object_mesh replaces a whole object.
     assert composition_names == [
         "investigate_objects",
         "edit_object_mesh",
@@ -421,9 +418,6 @@ def test_initialize_tool_menus_preserve_baseline_and_only_extend_gpt6(
     assert "edit_object_poses" not in composition_effects
 
     initializer_names, initializer_effects = menu("initializer", "gpt6_v1")
-    # GPT-6 initializer object changes are declarations on its specialized
-    # execute_and_evaluate schema, not four independent menu entries; 2026-09-15 owner:
-    # nudge_object is withdrawn from this profile (every pose change is a transaction).
     assert initializer_names == [
         n for n in baseline_expected["initializer"] if n != "nudge_object"
     ]

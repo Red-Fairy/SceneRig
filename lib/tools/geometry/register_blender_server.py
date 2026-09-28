@@ -1,52 +1,4 @@
-"""Persistent Blender render/transform server for pose registration.
-
-Loads a blend (imported SAM3D meshes + the locked MoGE camera) once, then answers
-many isolate / set-pose / render commands over a newline-delimited JSON protocol on
-stdin/stdout. ``PoseSession`` uses it for composition investigate/move cycles;
-the retained preprocessing flip checker and composition collider-dump path share the
-same server. These paths do many render/transform cycles, so the process stays warm
-instead of paying a Blender launch (~5 s) for each command.
-
-Legacy mesh objects keep their existing registration behavior: sub-parts are parented
-to one mesh handle and its origin is moved to the bounds centre.  A procedural object
-instead has one canonical parentless EMPTY handle with live MESH descendants.  That
-captured Empty matrix/pivot is preserved, and all descendant geometry is treated as one
-logical render/collider body.
-``set_pose`` is a DELTA from the imported base pose (translate + euler added, scale
-multiplied), so the orchestrator can try candidates and revert by re-sending.
-
-Protocol (one JSON object per line):
-  {"cmd":"prepare","objects":[...],"parents":{child:parent},
-   "allow_empty_roots":bool?,
-   "authored_empty_ids":{canonical_name:graph_id}?}
-      -> {"ok":true,"prepared":[...],"surfaces":[...]}
-  {"cmd":"isolate","visible":[...],"holdout":[...]} -> {"ok":true}
-      (visible=null shows all; visible=null + "hide":[names] shows all EXCEPT those;
-       holdout bodies occlude but do not contribute silhouette pixels)
-  {"cmd":"ensure_light"}                              -> {"ok":true,...}
-  {"cmd":"set_pose","name":..,"translate":[x,y,z],"euler":[x,y,z],"scale":s}
-      -> {"ok":true,"resolve_offset":[x,y,z],...}
-      (after applying the delta: push out of penetration with table/parent, then
-      SEAT vertically on whatever is actually below — all-scene BVH, deadbanded so
-      an already-seated pose is returned bit-exact; see _seat_z)
-  {"cmd":"set_matrix","name":..,"M":4x4,"rebase":bool?} -> {"ok":true}
-      (premultiply matrix_world by the WORLD delta M — no penetration resolve, no
-      re-seat: physics owns the pose. rebase=true commits the result as the new
-      set_pose base, so later (t,euler,s) deltas apply relative to the rested pose)
-  {"cmd":"get_matrix","names":[..]}    -> {"ok":true,"matrices":{n:4x4}}
-      (matrix_world per handle; translation = the object's origin = the set_pose pivot)
-  {"cmd":"dump_npz","names":[..],"out":dir} -> {"ok":true,"paths":{n:path}}
-      (world-frame evaluated mesh per handle/surface as a 1-part npz — CoACD/collider
-      input for the Isaac composition session; authoritative current poses)
-  {"cmd":"geom_sig","names":[..]}      -> {"ok":true,"sigs":{n:{nv,lo,hi,c,sd,vd}}}
-      (LOCAL-frame vertex stats per handle — count, AABB, mean, per-axis std. A raw
-      data edit like `v.co *= s` never touches matrix_world, so the composition
-      physics authority diffs these to fold mesh-data scales into its Isaac mirror)
-  {"cmd":"render","out":"/path.png"}                 -> {"ok":true}
-  {"cmd":"save","path":"/path.blend"} | {"cmd":"ping"} | {"cmd":"shutdown"}
-  -> {"ready":true} after the blend loads.
-Run: blender --background --python register_blender_server.py -- <blend> [res]
-"""
+""
 
 import json
 import math
@@ -69,13 +21,6 @@ _support_cache: dict = {"name": None, "bvh": None}  # per-object support BVHTree
 _RESOLVE_GAP = 0.001  # leave a 1 mm gap after separating
 _RESOLVE_ITERS = 12  # push-out iterations (deepest contact each pass)
 _RESOLVE_MAX_VERTS = 1500  # subsample big object meshes for the vertex test
-# --- all-scene vertical seat (2026-08-07, owner-approved) -------------------------
-# ``_seat_z`` replaced ``_rest_on_support``: the old drop ray-cast only against the
-# SCENE-GRAPH support, so with a wrong graph edge (0806 food_packing: can#1 parented
-# to the table, not its tray) every set_pose seated the can THROUGH the tray onto the
-# table — 28 mm inside a solid neighbor — and silently undid the physics commit's
-# rested pose. The seat probes the WHOLE scene instead and corrects z only when the
-# candidate is genuinely buried or floating.
 _seat_cache: dict = {"name": None, "sig": None, "bvh": None}  # per-object scene BVH
 _pose_rev: dict[str, int] = {}  # handle -> pose-write counter (seat-BVH invalidation)
 _SEAT_DEADBAND = 0.003  # |dz| <= this: candidate untouched BIT-EXACT (a physics-
@@ -99,9 +44,7 @@ def _mesh_objs():
 
 
 def _surface_names():
-    """Root-surface meshes = initializer-built primitives (table/walls/floor); every
-    prepared object's descendant mesh is excluded even when its editable part names do
-    not use the legacy ``obj_*`` prefix."""
+    ""
     owned = {part for parts in _parts.values() for part in parts}
     return [
         o.name
@@ -329,11 +272,6 @@ def _prepare(names, allow_empty_roots=False, authored_empty_ids=None):
         main.select_set(True)
         bpy.context.view_layer.objects.active = main
         if (main.matrix_world.translation - centre).length > 1e-6:
-            # Re-centre only when the origin is actually off. origin_set rewrites
-            # every vertex as (co - new origin) in float32, so re-importing an
-            # already-centred body (every session rebuild) perturbed its mesh data
-            # by ~1e-7 m — enough to flip a byte digest and re-cook the collider
-            # for an edit that never happened (0916 batch: 972 re-cooks, ~10 h).
             bpy.context.scene.cursor.location = centre
             bpy.ops.object.origin_set(type="ORIGIN_CURSOR")
         for c in parts:
@@ -361,15 +299,7 @@ def _prepare(names, allow_empty_roots=False, authored_empty_ids=None):
 
 
 def _set_pose(name, translate, euler, scale, render_only=False):
-    """Apply base+deltas. ``render_only=True`` (F0a, 2026-08-08) skips the penetration
-    resolver and the vertical seat: DIAGNOSTIC renders (scale/position hints, flip
-    previews) must not mutate a physics-validated pose. Without it, restoring the
-    CURRENT pose for a measurement re-ran the BVH heuristics and seated the object on
-    the RENDER mesh — ~6 mm inside the CoACD hull its rest was computed on for cargo in
-    a concave support (still_life apple: the certify free sim then popped it out and
-    rolled it 262 mm off the plate). Same principle ``_set_matrix`` documents below;
-    the diagnostic path just never had the escape. Line-search scoring keeps the
-    resolver+seat: there the seated pose IS the candidate being evaluated."""
+    ""
     _pose_rev[name] = _pose_rev.get(name, 0) + 1
     bl, be, bs = _base[name]
     o = bpy.data.objects[name]
@@ -442,8 +372,6 @@ def _authored_empty_union(name, parts):
     try:
         with helper.authored_union(root, parts, bpy=bpy, bmesh=bmesh) as payload:
             vertices, faces = helper.register_arrays(payload)
-            # Keep _dump_npz's legacy list contract (`if not verts`) and perform its
-            # one existing explicit float64/int64 conversion at the persistence seam.
             return vertices.tolist(), faces.tolist(), helper.part_arrays(payload)
     except RuntimeError as exc:
         if "union is disconnected" in str(exc):
@@ -456,13 +384,7 @@ def _authored_empty_union(name, parts):
 
 
 def _dump_npz(names, out_dir):
-    """Evaluated world-frame mesh per handle or surface as one collider input.
-
-    An opted-in canonical authored Empty is an exact Boolean union of disposable
-    evaluated copies, matching its connected exported asset while preserving the live
-    editable hierarchy.  Every legacy Mesh/surface keeps the original concatenation
-    path.  The blend is the authoritative current pose source for both branches.
-    """
+    ""
     import os
 
     import numpy as np
@@ -510,17 +432,7 @@ def _dump_npz(names, out_dir):
 
 
 def _geom_sig(names):
-    """Local-frame geometry signature per handle over all sub-parts, expressed in
-    the handle's own object frame so pose changes cancel out: ``nv``/``nf`` vertex
-    and face counts, AABB/mean/per-axis std (legacy statistics fit), and ``V`` —
-    the vertex array itself as base64 little-endian float32 rows (Blender's own
-    precision, lossless; decoded by composition_physics ``decode_local_vertices``),
-    which the client fits vertex by vertex (``fit_local_affine``). Raw
-    (non-evaluated) vertices: that is the data a freeform script mutates
-    (`v.co *= s`), and raw-vs-raw comparison is self-consistent. Order is Blender's
-    vertex index order, part by part, so an in-place edit stays comparable per
-    vertex. No byte digest: float32 re-centring noise (~1e-7 m) is a displacement
-    the client can threshold, not a hash flip."""
+    ""
     import base64
 
     import numpy as np
@@ -696,7 +608,6 @@ def _seat_meshes(name):
         if name_or_part in part2handle:
             handles.add(part2handle[name_or_part])
         elif name_or_part.startswith("obj_"):
-            # Preserve the legacy fallback for an unprepared object-looking mesh.
             handles.add(name_or_part)
         elif name_or_part in surfaces and not _is_wall_surface(name_or_part):
             handles.add(name_or_part)
@@ -779,12 +690,6 @@ def _world_polys(names):
         if o is None or o.type != "MESH" or len(o.data.polygons) == 0:
             continue
         mw = o.matrix_world
-        # A mirrored transform (negative determinant — e.g. an initializer-built table
-        # with all-negative scale, 0708_iso_bridge1) flips triangle winding, so the BVH
-        # face normals point INTO the solid: the penetration inside-test then reads
-        # backwards and pushes resting objects THROUGH the surface (every object was
-        # driven 3.9cm down into the table box). Reverse the index order to restore
-        # outward normals.
         flip = mw.to_3x3().determinant() < 0.0
         verts.extend([mw @ v.co for v in o.data.vertices])
         for p in o.data.polygons:
@@ -911,15 +816,7 @@ def _ensure_light():
 
 
 def _render(out, transparent=True, width=None, height=None, standard=False):
-    """``transparent`` alpha=silhouette (IoU render). ``width``/``height`` force an
-    exact resolution (the GT framing for the VLM context render); otherwise the blend
-    aspect is scaled so its long side is ``RES``.
-
-    EEVEE is forced for speed, but EVERY render setting we touch is restored afterwards so
-    the saved blend keeps the pipeline's engine + color management. (Previously this set
-    ``engine=EEVEE`` + ``view_transform=Standard`` without restoring them, so the saved
-    ``registered.blend`` leaked a flat 'Standard' tone-map into the composition stage --
-    the IoU silhouette uses only alpha, so the view transform never mattered here anyway.)"""
+    ""
     sc = bpy.context.scene
     saved = (
         sc.render.engine,
