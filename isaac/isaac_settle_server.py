@@ -1,6 +1,6 @@
 """Persistent PhysX settle server for the incremental (DFS) scene build.
 
-    /fsx/rundongluo/isaac/venv/bin/python isaac/isaac_settle_server.py
+    $SCENERIG_ISAAC_PYTHON isaac/isaac_settle_server.py
 
 One SimulationApp per scene; JSON-RPC over stdin/stdout (one JSON object per line;
 non-JSON stdout lines are Isaac log noise the client skips — same contract as

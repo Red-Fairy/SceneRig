@@ -3218,7 +3218,7 @@ def segment_scene(
         objects, relationships = normalize_objects(objects), []
     # First point of depth use is per-instance annotation inside the ladder below —
     # everything above (server spawns, proposer) is depth-free, so preprocess runs the
-    # MoGE/DA3 estimate as a BACKGROUND subprocess and we join it here (the load was
+    # MoGE-2 estimate as a BACKGROUND subprocess and we join it here (the load was
     # deliberately moved from the top of this function to buy that overlap window).
     if points_ready is not None:
         points_ready()

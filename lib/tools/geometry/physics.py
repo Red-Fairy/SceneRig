@@ -193,7 +193,8 @@ def topo_by_support(objs: list[dict[str, Any]]) -> list[dict[str, Any]]:
 
 
 DEFAULT_ISAAC_PYTHON = os.environ.get(
-    "GRASE_ISAAC_PYTHON", "/fsx/rundongluo/isaac/venv/bin/python"
+    "SCENERIG_ISAAC_PYTHON",
+    os.environ.get("GRASE_ISAAC_PYTHON", "lib/utils/third_party/isaac/venv/bin/python"),
 )
 # Module attr (not inlined) so settle_client_test.py can swap in a fake server.
 SETTLE_SERVER_SCRIPT = REPO_ROOT / "isaac/isaac_settle_server.py"

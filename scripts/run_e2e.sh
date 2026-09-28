@@ -39,32 +39,15 @@ export HUGGING_FACE_HUB_TOKEN="${HUGGING_FACE_HUB_TOKEN:-$HF_TOKEN}"
 export OPENAI_API_KEY="${OPENAI_API_KEY:-}"
 export CLAUDE_API_KEY="${CLAUDE_API_KEY:-${ANTHROPIC_API_KEY:-}}"
 
-# Default to cached checkpoints for repeatable cluster runs. Set these to 0 when
-# preparing a fresh machine so Hugging Face can download missing weights.
-export HF_HUB_OFFLINE="${HF_HUB_OFFLINE:-1}"
-export TRANSFORMERS_OFFLINE="${TRANSFORMERS_OFFLINE:-1}"
+# Downloads are enabled by default on a fresh installation. Set both variables
+# to 1 after the cache is populated for fully offline runs.
+export HF_HUB_OFFLINE="${HF_HUB_OFFLINE:-0}"
+export TRANSFORMERS_OFFLINE="${TRANSFORMERS_OFFLINE:-0}"
 unset HUGGINGFACE_HUB_CACHE
-
-HF_HOME="$(bash "$SCENERIG_ROOT/scripts/prewarm_models.sh" || true)"
-if [ -z "${HF_HOME:-}" ]; then
-    if [ -d "$HOME/.cache/huggingface" ]; then
-        HF_HOME="$HOME/.cache/huggingface"
-    else
-        HF_HOME="/fsx/rundongluo/.cache/huggingface"
-    fi
-fi
-export HF_HOME
+export HF_HOME="${HF_HOME:-${XDG_CACHE_HOME:-$HOME/.cache}/huggingface}"
 
 export CUDA_CACHE_PATH="${CUDA_CACHE_PATH:-$HOME/.nv/ComputeCache}"
 export CUDA_CACHE_MAXSIZE="${CUDA_CACHE_MAXSIZE:-4294967296}"
-bash "$SCENERIG_ROOT/scripts/prewarm_cycles_kernels.sh" "$GPU" || true
-
-SAM3D_LIB="${SAM3D_LIB:-$HOME/.local/micromamba/envs/sam3d-objects/lib}"
-[ -d "$SAM3D_LIB" ] || SAM3D_LIB="/fsx/rundongluo/.local/micromamba/envs/sam3d-objects/lib"
-export LD_LIBRARY_PATH="$SAM3D_LIB:${LD_LIBRARY_PATH:-}"
-
-export GRASE_ISAAC_IDLE_TIMEOUT="${GRASE_ISAAC_IDLE_TIMEOUT:-5400}"
-bash "$SCENERIG_ROOT/scripts/prewarm_isaac.sh" || true
 
 if [ -d .venv ]; then
     # shellcheck disable=SC1091

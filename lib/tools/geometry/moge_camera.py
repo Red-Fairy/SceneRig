@@ -209,7 +209,7 @@ def camera_config_from_moge(
     # then disagreed by (cx - w/2, cy - h/2) px — on the robolab top camera that is 2 px in
     # x but 15 px in y (4% of frame height) — and composition, which compares its render
     # against the photo, would MOVE objects to absorb a camera-model error.
-    # MoGE/DA3 write a perfectly centred intrinsics_norm, so this is a no-op for them.
+    # MoGE-2 writes a perfectly centred intrinsics_norm, so this is a no-op for it.
     k_norm = mj.get("intrinsics_norm")
     px_norm = float(k_norm[0][2]) if k_norm else 0.5
     py_norm = float(k_norm[1][2]) if k_norm else 0.5

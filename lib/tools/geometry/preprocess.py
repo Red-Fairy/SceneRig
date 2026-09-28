@@ -2,8 +2,8 @@
 
 Runs once per scene, BEFORE the agent pipeline:
 
-  1. depth estimate   -> ``<out>/moge/`` (MoGE-2 by default; DA3 / GT-depth
-     drop-ins also provide depth, points, normals, and fov)
+  1. depth estimate   -> ``<out>/moge/`` (MoGE-2 by default; user-provided
+     metric depth and camera intrinsics are also supported)
   2. agentic masking  -> ``<out>/masks/masks.json`` (per-instance masks + points)
   3. placement table  -> ``<out>/placement.json`` (per object: world center + metric
      size + screen bbox), the constraints the initializer seeds objects from
@@ -3195,7 +3195,7 @@ def _moge_pointmap_path(out_dir: str, backend: str) -> Optional[str]:
     """The scene depth-backend point map to condition SAM3D on, or ``None``.
 
     Default for the ``sam3d`` backend: reuse the scene's already-computed point map
-    (``<out>/moge/points.npy``), supplied by MoGE-2, DA3, or GT depth, instead of letting
+    (``<out>/moge/points.npy``), supplied by MoGE-2 or user-provided depth, instead of letting
     SAM3D re-estimate depth (MoGE-v1) internally. One geometry source for the whole
     pipeline, and it skips SAM3D's per-object MoGE-v1 pass. Set ``GRASE_SAM3D_POINTMAP=0``
     to force the old v1-internal baseline. Returns ``None`` for non-sam3d backends (DSO

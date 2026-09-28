@@ -1,6 +1,6 @@
 """Headless Isaac Sim settle test for a physics-stamped GRASE scene USD.
 
-    /fsx/rundongluo/isaac/venv/bin/python isaac/isaac_verify_settle.py \
+    $SCENERIG_ISAAC_PYTHON isaac/isaac_verify_settle.py \
         <scene.usd> <report.json> [drift_tol_m]
 
 Loads the scene, simulates 5 s of physics, and reports per-object

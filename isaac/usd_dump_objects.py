@@ -1,6 +1,6 @@
 """Dump each resolved GRASE object root from USD to npz (run with the Isaac venv).
 
-    /fsx/rundongluo/isaac/venv/bin/python isaac/usd_dump_objects.py \
+    $SCENERIG_ISAAC_PYTHON isaac/usd_dump_objects.py \
         <scene_visual.usdc> <out.npz> <placement.json> <object_identity.json>
 
 World-frame vertices/faces per explicitly resolved object root, keyed by the USD prim name

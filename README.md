@@ -21,12 +21,12 @@ model servers.
 git clone https://github.com/Red-Fairy/SceneRig.git
 cd SceneRig
 
-# MoGE is a path dependency in pyproject.toml.
-git clone https://github.com/microsoft/MoGe.git lib/utils/third_party/moge
-
 uv sync
 source .venv/bin/activate
 ```
+
+The lockfile uses PyTorch CUDA 12.8. MoGE is pinned to a MoGE-2 source revision
+and is installed by `uv sync`. SceneRig does not require another depth backend.
 
 Install Blender and system libraries:
 
@@ -50,7 +50,7 @@ export MOLMO_PYTHON=/path/to/molmo/.venv/bin/python
 export LINGBOT_PYTHON=/path/to/lingbot/.venv/bin/python
 export LANPAINT_QWEN_PYTHON=/path/to/lanpaint-qwen/.venv/bin/python
 export SHARP_PYTHON=/path/to/sharp/.venv/bin/python
-export GRASE_ISAAC_PYTHON=/path/to/isaac/venv/bin/python
+export SCENERIG_ISAAC_PYTHON=/path/to/isaac/venv/bin/python
 ```
 
 Model/checkpoint sources used by the default pipeline:
@@ -61,6 +61,33 @@ Model/checkpoint sources used by the default pipeline:
 - SAM3D Objects: this repo keeps the SAM3D source under `lib/utils/third_party/sam3d`; download its checkpoints into `lib/utils/third_party/sam3d/checkpoints/`.
 - Blender 4.5 and Isaac Sim are used for rendering and physical settling.
 
+Install each model backend with its upstream instructions in the corresponding
+directory. The tested source repositories are:
+
+```bash
+git clone https://github.com/facebookresearch/sam3.git lib/utils/third_party/sam3
+git clone https://github.com/Robbyant/lingbot-depth.git lib/utils/third_party/lingbot
+git clone https://github.com/charrywhite/LanPaint-diffusers.git \
+  lib/utils/third_party/lanpaint-qwen
+```
+
+SAM3D is vendored in `lib/utils/third_party/sam3d`; follow its
+`doc/setup.md` using Python 3.11, PyTorch 2.5.1 + CUDA 12.1, PyTorch3D, and
+Kaolin 0.17. Download gated checkpoints after accepting each model license:
+
+```bash
+huggingface-cli download facebook/sam-3d-objects \
+  --local-dir lib/utils/third_party/sam3d/checkpoints/hf
+huggingface-cli download facebook/sam3
+huggingface-cli download allenai/MolmoPoint-8B
+huggingface-cli download robbyant/lingbot-depth-pretrain-vitl-14-v0.5
+huggingface-cli download Qwen/Qwen-Image-Edit-2509
+```
+
+MoGE-2 downloads `Ruicheng/moge-2-vitl-normal` automatically on first use.
+The default interpreter paths above are discovered automatically, so the
+environment variables are only needed when environments live elsewhere.
+
 To allow Hugging Face downloads on a fresh machine:
 
 ```bash
@@ -69,7 +96,8 @@ export HF_HUB_OFFLINE=0
 export TRANSFORMERS_OFFLINE=0
 ```
 
-After the cache is populated, the launcher defaults back to offline cache use.
+The launcher downloads missing weights by default. After the cache is populated,
+set both variables to `1` for offline use.
 
 ## API Keys
 
@@ -118,7 +146,7 @@ A quick preprocessing smoke test:
 
 ```bash
 python lib/runners/static_scene.py \
-  --image dataset_selected/abc/1.png \
+  --image dataset_selected/misc/still_life.jpg \
   --output-dir output/smoke \
   --gpu 0 \
   --preprocess-only

@@ -27,7 +27,9 @@ if str(REPO_ROOT) not in sys.path:
 from lib.tools.geometry.inventory_contract import validate_scene_artifacts
 from lib.utils.provenance import git_state
 
-ISAAC_PY = Path("/fsx/rundongluo/isaac/venv/bin/python")
+ISAAC_PY = Path(
+    os.environ.get("SCENERIG_ISAAC_PYTHON", "lib/utils/third_party/isaac/venv/bin/python")
+)
 
 
 def _json_count(path: Path) -> int | None:

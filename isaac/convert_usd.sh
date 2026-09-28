@@ -8,7 +8,7 @@ apt-get install -y -qq \
 
 export OMNI_KIT_ACCEPT_EULA=YES OMNI_KIT_ALLOW_ROOT=1  # required by step 3 (Isaac Sim boot)
 
-ISAAC_PY=/fsx/rundongluo/isaac/venv/bin/python
+ISAAC_PY="${SCENERIG_ISAAC_PYTHON:-lib/utils/third_party/isaac/venv/bin/python}"
 EXP=${1:?usage: bash isaac/convert_usd.sh output/static_scene/<experiment>}
 
 mkdir -p $EXP/scene/isaac

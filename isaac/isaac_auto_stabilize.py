@@ -1,6 +1,6 @@
 """Auto-stabilize objects that are unstable under default physics parameters.
 
-    /fsx/rundongluo/isaac/venv/bin/python isaac/isaac_auto_stabilize.py <exp_dir> \
+    $SCENERIG_ISAAC_PYTHON isaac/isaac_auto_stabilize.py <exp_dir> \
         [--theta 12] [--flatten-mm 8] [--tol 0.005]
 
 Rationale: the input photo shows every object at rest, so an object that falls over
@@ -173,7 +173,12 @@ def main():
     ap.add_argument("--theta", type=float, default=12.0, help="target tip threshold, deg")
     ap.add_argument("--flatten-mm", type=float, default=8.0)
     ap.add_argument("--tol", type=float, default=0.005)
-    ap.add_argument("--isaac-python", default="/fsx/rundongluo/isaac/venv/bin/python")
+    ap.add_argument(
+        "--isaac-python",
+        default=os.environ.get(
+            "SCENERIG_ISAAC_PYTHON", "lib/utils/third_party/isaac/venv/bin/python"
+        ),
+    )
     args = ap.parse_args()
 
     exp = Path(args.exp_dir)

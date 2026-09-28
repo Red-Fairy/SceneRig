@@ -1,6 +1,6 @@
 """Stamp PhysX-ready physics onto a GRASE scene USD (run with the Isaac venv python).
 
-    /fsx/rundongluo/isaac/venv/bin/python isaac/isaac_add_physics.py \
+    $SCENERIG_ISAAC_PYTHON isaac/isaac_add_physics.py \
         <scene_visual.usdc> <scene.usd> [collision_dir]
 
 Conventions (mirrors the isaac settle backend in lib/tools/geometry/physics.py):

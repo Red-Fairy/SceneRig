@@ -22,6 +22,7 @@ Output: <exp_dir>/scene/isaac/scene.usd — reference it from Isaac Lab via UsdF
 
 import argparse
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -36,7 +37,9 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 SCRIPTS = REPO_ROOT / "isaac"
 BLENDER = REPO_ROOT / "lib/utils/third_party/blender-4.5/blender"
-ISAAC_PY = Path("/fsx/rundongluo/isaac/venv/bin/python")
+ISAAC_PY = Path(
+    os.environ.get("SCENERIG_ISAAC_PYTHON", "lib/utils/third_party/isaac/venv/bin/python")
+)
 GRASE_PY = REPO_ROOT / ".venv/bin/python"  # CoACD lives in the repo venv
 
 
