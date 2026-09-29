@@ -30,8 +30,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT / "site"))
 sys.path.insert(0, str(REPO_ROOT))  # so `lib.*` helpers (surface_relations, ...) import
 
-# Reuse the pure status helpers from the live dashboard.
-import dashboard  # noqa: E402
+import run_data  # noqa: E402
 OUTPUT_ROOT = REPO_ROOT / "output"
 OUTPUT_BASE = REPO_ROOT / "output"
 # The demo auto-indexes every output/static_scene* dir as its own sidebar root, keyed by its
@@ -323,7 +322,7 @@ def normalize_image(image_bytes: bytes, dst: Path) -> tuple[int, int]:
 def _update_run_manifest(run_id: str, **updates: Any) -> None:
     """Persist restart-safe scheduling metadata without parsing launch logs."""
     path = DEMO_RUNS_DIR / run_id / "run.json"
-    data = dashboard.safe_read_json(path) or {}
+    data = run_data.safe_read_json(path) or {}
     data.update({"run_id": run_id, "workload": "sam3d_reconstruction", **updates})
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp = path.with_suffix(".json.tmp")
@@ -359,7 +358,7 @@ def thumb_bytes(path: Path, max_edge: int) -> bytes:
 def _spawn_run(run_id: str, dataset_dir: Path, gpu: str) -> None:
     """Actually start the pipeline subprocess on the given GPU."""
     cmd = build_command(run_id, dataset_dir, gpu)
-    opts = dashboard.safe_read_json(DEMO_RUNS_DIR / run_id / "options.json") or {}
+    opts = run_data.safe_read_json(DEMO_RUNS_DIR / run_id / "options.json") or {}
     if opts.get("generative_resegment"):
         cmd.append("--generative-resegment")
     if opts.get("room_mode"):
@@ -434,7 +433,7 @@ def _adopt_orphan_runs(alive: set[str]) -> None:
     for rid in alive:
         if rid in _active_runs:
             continue
-        metadata = dashboard.safe_read_json(DEMO_RUNS_DIR / rid / "run.json") or {}
+        metadata = run_data.safe_read_json(DEMO_RUNS_DIR / rid / "run.json") or {}
         if metadata.get("workload") != "sam3d_reconstruction":
             continue
         gpu = metadata.get("gpu")
@@ -451,7 +450,7 @@ def restore_scheduling_state() -> None:
     except OSError:
         manifest_paths = []
     for path in manifest_paths:
-        metadata = dashboard.safe_read_json(path) or {}
+        metadata = run_data.safe_read_json(path) or {}
         if metadata.get("workload") != "sam3d_reconstruction":
             continue
         rid = str(metadata.get("run_id") or path.parent.name)
@@ -604,16 +603,16 @@ def is_relative_to(path: Path, root: Path) -> bool:
 def latest_stage_renders(task_dir: Path) -> list[dict[str, Any]]:
     """One newest generator render per stage, in pipeline order."""
     out: list[dict[str, Any]] = []
-    for stage in dashboard.STAGE_ORDER:
+    for stage in run_data.STAGE_ORDER:
         best: Optional[Path] = None
         best_mtime = -1.0
         for agent_dir in (task_dir / "stages").glob("*/*"):
-            if dashboard.stage_from_agent(agent_dir.name) != stage:
+            if run_data.stage_from_agent(agent_dir.name) != stage:
                 continue
             if "Verifier" in agent_dir.name:
                 continue
-            for render in dashboard.iter_files(agent_dir, dashboard.IMAGE_SUFFIXES):
-                if dashboard.is_verifier_multiview_render(render):
+            for render in run_data.iter_files(agent_dir, run_data.IMAGE_SUFFIXES):
+                if run_data.is_verifier_multiview_render(render):
                     continue
                 try:
                     mtime = render.stat().st_mtime
@@ -665,7 +664,7 @@ def compute_status(
     logged mid-run. active: process alive or the log moved recently. Otherwise
     idle/waiting.
     """
-    result_manifest = dashboard.safe_read_json(
+    result_manifest = run_data.safe_read_json(
         task_dir / "final" / "pipeline_result.json"
     ) or {}
     if result_manifest.get("pipeline_complete") is False:
@@ -679,7 +678,7 @@ def compute_status(
     fatal = task_dir / "fatal_error.log"
     with _procs_lock:
         proc = _procs.get(run_id)
-    run_manifest = dashboard.safe_read_json(
+    run_manifest = run_data.safe_read_json(
         DEMO_RUNS_DIR / run_id / "run.json"
     ) or {}
     persisted_returncode = run_manifest.get("returncode")
@@ -713,7 +712,7 @@ def compute_status(
     # No task.log yet != waiting: the runner creates task.log only when the AGENT
     # pipeline launches, so a run sat on "waiting" for its whole ~10-min preprocess.
     # Preprocess liveness comes from the artifacts it writes progressively.
-    pre = dashboard.preprocess_state(task_dir)
+    pre = run_data.preprocess_state(task_dir)
     if pre:
         return "active" if pre["active"] else "idle"
     return "waiting"
@@ -779,7 +778,7 @@ def _icp_pose(meshes_dir: Path, slug: str) -> Optional[dict[str, Any]]:
     """The pose SAM3D estimates per object, from the ``{slug}_info.json`` sidecar.
     ``pre``/``post`` bracket the shape-ICP step (None on runs before this was recorded);
     ``final`` is the fully optimized pose. ``applied`` = whether ICP was accepted."""
-    info = dashboard.safe_read_json(meshes_dir / f"{slug}_info.json")
+    info = run_data.safe_read_json(meshes_dir / f"{slug}_info.json")
     if not info or "scale" not in info:
         return None
     return {
@@ -814,7 +813,7 @@ def preprocess_state(task_dir: Path) -> Optional[dict[str, Any]]:
     if not moge_dir.exists() and not masks_dir.exists():
         return None
     state: dict[str, Any] = {}
-    state["progress"] = dashboard.safe_read_json(
+    state["progress"] = run_data.safe_read_json(
         task_dir / "preprocess_progress.json"
     )
     depth = moge_dir / "depth_viz.png"
@@ -823,7 +822,7 @@ def preprocess_state(task_dir: Path) -> Optional[dict[str, Any]]:
     comp = masks_dir / "composite.png"
     if comp.exists():
         state["masks_composite_url"] = rel_file_url(comp)
-    mj = dashboard.safe_read_json(moge_dir / "moge.json") or {}
+    mj = run_data.safe_read_json(moge_dir / "moge.json") or {}
     # Input image aspect ratio (w/h) so discarded-object marker tiles (which have no
     # overlay image to imply a shape) can match the input instead of a forced square.
     iw, ih = mj.get("image_width"), mj.get("image_height")
@@ -838,12 +837,12 @@ def preprocess_state(task_dir: Path) -> Optional[dict[str, Any]]:
             "width": mj.get("image_width"),
             "height": mj.get("image_height"),
         }
-    masks = dashboard.safe_read_json(masks_dir / "masks.json") or {}
+    masks = run_data.safe_read_json(masks_dir / "masks.json") or {}
     meshes_dir = task_dir / "meshes"
     # Occlusion verdicts (generative_resegment): occluder edges + vital flags per
     # instance — used to badge objects whose occlusion WAS detected but whose
     # recovery fell back (no redetect record), which otherwise look untouched.
-    reseg = dashboard.safe_read_json(masks_dir / "generative_resegment.json") or {}
+    reseg = run_data.safe_read_json(masks_dir / "generative_resegment.json") or {}
     occl_of: dict = {}
     for e in reseg.get("edges", []):
         occl_of.setdefault(e.get("occluded"), []).append(e.get("occluder"))
@@ -1035,7 +1034,7 @@ def preprocess_state(task_dir: Path) -> Optional[dict[str, Any]]:
     # Occlusion process (generative_resegment): every touching pair the pairwise VLM
     # judged (with its crops), hierarchy-dropped edges, vital-part verdicts, and the
     # final redetect set — the full decision trail behind the instance badges.
-    gr = dashboard.safe_read_json(masks_dir / "generative_resegment.json") or {}
+    gr = run_data.safe_read_json(masks_dir / "generative_resegment.json") or {}
     if gr:
         occ_pairs = []
         for e in gr.get("pairs", []):
@@ -1099,13 +1098,13 @@ def preprocess_state(task_dir: Path) -> Optional[dict[str, Any]]:
     croot = masks_dir / "canonical_root.png"
     if croot.exists():
         state["root"] = {**state.get("root", {}), "image_url": rel_file_url(croot)}
-    placement = dashboard.safe_read_json(task_dir / "placement.json") or {}
+    placement = run_data.safe_read_json(task_dir / "placement.json") or {}
     state["placement_count"] = len(placement.get("objects", []))
     # Legacy flip-detection payload retained for API compatibility. The bundled UI no
     # longer renders this panel, but external consumers may still read state["flips"].
     meshes_dir = task_dir / "meshes"
     flips = []
-    for fr in dashboard.safe_read_json(meshes_dir / "flips.json") or []:
+    for fr in run_data.safe_read_json(meshes_dir / "flips.json") or []:
         tgt = meshes_dir / fr.get("target", "")
         cands = []
         for c in fr.get("candidates", []):
@@ -1131,7 +1130,7 @@ def scene_graph_state(task_dir: Path) -> Optional[dict[str, Any]]:
     """The preprocessing scene graph as a support tree (root surfaces -> objects), the
     main-support FORM, and the proposer's root-surface RELATIONSHIPS (resolved to readable
     surface names + their meaning) — the data the agent initializer builds the room from."""
-    graph = dashboard.safe_read_json(task_dir / "scene_graph.json")
+    graph = run_data.safe_read_json(task_dir / "scene_graph.json")
     if not graph or not graph.get("nodes"):
         return None
     byid = {n.get("id"): n for n in graph["nodes"]}
@@ -1168,7 +1167,7 @@ def scene_graph_state(task_dir: Path) -> Optional[dict[str, Any]]:
         )
     # The two geometric relationship gates (preprocess backstops): against upgrades
     # + impossible-corner drops, persisted by preprocess into masks.json.
-    masks_data = dashboard.safe_read_json(task_dir / "masks" / "masks.json") or {}
+    masks_data = run_data.safe_read_json(task_dir / "masks" / "masks.json") or {}
     backstop = masks_data.get("rel_backstop") or {}
     # Same-size groups.  The final placement rows are the authority for which groups
     # actually survived mask/placement/mesh validation and were normalized.  The
@@ -1179,7 +1178,7 @@ def scene_graph_state(task_dir: Path) -> Optional[dict[str, Any]]:
         for group in (masks_data.get("same_size_resolution") or {}).get("groups", [])
         if isinstance(group, dict) and group.get("group_id")
     }
-    placement = dashboard.safe_read_json(task_dir / "placement.json") or {}
+    placement = run_data.safe_read_json(task_dir / "placement.json") or {}
     groups: dict[str, dict[str, Any]] = {}
     for o in placement.get("objects", []) or []:
         if not o.get("same_size"):
@@ -1309,7 +1308,7 @@ def pose_state(task_dir: Path) -> Optional[dict[str, Any]]:
                       row, never as the headline.
 
     Pre-2026-07-31 runs wrote ``toppled`` instead of ``fell`` and no ``delivered``."""
-    data = dashboard.safe_read_json(task_dir / "physics" / "pose_changes.json")
+    data = run_data.safe_read_json(task_dir / "physics" / "pose_changes.json")
     if not data or not data.get("objects"):
         return None
     delivered = data.get("delivered") or {}
@@ -1401,7 +1400,7 @@ def pose_state(task_dir: Path) -> Optional[dict[str, Any]]:
 def pose_match_state(task_dir: Path) -> Optional[list[dict[str, Any]]]:
     """Per-object point-cloud ICP result (post-settle): rms before/after, the applied
     [x, y, yaw, scale] correction, and whether it was accepted."""
-    data = dashboard.safe_read_json(task_dir / "pose_match.json")
+    data = run_data.safe_read_json(task_dir / "pose_match.json")
     if not isinstance(data, list) or not data:
         return None
     out = []
@@ -1455,7 +1454,7 @@ def stage_weights() -> dict:
     acc: dict[str, list[float]] = {}
     step_acc: dict[str, list[float]] = {}
     for f in _glob.glob(str(OUTPUT_ROOT / "*" / "*" / "stage_timings.json")):
-        t = dashboard.safe_read_json(Path(f)) or {}
+        t = run_data.safe_read_json(Path(f)) or {}
         for k, v in t.items():
             if k == "preprocess_steps" and isinstance(v, dict):
                 for sk, sv in v.items():
@@ -1497,7 +1496,7 @@ def weighted_progress(task_dir: Path, log_info: dict) -> Optional[dict[str, Any]
     try:
         w = stage_weights()
         stage_w, step_w = w["stages"], w["steps"]
-        run_t = dashboard.safe_read_json(task_dir / "stage_timings.json") or {}
+        run_t = run_data.safe_read_json(task_dir / "stage_timings.json") or {}
         total = sum(stage_w.get(k, 0.0) for k in _STAGE_SEQ)
         done = sum(stage_w[k] for k in run_t if k in stage_w and k != "preprocess_steps"
                    and k != "preprocess")
@@ -1510,7 +1509,7 @@ def weighted_progress(task_dir: Path, log_info: dict) -> Optional[dict[str, Any]
             if key in stage_w and key not in run_t:
                 done += 0.5 * stage_w[key]
         else:
-            manifest = dashboard.safe_read_json(
+            manifest = run_data.safe_read_json(
                 task_dir / "preprocess_progress.json"
             )
             if isinstance(manifest, dict) and manifest.get("version") == 1:
@@ -1555,7 +1554,7 @@ def weighted_progress(task_dir: Path, log_info: dict) -> Optional[dict[str, Any]
             # tableverse read as stuck while it was actually settling). Drop the
             # marker (and its weight) unless the run actually enabled it.
             markers = _PRE_MARKERS
-            run_args = dashboard.safe_read_json(task_dir.parent / "args.json") or {}
+            run_args = run_data.safe_read_json(task_dir.parent / "args.json") or {}
             if not run_args.get("generative_resegment"):
                 markers = [m for m in markers if m[0] != "resegment"]
             pre_total = sum(step_w.get(k, 0.0) for k, _ in markers) + step_w.get(
@@ -1604,7 +1603,7 @@ def register_state(task_dir: Path) -> Optional[dict[str, Any]]:
     None if the run has no `register/register.json` yet. (The directory name predates the
     2026-07-10 merge of the standalone register stage into composition.)"""
     reg_dir = task_dir / "register"
-    data = dashboard.safe_read_json(reg_dir / "register.json")
+    data = run_data.safe_read_json(reg_dir / "register.json")
     if not data or not data.get("objects"):
         return None
     in_progress = data.get("in_progress")
@@ -1718,7 +1717,7 @@ def pseudo_gt_state(task_dir: Path) -> Optional[dict[str, Any]]:
     falling back to the legacy MoGE point-cloud splat (``render.png``). None if the run
     built no pseudo-GT set."""
     pgt_dir = task_dir / "pseudo_gt"
-    data = dashboard.safe_read_json(pgt_dir / "cameras.json")
+    data = run_data.safe_read_json(pgt_dir / "cameras.json")
     if not data or not data.get("views"):
         return None
     views = []
@@ -1777,16 +1776,16 @@ def run_status(run_id: str) -> dict[str, Any]:
     if not task_dir.exists() and not (dataset_target and dataset_target.exists()):
         return {"run_id": run_id, "status": "not_found"}
 
-    log_info = dashboard.parse_log(task_dir)
-    attempts = dashboard.collect_attempts(task_dir)
-    progress = weighted_progress(task_dir, log_info) or dashboard.estimate_progress(
+    log_info = run_data.parse_log(task_dir)
+    attempts = run_data.collect_attempts(task_dir)
+    progress = weighted_progress(task_dir, log_info) or run_data.estimate_progress(
         attempts, log_info
     )
 
     final_dir = task_dir / "final"
     final_blend = final_dir / "final.blend"
     final_render = final_dir / "renders" / "final_render.png"
-    manifest = dashboard.safe_read_json(final_dir / "pipeline_result.json")
+    manifest = run_data.safe_read_json(final_dir / "pipeline_result.json")
 
     queue = queue_snapshot()
     queued_set = set(queue["order"])
@@ -1803,16 +1802,16 @@ def run_status(run_id: str) -> dict[str, Any]:
     with _procs_lock:
         proc = _procs.get(run_id)
 
-    latest_render = dashboard.newest_file(
+    latest_render = run_data.newest_file(
         r
-        for r in dashboard.iter_files(task_dir, dashboard.IMAGE_SUFFIXES)
-        if not dashboard.is_verifier_multiview_render(r)
+        for r in run_data.iter_files(task_dir, run_data.IMAGE_SUFFIXES)
+        if not run_data.is_verifier_multiview_render(r)
     )
 
     started = proc.started if proc else None
     stage = log_info.get("active_stage")
     if stage is None and status in ("active", "idle"):
-        if dashboard.preprocess_state(task_dir):
+        if run_data.preprocess_state(task_dir):
             stage = "preprocess"
     return {
         "run_id": run_id,
@@ -1852,7 +1851,7 @@ def run_status(run_id: str) -> dict[str, Any]:
         "pseudo_gt": pseudo_gt_state(task_dir),
         # Per-stage wall-clock seconds: {preprocess, initializer, texture, lighting,
         # composition, composition_certify, export}. None until stage_timings.json exists.
-        "timings": dashboard.safe_read_json(task_dir / "stage_timings.json"),
+        "timings": run_data.safe_read_json(task_dir / "stage_timings.json"),
     }
 
 
@@ -1917,7 +1916,7 @@ def _build_runs() -> list[dict[str, Any]]:
     runs: list[dict[str, Any]] = []
     alive = alive_run_ids()
     queued_set = set(queue_snapshot()["order"])
-    for entry in dashboard.discover_runs(OUTPUT_ROOT):
+    for entry in run_data.discover_runs(OUTPUT_ROOT):
         for task_dir in entry["task_dirs"]:
             task_dir = task_dir.resolve()
             run_id = str(task_dir)
@@ -1953,14 +1952,9 @@ def resolve_file(raw_path: str) -> Optional[Path]:
 # --------------------------------------------------------------------------- #
 # Agent memory (per generator / verifier)                                      #
 # --------------------------------------------------------------------------- #
-# Reuse the dashboard's robust memory parser (it pulls images out of the giant
-# base64 blobs). output_dir is the repo `output/` tree so every run resolves.
-DASH_CONFIG = dashboard.DashboardConfig(
+DATA_CONFIG = run_data.RunDataConfig(
     output_dir=REPO_ROOT / "output",
     repo_root=REPO_ROOT,
-    target_dir=REPO_ROOT / "data",
-    host="0.0.0.0",
-    port=0,
 )
 
 
@@ -1977,11 +1971,11 @@ def list_agents(run_id: str) -> list[dict[str, Any]]:
         agents.append(
             {
                 "stage_index": stage_index,
-                "stage": dashboard.stage_from_agent(agent),
+                "stage": run_data.stage_from_agent(agent),
                 "agent": agent,
                 "role": "verifier" if "Verifier" in agent else "generator",
                 "attempt": attempt.replace("attempt_", ""),
-                "messages": dashboard.safe_read_json(mem) and None,  # cheap presence
+                "messages": run_data.safe_read_json(mem) and None,  # cheap presence
                 "mem": str(mem.resolve()),
             }
         )
@@ -1992,8 +1986,8 @@ def list_agents(run_id: str) -> list[dict[str, Any]]:
         except ValueError:
             idx = 0
         stage_rank = (
-            dashboard.STAGE_ORDER.index(a["stage"])
-            if a["stage"] in dashboard.STAGE_ORDER
+            run_data.STAGE_ORDER.index(a["stage"])
+            if a["stage"] in run_data.STAGE_ORDER
             else 99
         )
         try:
@@ -2072,7 +2066,7 @@ def _split_out_thought(text: str) -> Optional[tuple[str, str]]:
 
 def load_memory(raw_path: str) -> dict[str, Any]:
     """Parse one agent memory file; render images, mark them as <image>."""
-    data = dashboard.collect_memory(raw_path, DASH_CONFIG)
+    data = run_data.collect_memory(raw_path, DATA_CONFIG)
     mem_path = Path(unquote(raw_path)).resolve()
     for msg in data.get("messages", []):
         parts = []
@@ -3669,7 +3663,7 @@ def main() -> None:
     VIEW_ONLY = True
     OUTPUT_ROOT = Path(args.output_dir).expanduser().resolve()
     ALLOWED_ROOTS = [OUTPUT_ROOT, (REPO_ROOT / "data").resolve()]
-    DASH_CONFIG.output_dir = OUTPUT_ROOT
+    DATA_CONFIG.output_dir = OUTPUT_ROOT
 
     _refresh_runs_async()  # prewarm the runs cache so the first visitor isn't waiting on it
 

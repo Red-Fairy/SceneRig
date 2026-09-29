@@ -206,9 +206,3 @@ You can point `--output-dir` at the whole `output/` tree, one run directory, or
 one `scene/` directory. The default bind address is local-only; use
 `--host 0.0.0.0` only on a trusted network or behind your own authenticated
 tunnel.
-
-For a lighter status page without the preprocessing and 3D panels, run:
-
-```bash
-python site/dashboard.py --output-dir output --port 8765
-```

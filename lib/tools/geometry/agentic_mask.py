@@ -2967,7 +2967,7 @@ def segment_scene(
         # and fixes relationships; it never drops objects.
         if proposed and proposer_verify:
             # The verifier gets its OWN surfaces-only overlay; `composite_path` stays the
-            # full every-instance overlay the demo/dashboard serve.
+            # full every-instance overlay served by the demo.
             surf_composite = os.path.join(
                 os.path.dirname(composite_path), "composite_surfaces.png"
             )

@@ -1,6 +1,9 @@
 import importlib.util
+import json
 import sys
 from pathlib import Path
+
+import pytest
 
 
 MODULE_PATH = Path(__file__).with_name("demo_server.py")
@@ -29,7 +32,7 @@ def _scene(tmp_path: Path) -> Path:
 def _configure(output: Path) -> None:
     demo.OUTPUT_ROOT = output.resolve()
     demo.ALLOWED_ROOTS = [output.resolve()]
-    demo.DASH_CONFIG.output_dir = output.resolve()
+    demo.DATA_CONFIG.output_dir = output.resolve()
     demo._runs_cache.update({"t": 0.0, "data": None})
 
 
@@ -57,3 +60,29 @@ def test_detailed_demo_page_is_read_only():
 def test_detailed_demo_rejects_run_path_outside_output(tmp_path):
     _configure(tmp_path / "output")
     assert demo.run_dir_for("/etc") == (tmp_path / "output" / ".invalid-run")
+
+
+def test_run_data_discovers_attempts_and_inline_images(tmp_path):
+    scene = _scene(tmp_path)
+    memory = scene / "stages/0/InitializerPlannerAgent/attempt_1/initializer_generator_memory.json"
+    memory.write_text(json.dumps([{
+        "role": "user", "content": "data:image/png;base64,AAAA",
+    }]))
+    config = demo.run_data.RunDataConfig(tmp_path / "output", tmp_path)
+    attempts = demo.run_data.collect_attempts(scene)
+    assert len(attempts) == 1
+    assert attempts[0]["stage"] == "initializer"
+    payload = demo.run_data.collect_memory(str(memory), config)
+    assert payload["messages"][0]["parts"] == [
+        {"type": "image", "url": "data:image/png;base64,AAAA"},
+    ]
+
+
+def test_run_data_rejects_memory_outside_output(tmp_path):
+    scene = _scene(tmp_path)
+    outside = tmp_path / "secret_memory.json"
+    outside.write_text("[]")
+    config = demo.run_data.RunDataConfig(scene, tmp_path)
+    assert demo.run_data.resolve_file(str(outside), config) is None
+    with pytest.raises(FileNotFoundError):
+        demo.run_data.collect_memory(str(outside), config)
