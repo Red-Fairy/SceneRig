@@ -2,14 +2,17 @@
 
 # SceneRig
 
-**Physically grounded 3D scene reconstruction from a single image**
+**An Agentic System for Simulation-Ready 3D Scene Reconstruction from Single Images**
 
-**Authors:** [Rundong Luo](https://github.com/Red-Fairy)
+Rundong Luo<sup>1,2</sup>, Yunong Liu<sup>1</sup>, Di Cao<sup>1</sup>,
+Matthew Tancik<sup>1</sup>, Shyamal Buch<sup>1</sup>, Colton Stearns<sup>1</sup>,
+Wenqi Xian<sup>1</sup>
 
-[![Project Page](https://img.shields.io/badge/Project-Page-2f80ed?style=for-the-badge&logo=githubpages&logoColor=white)](https://github.com/Red-Fairy/SceneRig)
-[![Code](https://img.shields.io/badge/Code-GitHub-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Red-Fairy/SceneRig)
-[![Python 3.11](https://img.shields.io/badge/Python-3.11-3776ab?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-22a699?style=for-the-badge)](LICENSE)
+<sup>1</sup> Luma AI &nbsp;&nbsp; <sup>2</sup> Cornell University
+
+![Paper](https://img.shields.io/badge/Paper-Coming_Soon-c94c4c)
+[![Demo](https://img.shields.io/badge/Demo-Project_Page-1687c9)](https://red-fairy.github.io/SceneRig/)
+[![Code](https://img.shields.io/badge/Code-GitHub-444444)](https://github.com/Red-Fairy/SceneRig)
 
 </div>
 
