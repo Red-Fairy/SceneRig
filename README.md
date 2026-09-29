@@ -1,14 +1,30 @@
+<div align="center">
+
 # SceneRig
 
-SceneRig reconstructs a physically grounded 3D scene from a single RGB image.
-The public pipeline is intentionally narrow:
+**Physically grounded 3D scene reconstruction from a single image**
 
-- input image
-- optional metric depth `.npy` plus optional camera intrinsics JSON
-- final Blender/result artifacts under `<output_dir>/scene/`
+**Authors:** [Rundong Luo](https://github.com/Red-Fairy)
 
-Generative re-segmentation is enabled by default. A read-only local result
-viewer is included.
+[![Project Page](https://img.shields.io/badge/Project-Page-2f80ed?style=for-the-badge&logo=githubpages&logoColor=white)](https://github.com/Red-Fairy/SceneRig)
+[![Code](https://img.shields.io/badge/Code-GitHub-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Red-Fairy/SceneRig)
+[![Python 3.11](https://img.shields.io/badge/Python-3.11-3776ab?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-22a699?style=for-the-badge)](LICENSE)
+
+</div>
+
+## Overview
+
+**Input:** one RGB image.
+
+**Optional inputs:** metric Z-depth as a pixel-aligned `.npy` file and camera
+intrinsics as JSON.
+
+**Output:** a reconstructed Blender scene, final render, scene geometry,
+materials, and physical-settling results under `<output_dir>/scene/`.
+
+Generative re-segmentation is enabled by default. Completed and active runs can
+be inspected in the local web viewer.
 
 ## Setup
 
