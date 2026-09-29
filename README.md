@@ -212,21 +212,29 @@ It prints JSON with missing required artifacts, object counts, generative
 re-segmentation count, and final-result status. It does not render images or
 start viewers.
 
-## Local Viewer
+## Detailed Local Demo
 
-Start the read-only result viewer after one or more runs have written to
+Start the read-only web demo after one or more runs have written to
 `output/`:
 
 ```bash
-python site/dashboard.py --output-dir output --port 8765
+python site/demo_server.py --output-dir output --port 8502
 ```
 
-Open `http://127.0.0.1:8765`. The viewer lists completed and active scenes and
-shows the target image, render timeline, stage progress, generated scripts,
-scene graph artifacts, and generator/verifier memory. Active runs update
+Open `http://127.0.0.1:8502`. The demo lists completed and active scenes and
+shows preprocessing details, object poses, scene-graph relationships, stage
+renders, timing, logs, and generator/verifier conversations. Its 3D/Render
+control exports the current `.blend` to a cached GLB on first use, then provides
+an orbitable browser view alongside the final Cycles render. Active runs update
 automatically while the pipeline writes new artifacts.
 
 You can point `--output-dir` at the whole `output/` tree, one run directory, or
 one `scene/` directory. The default bind address is local-only; use
 `--host 0.0.0.0` only on a trusted network or behind your own authenticated
 tunnel.
+
+For a lighter status page without the preprocessing and 3D panels, run:
+
+```bash
+python site/dashboard.py --output-dir output --port 8765
+```
