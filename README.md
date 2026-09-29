@@ -16,7 +16,7 @@ Wenqi Xian<sup>1</sup>
 
 </div>
 
-## Overview
+## 🎯 Overview
 
 **Input:** one RGB image.
 
@@ -29,12 +29,12 @@ materials, and physical-settling results under `<output_dir>/scene/`.
 Generative re-segmentation is enabled by default. Completed and active runs can
 be inspected in the local web viewer.
 
-## Setup
+## 🛠️ Setup
 
 SceneRig requires Linux, Python 3.11, CUDA 12.8, Blender 4.5 LTS, and Isaac Sim
 5.1.
 
-### Python
+### 🐍 Python
 
 ```bash
 git clone https://github.com/Red-Fairy/SceneRig.git
@@ -46,7 +46,7 @@ source .venv/bin/activate
 
 `uv sync` installs the main environment, PyTorch, and MoGE-2.
 
-### Blender And Isaac Sim
+### 🎬 Blender And Isaac Sim
 
 Install Blender under `lib/utils/third_party/blender-4.5`, then install its
 headless system libraries:
@@ -77,7 +77,7 @@ OMNI_KIT_ACCEPT_EULA=YES lib/utils/third_party/isaac/venv/bin/python -c \
   'from isaacsim import SimulationApp; app=SimulationApp({"headless": True}); app.close()'
 ```
 
-### Models
+### 🧠 Models
 
 Install model backends in these default locations:
 
@@ -113,7 +113,7 @@ huggingface-cli download Qwen/Qwen-Image-Edit-2509
 
 MoGE-2 downloads `Ruicheng/moge-2-vitl-normal` automatically on first use.
 
-### API Keys
+### 🔑 API Keys
 
 Export the provider keys in your shell or add them to `~/.zshrc`:
 
@@ -125,7 +125,7 @@ export CLAUDE_BASE_URL=...       # only if using an OpenAI-compatible proxy
 
 Do not commit API keys.
 
-## Run
+## 🚀 Run
 
 Basic image-to-scene:
 
@@ -160,7 +160,7 @@ python lib/runners/static_scene.py \
 
 `dataset_selected/` is a local smoke-test set and is gitignored.
 
-## Outputs
+## 📦 Outputs
 
 For `output/example`, the scene run lives at `output/example/scene/`.
 Important artifacts include:
@@ -174,7 +174,7 @@ Important artifacts include:
 - `final/pipeline_result.json`: final pipeline summary when the agent completes
 - `blender_file.blend`: latest Blender scene
 
-## Evaluation
+## 📊 Evaluation
 
 Run the lightweight evaluator on a run directory:
 
@@ -186,7 +186,7 @@ It prints JSON with missing required artifacts, object counts, generative
 re-segmentation count, and final-result status. It does not render images or
 start viewers.
 
-## Detailed Local Demo
+## 🖥️ Detailed Local Demo
 
 Start the read-only web demo after one or more runs have written to
 `output/`:
