@@ -10,6 +10,8 @@ import json
 import os
 import sys
 
+os.environ["PATH"] = os.path.dirname(sys.executable) + os.pathsep + os.environ.get("PATH", "")
+
 import numpy as np
 import torch
 from pytorch3d.transforms import Transform3d, quaternion_to_matrix

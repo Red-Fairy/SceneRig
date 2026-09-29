@@ -35,7 +35,22 @@ def refine_depth(
     result = estimate(edited_image, str(work_dir), fov_x_deg=fov_x)
     predicted = np.load(result.depth_npy).astype(np.float32)
     reference = np.load(reference_depth or scene / "moge" / "depth.npy").astype(np.float32)
-    hole = np.load(hole_mask).astype(bool)
+    if Path(hole_mask).suffix.lower() == ".npy":
+        hole = np.load(hole_mask).astype(bool)
+    else:
+        with Image.open(hole_mask) as mask_image:
+            if "A" in mask_image.getbands():
+                hole = np.asarray(mask_image.getchannel("A")) < 128
+            else:
+                hole = np.asarray(mask_image.convert("L")) > 0
+    if reference.shape != predicted.shape:
+        reference = np.asarray(
+            Image.fromarray(reference).resize((width, height), Image.Resampling.NEAREST)
+        )
+    if hole.shape != predicted.shape:
+        hole = np.asarray(
+            Image.fromarray(hole).resize((width, height), Image.Resampling.NEAREST)
+        )
     known = (~hole) & np.isfinite(reference) & np.isfinite(predicted)
     known &= (reference > 0) & (predicted > 0)
     if known.any():
