@@ -26,8 +26,8 @@
     />
     <title>SceneRig · Single-image, simulation-ready 3D scenes</title>
     <link rel="icon" href="assets/icon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=title-wrap-1" />
-    <script src="app.js?v=robotics-click-play-1" defer></script>
+    <link rel="stylesheet" href="styles.css?v=viewers-1" />
+    <script src="app.js?v=viewers-1" defer></script>
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
@@ -232,9 +232,17 @@
           <p>
             Source-view and nearby-view renders compare object geometry,
             appearance, and placement across SceneRig and reconstruction
-            baselines.
+            baselines. Click a reconstruction to explore it in 3D.
           </p>
         </div>
+        <p class="experiment-description">
+          We reconstruct 80 scenes from simulator images, real robot workspaces,
+          smartphone photos, and internet or AI-generated images. The 44 simulator
+          scenes provide ground-truth object identities and positions, letting us
+          measure segmentation quality, object counts, and placement accuracy.
+          We also simulate every reconstruction for five seconds to test whether
+          its objects remain stable under gravity.
+        </p>
         <div class="gallery-browser">
           <div class="gallery-toolbar">
             <div
@@ -365,6 +373,15 @@
                 <h3>Real-to-sim policy evaluation</h3>
               </div>
               <p>The same policy runs independently in the real workspace and its reconstruction. We compare outcomes at two levels.</p>
+              <p>
+                We evaluate π₀.₅ and LingBot-VLA 2.0 on 100 real episodes across
+                five manipulation tasks. For each episode, SceneRig and SimFoundry
+                reconstruct the same starting workspace from a calibrated RGB-D
+                observation, then run the policy checkpoint used on the real robot.
+                Both simulations share the robot calibration, controllers, and
+                physics settings, so the comparison tests how well each reconstructed
+                scene predicts the real outcome.
+              </p>
               <table class="application-metrics" aria-label="Real-to-sim policy evaluation results">
                 <thead><tr><td></td><th scope="col">SceneRig</th><th scope="col">SimFoundry</th></tr></thead>
                 <tbody>
@@ -389,6 +406,14 @@
                 <h3>Open-loop trajectory replay</h3>
               </div>
               <p>Recorded joint and gripper commands are replayed in simulation without policy queries or trajectory adaptation. We measure task success after replay.</p>
+              <p>
+                We use 25 successful teleoperated demonstrations, with five examples
+                of each task. Both methods reconstruct the same initial workspace
+                and replay identical commands with shared robot calibration,
+                controllers, and physics settings. This tests whether the recovered
+                geometry and object placement support the original manipulation,
+                including grasping, moving, and placing objects into containers.
+              </p>
               <table class="application-metrics" aria-label="Open-loop replay results">
                 <thead><tr><th scope="col" class="replay-task-column">Task</th><th scope="col">SceneRig</th><th scope="col">SimFoundry</th></tr></thead>
                 <tbody class="replay-task-rows">

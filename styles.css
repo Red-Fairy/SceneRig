@@ -578,6 +578,29 @@ section[id] {
 .results-section {
   padding-block: 64px 76px;
 }
+.experiment-description {
+  max-width: 85ch;
+  margin: -8px 0 26px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.75;
+}
+.scene-viewer-link { display: block; position: relative; }
+.scene-viewer-badge {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  padding: 4px 8px;
+  border: 1px solid #dfe5eee6;
+  border-radius: 6px;
+  background: #fffffff0;
+  color: var(--blue-dark);
+  font-size: 11px;
+  line-height: 1.5;
+  box-shadow: 0 2px 10px #202b3e0d;
+}
+.scene-viewer-link:hover .scene-viewer-badge { background: var(--blue-dark); color: white; }
+.scene-viewer-link:focus-visible { outline: 3px solid var(--blue); outline-offset: -3px; }
 .gallery-browser {
   border: 1px solid var(--line);
   border-radius: var(--radius);

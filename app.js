@@ -80,10 +80,12 @@ function setupClaySlider() {
 }
 
 function setupGallery(data) {
-  let groupId = data.groups[0].id;
+  const params = new URLSearchParams(location.search);
+  let groupId = data.groups.some((group) => group.id === params.get("group"))
+    ? params.get("group") : data.groups[0].id;
   let viewId = "source";
   let category = "all";
-  let selectedId = data.scenes[0].sourceId;
+  let selectedId = params.get("scene") || data.scenes[0].sourceId;
   const sceneSelect = $("#scene-select");
   const categorySelect = $("#category-select");
   const groups = $("#model-groups");
@@ -118,8 +120,12 @@ function setupGallery(data) {
         (category === "all" || scene.category === category),
     );
 
-  function comparisonCard(image, label, type, subtitle) {
-    return `<figure class="comparison-card ${type}"><img class="comparison-image" src="${image}" width="720" height="450" alt="${escapeHTML(label)}${subtitle ? `: ${escapeHTML(subtitle)}` : ""}"><figcaption>${escapeHTML(label)}${subtitle ? `<small>${escapeHTML(subtitle)}</small>` : ""}</figcaption></figure>`;
+  function comparisonCard(image, label, type, subtitle, viewerURL) {
+    const img = `<img class="comparison-image" src="${image}" width="720" height="450" alt="${escapeHTML(label)}${subtitle ? `: ${escapeHTML(subtitle)}` : ""}">`;
+    const content = viewerURL
+      ? `<a class="scene-viewer-link" href="${escapeHTML(viewerURL)}" aria-label="Explore ${escapeHTML(label)} reconstruction in 3D">${img}<span class="scene-viewer-badge"><span aria-hidden="true">⤢</span> Explore in 3D</span></a>`
+      : img;
+    return `<figure class="comparison-card ${type}">${content}<figcaption>${escapeHTML(label)}${subtitle ? `<small>${escapeHTML(subtitle)}</small>` : ""}</figcaption></figure>`;
   }
   function renderScene() {
     const scenes = filteredScenes();
@@ -138,7 +144,8 @@ function setupGallery(data) {
       comparisonCard(scene.input, "Input image", "input", "") +
       methods
         .map((method) =>
-          comparisonCard(method[viewId], method.label, method.id, viewLabel),
+          comparisonCard(method[viewId], method.label, method.id, viewLabel,
+            method.model ? `viewer.html?${new URLSearchParams({ group: groupId, scene: scene.sourceId, method: method.id })}` : null),
         )
         .join("");
     $("#comparison-grid").classList.toggle("four-panels", methods.length === 3);

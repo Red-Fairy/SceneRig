@@ -77,31 +77,76 @@
           "id": "ours",
           "label": "SceneRig",
           "source": "assets/gallery/main/scene-21/ours_source.webp",
-          "novel": "assets/gallery/main/scene-21/ours_novel.webp"
+          "novel": "assets/gallery/main/scene-21/ours_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-21/ours.glb",
+            "bytes": 6163540,
+            "camera": {
+              "orbit": "180.00000deg 38.45931deg 1.377345m",
+              "target": "0.000000m 0.000000m 0.856652m",
+              "fov": "45.14871deg"
+            }
+          }
         },
         {
           "id": "simfoundry",
           "label": "SimFoundry",
           "source": "assets/gallery/main/scene-21/simfoundry_source.webp",
-          "novel": "assets/gallery/main/scene-21/simfoundry_novel.webp"
+          "novel": "assets/gallery/main/scene-21/simfoundry_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-21/simfoundry.glb",
+            "bytes": 8384788,
+            "camera": {
+              "orbit": "0.00000deg 39.75688deg 1.302369m",
+              "target": "0.014210m 0.000000m -0.138833m",
+              "fov": "37.35492deg"
+            }
+          }
         },
         {
           "id": "rest3d",
           "label": "REST3D",
           "source": "assets/gallery/main/scene-21/rest3d_source.webp",
-          "novel": "assets/gallery/main/scene-21/rest3d_novel.webp"
+          "novel": "assets/gallery/main/scene-21/rest3d_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-21/rest3d.glb",
+            "bytes": 1877056,
+            "camera": {
+              "orbit": "179.76704deg 30.91256deg 1.605972m",
+              "target": "0.000733m 0.000000m 1.776606m",
+              "fov": "39.07889deg"
+            }
+          }
         },
         {
           "id": "sc",
           "label": "SceneConductor",
           "source": "assets/gallery/main/scene-21/sc_source.webp",
-          "novel": "assets/gallery/main/scene-21/sc_novel.webp"
+          "novel": "assets/gallery/main/scene-21/sc_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-21/sc.glb",
+            "bytes": 6699708,
+            "camera": {
+              "orbit": "0.21286deg 57.80438deg 10.491470m",
+              "target": "-0.032983m -5.589977m -8.878177m",
+              "fov": "35.01472deg"
+            }
+          }
         },
         {
           "id": "viga",
           "label": "VIGA",
           "source": "assets/gallery/main/scene-21/viga_source.webp",
-          "novel": "assets/gallery/main/scene-21/viga_novel.webp"
+          "novel": "assets/gallery/main/scene-21/viga_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-21/viga.glb",
+            "bytes": 5774084,
+            "camera": {
+              "orbit": "179.85055deg 42.00009deg 1.535520m",
+              "target": "0.007230m 0.790667m -0.415374m",
+              "fov": "44.49805deg"
+            }
+          }
         }
       ],
       "input": "assets/gallery/main/scene-21/input.webp"
@@ -117,31 +162,76 @@
           "id": "ours",
           "label": "SceneRig",
           "source": "assets/gallery/main/scene-01/ours_source.webp?v=edited-input",
-          "novel": "assets/gallery/main/scene-01/ours_novel.webp?v=edited-input"
+          "novel": "assets/gallery/main/scene-01/ours_novel.webp?v=edited-input",
+          "model": {
+            "src": "assets/models/main/scene-01/ours.glb",
+            "bytes": 4104780,
+            "camera": {
+              "orbit": "179.99999deg 70.76312deg 0.849441m",
+              "target": "-0.000000m 0.000000m 0.802012m",
+              "fov": "43.78463deg"
+            }
+          }
         },
         {
           "id": "simfoundry",
           "label": "SimFoundry",
           "source": "assets/gallery/main/scene-01/simfoundry_source.webp?v=edited-input",
-          "novel": "assets/gallery/main/scene-01/simfoundry_novel.webp?v=edited-input"
+          "novel": "assets/gallery/main/scene-01/simfoundry_novel.webp?v=edited-input",
+          "model": {
+            "src": "assets/models/main/scene-01/simfoundry.glb",
+            "bytes": 4360488,
+            "camera": {
+              "orbit": "0.00000deg 69.83649deg 0.977493m",
+              "target": "-0.011235m 0.000000m -0.355158m",
+              "fov": "37.54451deg"
+            }
+          }
         },
         {
           "id": "rest3d",
           "label": "REST3D",
           "source": "assets/gallery/main/scene-01/rest3d_source.webp?v=edited-input",
-          "novel": "assets/gallery/main/scene-01/rest3d_novel.webp?v=edited-input"
+          "novel": "assets/gallery/main/scene-01/rest3d_novel.webp?v=edited-input",
+          "model": {
+            "src": "assets/models/main/scene-01/rest3d.glb",
+            "bytes": 6190328,
+            "camera": {
+              "orbit": "51.55823deg 17.54930deg 2.217314m",
+              "target": "-0.087142m 0.000000m 1.779161m",
+              "fov": "37.06799deg"
+            }
+          }
         },
         {
           "id": "sc",
           "label": "SceneConductor",
           "source": "assets/gallery/main/scene-01/sc_source.webp?v=edited-input",
-          "novel": "assets/gallery/main/scene-01/sc_novel.webp?v=edited-input"
+          "novel": "assets/gallery/main/scene-01/sc_novel.webp?v=edited-input",
+          "model": {
+            "src": "assets/models/main/scene-01/sc.glb",
+            "bytes": 3944100,
+            "camera": {
+              "orbit": "0.65063deg 69.89950deg 4.896663m",
+              "target": "-0.052217m -1.682826m -4.598117m",
+              "fov": "43.33749deg"
+            }
+          }
         },
         {
           "id": "viga",
           "label": "VIGA",
           "source": "assets/gallery/main/scene-01/viga_source.webp?v=edited-input",
-          "novel": "assets/gallery/main/scene-01/viga_novel.webp?v=edited-input"
+          "novel": "assets/gallery/main/scene-01/viga_novel.webp?v=edited-input",
+          "model": {
+            "src": "assets/models/main/scene-01/viga.glb",
+            "bytes": 3986960,
+            "camera": {
+              "orbit": "-179.99999deg 90.00000deg 1.868792m",
+              "target": "0.000000m 0.000000m 1.868792m",
+              "fov": "35.11539deg"
+            }
+          }
         }
       ],
       "input": "assets/gallery/main/scene-01/input.webp?v=edited-input"
@@ -157,31 +247,76 @@
           "id": "ours",
           "label": "SceneRig",
           "source": "assets/gallery/main/scene-02/ours_source.webp",
-          "novel": "assets/gallery/main/scene-02/ours_novel.webp"
+          "novel": "assets/gallery/main/scene-02/ours_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-02/ours.glb",
+            "bytes": 2795060,
+            "camera": {
+              "orbit": "180.00000deg 37.06754deg 1.059715m",
+              "target": "0.000000m 0.000000m 0.638750m",
+              "fov": "53.32594deg"
+            }
+          }
         },
         {
           "id": "simfoundry",
           "label": "SimFoundry",
           "source": "assets/gallery/main/scene-02/simfoundry_source.webp",
-          "novel": "assets/gallery/main/scene-02/simfoundry_novel.webp"
+          "novel": "assets/gallery/main/scene-02/simfoundry_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-02/simfoundry.glb",
+            "bytes": 2601276,
+            "camera": {
+              "orbit": "0.00000deg 38.97629deg 1.385870m",
+              "target": "-0.060840m 0.000000m -0.003489m",
+              "fov": "42.76084deg"
+            }
+          }
         },
         {
           "id": "rest3d",
           "label": "REST3D",
           "source": "assets/gallery/main/scene-02/rest3d_source.webp",
-          "novel": "assets/gallery/main/scene-02/rest3d_novel.webp"
+          "novel": "assets/gallery/main/scene-02/rest3d_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-02/rest3d.glb",
+            "bytes": 497656,
+            "camera": {
+              "orbit": "163.98345deg 43.18976deg 2.016091m",
+              "target": "0.122000m 0.000000m 2.237135m",
+              "fov": "49.46218deg"
+            }
+          }
         },
         {
           "id": "sc",
           "label": "SceneConductor",
           "source": "assets/gallery/main/scene-02/sc_source.webp",
-          "novel": "assets/gallery/main/scene-02/sc_novel.webp"
+          "novel": "assets/gallery/main/scene-02/sc_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-02/sc.glb",
+            "bytes": 3636604,
+            "camera": {
+              "orbit": "0.33358deg 55.25126deg 3.479902m",
+              "target": "-0.016647m -1.983470m -2.859246m",
+              "fov": "56.22655deg"
+            }
+          }
         },
         {
           "id": "viga",
           "label": "VIGA",
           "source": "assets/gallery/main/scene-02/viga_source.webp",
-          "novel": "assets/gallery/main/scene-02/viga_novel.webp"
+          "novel": "assets/gallery/main/scene-02/viga_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-02/viga.glb",
+            "bytes": 3637400,
+            "camera": {
+              "orbit": "-179.99999deg 45.20424deg 1.607447m",
+              "target": "0.000000m 0.050422m 1.140681m",
+              "fov": "46.67473deg"
+            }
+          }
         }
       ],
       "input": "assets/gallery/main/scene-02/input.webp"
@@ -197,31 +332,76 @@
           "id": "ours",
           "label": "SceneRig",
           "source": "assets/gallery/main/scene-03/ours_source.webp",
-          "novel": "assets/gallery/main/scene-03/ours_novel.webp"
+          "novel": "assets/gallery/main/scene-03/ours_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-03/ours.glb",
+            "bytes": 3498780,
+            "camera": {
+              "orbit": "180.00000deg 31.91863deg 0.986007m",
+              "target": "0.000000m 0.000000m 0.521316m",
+              "fov": "59.22088deg"
+            }
+          }
         },
         {
           "id": "simfoundry",
           "label": "SimFoundry",
           "source": "assets/gallery/main/scene-03/simfoundry_source.webp",
-          "novel": "assets/gallery/main/scene-03/simfoundry_novel.webp"
+          "novel": "assets/gallery/main/scene-03/simfoundry_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-03/simfoundry.glb",
+            "bytes": 4546888,
+            "camera": {
+              "orbit": "0.00000deg 33.72777deg 0.797289m",
+              "target": "-0.011082m 0.000000m -0.120138m",
+              "fov": "55.11078deg"
+            }
+          }
         },
         {
           "id": "rest3d",
           "label": "REST3D",
           "source": "assets/gallery/main/scene-03/rest3d_source.webp",
-          "novel": "assets/gallery/main/scene-03/rest3d_novel.webp"
+          "novel": "assets/gallery/main/scene-03/rest3d_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-03/rest3d.glb",
+            "bytes": 845492,
+            "camera": {
+              "orbit": "178.67847deg 30.58699deg 1.558218m",
+              "target": "0.001014m 0.000000m 1.600685m",
+              "fov": "54.22315deg"
+            }
+          }
         },
         {
           "id": "sc",
           "label": "SceneConductor",
           "source": "assets/gallery/main/scene-03/sc_source.webp",
-          "novel": "assets/gallery/main/scene-03/sc_novel.webp"
+          "novel": "assets/gallery/main/scene-03/sc_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-03/sc.glb",
+            "bytes": 3247944,
+            "camera": {
+              "orbit": "-0.84419deg 53.72872deg 1.938386m",
+              "target": "0.023025m -1.146767m -1.562606m",
+              "fov": "62.48028deg"
+            }
+          }
         },
         {
           "id": "viga",
           "label": "VIGA",
           "source": "assets/gallery/main/scene-03/viga_source.webp",
-          "novel": "assets/gallery/main/scene-03/viga_novel.webp"
+          "novel": "assets/gallery/main/scene-03/viga_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-03/viga.glb",
+            "bytes": 2730008,
+            "camera": {
+              "orbit": "179.99985deg 89.95437deg 1.532857m",
+              "target": "-0.000004m -0.001221m 1.532856m",
+              "fov": "51.39616deg"
+            }
+          }
         }
       ],
       "input": "assets/gallery/main/scene-03/input.webp"
@@ -237,31 +417,76 @@
           "id": "ours",
           "label": "SceneRig",
           "source": "assets/gallery/main/scene-04/ours_source.webp",
-          "novel": "assets/gallery/main/scene-04/ours_novel.webp"
+          "novel": "assets/gallery/main/scene-04/ours_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-04/ours.glb",
+            "bytes": 1838920,
+            "camera": {
+              "orbit": "180.00000deg 31.82533deg 1.668547m",
+              "target": "0.000000m 0.000000m 0.879877m",
+              "fov": "53.09848deg"
+            }
+          }
         },
         {
           "id": "simfoundry",
           "label": "SimFoundry",
           "source": "assets/gallery/main/scene-04/simfoundry_source.webp",
-          "novel": "assets/gallery/main/scene-04/simfoundry_novel.webp"
+          "novel": "assets/gallery/main/scene-04/simfoundry_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-04/simfoundry.glb",
+            "bytes": 2325496,
+            "camera": {
+              "orbit": "0.00000deg 38.25293deg 1.498279m",
+              "target": "0.027850m 0.000000m -0.086806m",
+              "fov": "46.26828deg"
+            }
+          }
         },
         {
           "id": "rest3d",
           "label": "REST3D",
           "source": "assets/gallery/main/scene-04/rest3d_source.webp",
-          "novel": "assets/gallery/main/scene-04/rest3d_novel.webp"
+          "novel": "assets/gallery/main/scene-04/rest3d_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-04/rest3d.glb",
+            "bytes": 758148,
+            "camera": {
+              "orbit": "-176.91867deg 39.70414deg 1.927815m",
+              "target": "-0.002552m 0.000000m 1.954723m",
+              "fov": "48.53481deg"
+            }
+          }
         },
         {
           "id": "sc",
           "label": "SceneConductor",
           "source": "assets/gallery/main/scene-04/sc_source.webp",
-          "novel": "assets/gallery/main/scene-04/sc_novel.webp"
+          "novel": "assets/gallery/main/scene-04/sc_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-04/sc.glb",
+            "bytes": 2672040,
+            "camera": {
+              "orbit": "0.17400deg 47.26621deg 2.300314m",
+              "target": "-0.005131m -1.560977m -1.689606m",
+              "fov": "54.98375deg"
+            }
+          }
         },
         {
           "id": "viga",
           "label": "VIGA",
           "source": "assets/gallery/main/scene-04/viga_source.webp",
-          "novel": "assets/gallery/main/scene-04/viga_novel.webp"
+          "novel": "assets/gallery/main/scene-04/viga_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-04/viga.glb",
+            "bytes": 2823064,
+            "camera": {
+              "orbit": "-179.99999deg 90.00000deg 1.869971m",
+              "target": "0.000000m 0.000000m 1.869971m",
+              "fov": "36.00998deg"
+            }
+          }
         }
       ],
       "input": "assets/gallery/main/scene-04/input.webp"
@@ -277,31 +502,76 @@
           "id": "ours",
           "label": "SceneRig",
           "source": "assets/gallery/main/scene-05/ours_source.webp",
-          "novel": "assets/gallery/main/scene-05/ours_novel.webp"
+          "novel": "assets/gallery/main/scene-05/ours_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-05/ours.glb",
+            "bytes": 13316416,
+            "camera": {
+              "orbit": "180.00000deg 50.73482deg 1.037922m",
+              "target": "0.000000m 0.000000m 0.803585m",
+              "fov": "60.42080deg"
+            }
+          }
         },
         {
           "id": "simfoundry",
           "label": "SimFoundry",
           "source": "assets/gallery/main/scene-05/simfoundry_source.webp",
-          "novel": "assets/gallery/main/scene-05/simfoundry_novel.webp"
+          "novel": "assets/gallery/main/scene-05/simfoundry_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-05/simfoundry.glb",
+            "bytes": 9818644,
+            "camera": {
+              "orbit": "0.00000deg 50.13720deg 0.915442m",
+              "target": "-0.049314m 0.000000m -0.078114m",
+              "fov": "56.22592deg"
+            }
+          }
         },
         {
           "id": "rest3d",
           "label": "REST3D",
           "source": "assets/gallery/main/scene-05/rest3d_source.webp",
-          "novel": "assets/gallery/main/scene-05/rest3d_novel.webp"
+          "novel": "assets/gallery/main/scene-05/rest3d_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-05/rest3d.glb",
+            "bytes": 1727476,
+            "camera": {
+              "orbit": "179.11449deg 42.06435deg 1.268831m",
+              "target": "0.019358m 0.000000m 1.886023m",
+              "fov": "56.94102deg"
+            }
+          }
         },
         {
           "id": "sc",
           "label": "SceneConductor",
           "source": "assets/gallery/main/scene-05/sc_source.webp",
-          "novel": "assets/gallery/main/scene-05/sc_novel.webp"
+          "novel": "assets/gallery/main/scene-05/sc_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-05/sc.glb",
+            "bytes": 17259368,
+            "camera": {
+              "orbit": "0.12320deg 62.53633deg 3.757587m",
+              "target": "-0.007169m -1.732947m -3.334112m",
+              "fov": "51.49960deg"
+            }
+          }
         },
         {
           "id": "viga",
           "label": "VIGA",
           "source": "assets/gallery/main/scene-05/viga_source.webp",
-          "novel": "assets/gallery/main/scene-05/viga_novel.webp"
+          "novel": "assets/gallery/main/scene-05/viga_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-05/viga.glb",
+            "bytes": 6834856,
+            "camera": {
+              "orbit": "-179.99959deg 90.01166deg 1.342421m",
+              "target": "0.000010m 0.000273m 1.342421m",
+              "fov": "45.74733deg"
+            }
+          }
         }
       ],
       "input": "assets/gallery/main/scene-05/input.webp"
@@ -317,31 +587,76 @@
           "id": "ours",
           "label": "SceneRig",
           "source": "assets/gallery/main/scene-06/ours_source.webp",
-          "novel": "assets/gallery/main/scene-06/ours_novel.webp"
+          "novel": "assets/gallery/main/scene-06/ours_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-06/ours.glb",
+            "bytes": 5133384,
+            "camera": {
+              "orbit": "180.00000deg 67.95901deg 1.250187m",
+              "target": "0.000000m 0.000000m 1.158818m",
+              "fov": "60.82038deg"
+            }
+          }
         },
         {
           "id": "simfoundry",
           "label": "SimFoundry",
           "source": "assets/gallery/main/scene-06/simfoundry_source.webp",
-          "novel": "assets/gallery/main/scene-06/simfoundry_novel.webp"
+          "novel": "assets/gallery/main/scene-06/simfoundry_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-06/simfoundry.glb",
+            "bytes": 17175648,
+            "camera": {
+              "orbit": "0.00000deg 68.23704deg 1.345005m",
+              "target": "-0.115820m 0.000000m -0.524262m",
+              "fov": "54.97771deg"
+            }
+          }
         },
         {
           "id": "rest3d",
           "label": "REST3D",
           "source": "assets/gallery/main/scene-06/rest3d_source.webp",
-          "novel": "assets/gallery/main/scene-06/rest3d_novel.webp"
+          "novel": "assets/gallery/main/scene-06/rest3d_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-06/rest3d.glb",
+            "bytes": 1539396,
+            "camera": {
+              "orbit": "179.63587deg 54.76163deg 1.541826m",
+              "target": "0.004336m 0.000000m 1.694895m",
+              "fov": "55.64410deg"
+            }
+          }
         },
         {
           "id": "sc",
           "label": "SceneConductor",
           "source": "assets/gallery/main/scene-06/sc_source.webp",
-          "novel": "assets/gallery/main/scene-06/sc_novel.webp"
+          "novel": "assets/gallery/main/scene-06/sc_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-06/sc.glb",
+            "bytes": 8370516,
+            "camera": {
+              "orbit": "-0.04443deg 72.87280deg 6.735415m",
+              "target": "0.004991m -1.983539m -6.436719m",
+              "fov": "50.28489deg"
+            }
+          }
         },
         {
           "id": "viga",
           "label": "VIGA",
           "source": "assets/gallery/main/scene-06/viga_source.webp",
-          "novel": "assets/gallery/main/scene-06/viga_novel.webp"
+          "novel": "assets/gallery/main/scene-06/viga_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-06/viga.glb",
+            "bytes": 220244,
+            "camera": {
+              "orbit": "0.00000deg 70.00000deg 1.206885m",
+              "target": "0.000000m 0.831221m -0.249101m",
+              "fov": "51.48142deg"
+            }
+          }
         }
       ],
       "input": "assets/gallery/main/scene-06/input.webp"
@@ -357,31 +672,76 @@
           "id": "ours",
           "label": "SceneRig",
           "source": "assets/gallery/main/scene-07/ours_source.webp",
-          "novel": "assets/gallery/main/scene-07/ours_novel.webp"
+          "novel": "assets/gallery/main/scene-07/ours_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-07/ours.glb",
+            "bytes": 5679460,
+            "camera": {
+              "orbit": "180.00000deg 71.46343deg 0.983739m",
+              "target": "0.000000m 0.000000m 0.932704m",
+              "fov": "44.67304deg"
+            }
+          }
         },
         {
           "id": "simfoundry",
           "label": "SimFoundry",
           "source": "assets/gallery/main/scene-07/simfoundry_source.webp",
-          "novel": "assets/gallery/main/scene-07/simfoundry_novel.webp"
+          "novel": "assets/gallery/main/scene-07/simfoundry_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-07/simfoundry.glb",
+            "bytes": 4047232,
+            "camera": {
+              "orbit": "0.00000deg 72.02141deg 1.544830m",
+              "target": "0.004067m 0.000000m -0.523584m",
+              "fov": "30.56066deg"
+            }
+          }
         },
         {
           "id": "rest3d",
           "label": "REST3D",
           "source": "assets/gallery/main/scene-07/rest3d_source.webp",
-          "novel": "assets/gallery/main/scene-07/rest3d_novel.webp"
+          "novel": "assets/gallery/main/scene-07/rest3d_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-07/rest3d.glb",
+            "bytes": 1396944,
+            "camera": {
+              "orbit": "179.90191deg 72.75773deg 2.254544m",
+              "target": "0.001397m 0.000000m 2.292955m",
+              "fov": "36.77289deg"
+            }
+          }
         },
         {
           "id": "sc",
           "label": "SceneConductor",
           "source": "assets/gallery/main/scene-07/sc_source.webp",
-          "novel": "assets/gallery/main/scene-07/sc_novel.webp"
+          "novel": "assets/gallery/main/scene-07/sc_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-07/sc.glb",
+            "bytes": 5573560,
+            "camera": {
+              "orbit": "-0.14755deg 80.94133deg 7.946334m",
+              "target": "0.020208m -1.251117m -7.847198m",
+              "fov": "30.95042deg"
+            }
+          }
         },
         {
           "id": "viga",
           "label": "VIGA",
           "source": "assets/gallery/main/scene-07/viga_source.webp",
-          "novel": "assets/gallery/main/scene-07/viga_novel.webp"
+          "novel": "assets/gallery/main/scene-07/viga_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-07/viga.glb",
+            "bytes": 4402644,
+            "camera": {
+              "orbit": "-179.99999deg 71.61972deg 2.943019m",
+              "target": "-0.030000m 0.092000m 1.992880m",
+              "fov": "33.40974deg"
+            }
+          }
         }
       ],
       "input": "assets/gallery/main/scene-07/input.webp"
@@ -397,31 +757,76 @@
           "id": "ours",
           "label": "SceneRig",
           "source": "assets/gallery/main/scene-08/ours_source.webp",
-          "novel": "assets/gallery/main/scene-08/ours_novel.webp"
+          "novel": "assets/gallery/main/scene-08/ours_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-08/ours.glb",
+            "bytes": 4460576,
+            "camera": {
+              "orbit": "180.00000deg 66.88714deg 0.740518m",
+              "target": "0.000000m 0.000000m 0.681079m",
+              "fov": "46.13294deg"
+            }
+          }
         },
         {
           "id": "simfoundry",
           "label": "SimFoundry",
           "source": "assets/gallery/main/scene-08/simfoundry_source.webp",
-          "novel": "assets/gallery/main/scene-08/simfoundry_novel.webp"
+          "novel": "assets/gallery/main/scene-08/simfoundry_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-08/simfoundry.glb",
+            "bytes": 2801100,
+            "camera": {
+              "orbit": "0.00000deg 66.82065deg 1.093575m",
+              "target": "0.013803m 0.000000m -0.260433m",
+              "fov": "32.02228deg"
+            }
+          }
         },
         {
           "id": "rest3d",
           "label": "REST3D",
           "source": "assets/gallery/main/scene-08/rest3d_source.webp",
-          "novel": "assets/gallery/main/scene-08/rest3d_novel.webp"
+          "novel": "assets/gallery/main/scene-08/rest3d_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-08/rest3d.glb",
+            "bytes": 772140,
+            "camera": {
+              "orbit": "179.57731deg 65.73213deg 1.811654m",
+              "target": "0.002923m 0.000000m 1.850066m",
+              "fov": "38.41698deg"
+            }
+          }
         },
         {
           "id": "sc",
           "label": "SceneConductor",
           "source": "assets/gallery/main/scene-08/sc_source.webp",
-          "novel": "assets/gallery/main/scene-08/sc_novel.webp"
+          "novel": "assets/gallery/main/scene-08/sc_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-08/sc.glb",
+            "bytes": 5553812,
+            "camera": {
+              "orbit": "-0.20498deg 73.55214deg 6.883078m",
+              "target": "0.023617m -1.948893m -6.601366m",
+              "fov": "38.41656deg"
+            }
+          }
         },
         {
           "id": "viga",
           "label": "VIGA",
           "source": "assets/gallery/main/scene-08/viga_source.webp",
-          "novel": "assets/gallery/main/scene-08/viga_novel.webp"
+          "novel": "assets/gallery/main/scene-08/viga_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-08/viga.glb",
+            "bytes": 5579668,
+            "camera": {
+              "orbit": "-2.86241deg 59.06780deg 1.072743m",
+              "target": "0.045951m 0.028585m -0.219025m",
+              "fov": "43.60282deg"
+            }
+          }
         }
       ],
       "input": "assets/gallery/main/scene-08/input.webp"
@@ -437,31 +842,76 @@
           "id": "ours",
           "label": "SceneRig",
           "source": "assets/gallery/main/scene-09/ours_source.webp",
-          "novel": "assets/gallery/main/scene-09/ours_novel.webp"
+          "novel": "assets/gallery/main/scene-09/ours_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-09/ours.glb",
+            "bytes": 3588148,
+            "camera": {
+              "orbit": "180.00000deg 57.50929deg 3.101240m",
+              "target": "0.000000m 0.000000m 2.615830m",
+              "fov": "49.89990deg"
+            }
+          }
         },
         {
           "id": "simfoundry",
           "label": "SimFoundry",
           "source": "assets/gallery/main/scene-09/simfoundry_source.webp",
-          "novel": "assets/gallery/main/scene-09/simfoundry_novel.webp"
+          "novel": "assets/gallery/main/scene-09/simfoundry_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-09/simfoundry.glb",
+            "bytes": 648852,
+            "camera": {
+              "orbit": "0.00000deg 57.21375deg 2.116591m",
+              "target": "-0.131062m 0.000000m 0.527067m",
+              "fov": "42.17522deg"
+            }
+          }
         },
         {
           "id": "rest3d",
           "label": "REST3D",
           "source": "assets/gallery/main/scene-09/rest3d_source.webp",
-          "novel": "assets/gallery/main/scene-09/rest3d_novel.webp"
+          "novel": "assets/gallery/main/scene-09/rest3d_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-09/rest3d.glb",
+            "bytes": 1017496,
+            "camera": {
+              "orbit": "179.94025deg 64.26494deg 2.472120m",
+              "target": "0.000084m 0.000000m 2.480973m",
+              "fov": "44.47774deg"
+            }
+          }
         },
         {
           "id": "sc",
           "label": "SceneConductor",
           "source": "assets/gallery/main/scene-09/sc_source.webp",
-          "novel": "assets/gallery/main/scene-09/sc_novel.webp"
+          "novel": "assets/gallery/main/scene-09/sc_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-09/sc.glb",
+            "bytes": 2680420,
+            "camera": {
+              "orbit": "0.33269deg 73.65820deg 8.207594m",
+              "target": "-0.045732m -2.309345m -7.875877m",
+              "fov": "30.49611deg"
+            }
+          }
         },
         {
           "id": "viga",
           "label": "VIGA",
           "source": "assets/gallery/main/scene-09/viga_source.webp",
-          "novel": "assets/gallery/main/scene-09/viga_novel.webp"
+          "novel": "assets/gallery/main/scene-09/viga_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-09/viga.glb",
+            "bytes": 171972,
+            "camera": {
+              "orbit": "135.00000deg 55.76377deg 1.967628m",
+              "target": "0.179758m 0.793000m -0.179758m",
+              "fov": "50.69235deg"
+            }
+          }
         }
       ],
       "input": "assets/gallery/main/scene-09/input.webp"
@@ -477,31 +927,76 @@
           "id": "ours",
           "label": "SceneRig",
           "source": "assets/gallery/main/scene-10/ours_source.webp",
-          "novel": "assets/gallery/main/scene-10/ours_novel.webp"
+          "novel": "assets/gallery/main/scene-10/ours_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-10/ours.glb",
+            "bytes": 2164152,
+            "camera": {
+              "orbit": "180.00000deg 65.57295deg 3.316429m",
+              "target": "0.000000m 0.000000m 3.019570m",
+              "fov": "39.08535deg"
+            }
+          }
         },
         {
           "id": "simfoundry",
           "label": "SimFoundry",
           "source": "assets/gallery/main/scene-10/simfoundry_source.webp",
-          "novel": "assets/gallery/main/scene-10/simfoundry_novel.webp"
+          "novel": "assets/gallery/main/scene-10/simfoundry_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-10/simfoundry.glb",
+            "bytes": 530704,
+            "camera": {
+              "orbit": "0.00000deg 65.12525deg 1.903204m",
+              "target": "0.007161m 0.000000m 0.583023m",
+              "fov": "34.98919deg"
+            }
+          }
         },
         {
           "id": "rest3d",
           "label": "REST3D",
           "source": "assets/gallery/main/scene-10/rest3d_source.webp",
-          "novel": "assets/gallery/main/scene-10/rest3d_novel.webp"
+          "novel": "assets/gallery/main/scene-10/rest3d_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-10/rest3d.glb",
+            "bytes": 645216,
+            "camera": {
+              "orbit": "179.75541deg 68.55847deg 2.053598m",
+              "target": "0.000992m 0.000000m 2.070875m",
+              "fov": "37.93424deg"
+            }
+          }
         },
         {
           "id": "sc",
           "label": "SceneConductor",
           "source": "assets/gallery/main/scene-10/sc_source.webp",
-          "novel": "assets/gallery/main/scene-10/sc_novel.webp"
+          "novel": "assets/gallery/main/scene-10/sc_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-10/sc.glb",
+            "bytes": 1528552,
+            "camera": {
+              "orbit": "-0.02930deg 73.74973deg 10.638210m",
+              "target": "0.005223m -2.976927m -10.213197m",
+              "fov": "37.92813deg"
+            }
+          }
         },
         {
           "id": "viga",
           "label": "VIGA",
           "source": "assets/gallery/main/scene-10/viga_source.webp",
-          "novel": "assets/gallery/main/scene-10/viga_novel.webp"
+          "novel": "assets/gallery/main/scene-10/viga_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-10/viga.glb",
+            "bytes": 4507340,
+            "camera": {
+              "orbit": "-3.19459deg 48.72644deg 2.924620m",
+              "target": "0.062491m 0.220760m 1.655363m",
+              "fov": "37.84929deg"
+            }
+          }
         }
       ],
       "input": "assets/gallery/main/scene-10/input.webp"
@@ -517,31 +1012,76 @@
           "id": "ours",
           "label": "SceneRig",
           "source": "assets/gallery/main/scene-11/ours_source.webp",
-          "novel": "assets/gallery/main/scene-11/ours_novel.webp"
+          "novel": "assets/gallery/main/scene-11/ours_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-11/ours.glb",
+            "bytes": 5090360,
+            "camera": {
+              "orbit": "180.00000deg 77.66585deg 1.271243m",
+              "target": "0.000000m 0.000000m 1.241901m",
+              "fov": "33.19722deg"
+            }
+          }
         },
         {
           "id": "simfoundry",
           "label": "SimFoundry",
           "source": "assets/gallery/main/scene-11/simfoundry_source.webp",
-          "novel": "assets/gallery/main/scene-11/simfoundry_novel.webp"
+          "novel": "assets/gallery/main/scene-11/simfoundry_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-11/simfoundry.glb",
+            "bytes": 3088256,
+            "camera": {
+              "orbit": "0.00000deg 76.63578deg 1.349354m",
+              "target": "-0.072733m 0.000000m -0.514025m",
+              "fov": "31.10409deg"
+            }
+          }
         },
         {
           "id": "rest3d",
           "label": "REST3D",
           "source": "assets/gallery/main/scene-11/rest3d_source.webp",
-          "novel": "assets/gallery/main/scene-11/rest3d_novel.webp"
+          "novel": "assets/gallery/main/scene-11/rest3d_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-11/rest3d.glb",
+            "bytes": 1134252,
+            "camera": {
+              "orbit": "179.85043deg 80.49197deg 2.480741m",
+              "target": "0.001803m 0.000000m 2.490361m",
+              "fov": "29.36905deg"
+            }
+          }
         },
         {
           "id": "sc",
           "label": "SceneConductor",
           "source": "assets/gallery/main/scene-11/sc_source.webp",
-          "novel": "assets/gallery/main/scene-11/sc_novel.webp"
+          "novel": "assets/gallery/main/scene-11/sc_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-11/sc.glb",
+            "bytes": 5256852,
+            "camera": {
+              "orbit": "-0.10090deg 81.88324deg 8.418656m",
+              "target": "0.014677m -1.188637m -8.334309m",
+              "fov": "34.56186deg"
+            }
+          }
         },
         {
           "id": "viga",
           "label": "VIGA",
           "source": "assets/gallery/main/scene-11/viga_source.webp",
-          "novel": "assets/gallery/main/scene-11/viga_novel.webp"
+          "novel": "assets/gallery/main/scene-11/viga_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-11/viga.glb",
+            "bytes": 674548,
+            "camera": {
+              "orbit": "-8.02141deg 85.94367deg 0.734430m",
+              "target": "-0.087772m 0.083048m 0.134577m",
+              "fov": "32.26880deg"
+            }
+          }
         }
       ],
       "input": "assets/gallery/main/scene-11/input.webp"
@@ -557,31 +1097,76 @@
           "id": "ours",
           "label": "SceneRig",
           "source": "assets/gallery/main/scene-12/ours_source.webp",
-          "novel": "assets/gallery/main/scene-12/ours_novel.webp"
+          "novel": "assets/gallery/main/scene-12/ours_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-12/ours.glb",
+            "bytes": 2748264,
+            "camera": {
+              "orbit": "180.00000deg 68.00647deg 1.195345m",
+              "target": "0.000000m 0.000000m 1.108355m",
+              "fov": "38.63877deg"
+            }
+          }
         },
         {
           "id": "simfoundry",
           "label": "SimFoundry",
           "source": "assets/gallery/main/scene-12/simfoundry_source.webp",
-          "novel": "assets/gallery/main/scene-12/simfoundry_novel.webp"
+          "novel": "assets/gallery/main/scene-12/simfoundry_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-12/simfoundry.glb",
+            "bytes": 4577816,
+            "camera": {
+              "orbit": "0.00000deg 13.29891deg 1.845456m",
+              "target": "0.099998m 0.000000m -0.231895m",
+              "fov": "23.68745deg"
+            }
+          }
         },
         {
           "id": "rest3d",
           "label": "REST3D",
           "source": "assets/gallery/main/scene-12/rest3d_source.webp",
-          "novel": "assets/gallery/main/scene-12/rest3d_novel.webp"
+          "novel": "assets/gallery/main/scene-12/rest3d_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-12/rest3d.glb",
+            "bytes": 1152268,
+            "camera": {
+              "orbit": "179.58109deg 61.43291deg 2.246477m",
+              "target": "0.003794m 0.000000m 2.318419m",
+              "fov": "37.96939deg"
+            }
+          }
         },
         {
           "id": "sc",
           "label": "SceneConductor",
           "source": "assets/gallery/main/scene-12/sc_source.webp",
-          "novel": "assets/gallery/main/scene-12/sc_novel.webp"
+          "novel": "assets/gallery/main/scene-12/sc_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-12/sc.glb",
+            "bytes": 1694968,
+            "camera": {
+              "orbit": "-0.03516deg 79.58905deg 5.776407m",
+              "target": "0.003486m -1.043838m -5.681308m",
+              "fov": "38.85285deg"
+            }
+          }
         },
         {
           "id": "viga",
           "label": "VIGA",
           "source": "assets/gallery/main/scene-12/viga_source.webp",
-          "novel": "assets/gallery/main/scene-12/viga_novel.webp"
+          "novel": "assets/gallery/main/scene-12/viga_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-12/viga.glb",
+            "bytes": 3099604,
+            "camera": {
+              "orbit": "-179.99999deg 80.99999deg 2.483852m",
+              "target": "0.000000m -0.208560m 2.273272m",
+              "fov": "40.18723deg"
+            }
+          }
         }
       ],
       "input": "assets/gallery/main/scene-12/input.webp"
@@ -597,31 +1182,76 @@
           "id": "ours",
           "label": "SceneRig",
           "source": "assets/gallery/main/scene-13/ours_source.webp",
-          "novel": "assets/gallery/main/scene-13/ours_novel.webp"
+          "novel": "assets/gallery/main/scene-13/ours_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-13/ours.glb",
+            "bytes": 4342260,
+            "camera": {
+              "orbit": "180.00000deg 42.21563deg 0.927427m",
+              "target": "0.000000m 0.000000m 0.623159m",
+              "fov": "46.66968deg"
+            }
+          }
         },
         {
           "id": "simfoundry",
           "label": "SimFoundry",
           "source": "assets/gallery/main/scene-13/simfoundry_source.webp",
-          "novel": "assets/gallery/main/scene-13/simfoundry_novel.webp"
+          "novel": "assets/gallery/main/scene-13/simfoundry_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-13/simfoundry.glb",
+            "bytes": 4138408,
+            "camera": {
+              "orbit": "0.00000deg 41.48188deg 0.703500m",
+              "target": "-0.003351m 0.000000m -0.070499m",
+              "fov": "42.95586deg"
+            }
+          }
         },
         {
           "id": "rest3d",
           "label": "REST3D",
           "source": "assets/gallery/main/scene-13/rest3d_source.webp",
-          "novel": "assets/gallery/main/scene-13/rest3d_novel.webp"
+          "novel": "assets/gallery/main/scene-13/rest3d_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-13/rest3d.glb",
+            "bytes": 1110612,
+            "camera": {
+              "orbit": "-178.64124deg 38.08982deg 1.767841m",
+              "target": "0.005044m 0.000000m 1.635680m",
+              "fov": "47.62097deg"
+            }
+          }
         },
         {
           "id": "sc",
           "label": "SceneConductor",
           "source": "assets/gallery/main/scene-13/sc_source.webp",
-          "novel": "assets/gallery/main/scene-13/sc_novel.webp"
+          "novel": "assets/gallery/main/scene-13/sc_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-13/sc.glb",
+            "bytes": 4414540,
+            "camera": {
+              "orbit": "-0.32465deg 57.05134deg 2.790302m",
+              "target": "0.013268m -1.517610m -2.341468m",
+              "fov": "42.83097deg"
+            }
+          }
         },
         {
           "id": "viga",
           "label": "VIGA",
           "source": "assets/gallery/main/scene-13/viga_source.webp",
-          "novel": "assets/gallery/main/scene-13/viga_novel.webp"
+          "novel": "assets/gallery/main/scene-13/viga_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-13/viga.glb",
+            "bytes": 5895404,
+            "camera": {
+              "orbit": "-179.99999deg 90.00000deg 1.714014m",
+              "target": "0.000000m 0.000000m 1.714014m",
+              "fov": "43.31198deg"
+            }
+          }
         }
       ],
       "input": "assets/gallery/main/scene-13/input.webp"
@@ -637,31 +1267,76 @@
           "id": "ours",
           "label": "SceneRig",
           "source": "assets/gallery/main/scene-14/ours_source.webp",
-          "novel": "assets/gallery/main/scene-14/ours_novel.webp"
+          "novel": "assets/gallery/main/scene-14/ours_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-14/ours.glb",
+            "bytes": 2466904,
+            "camera": {
+              "orbit": "180.00000deg 47.13706deg 0.629406m",
+              "target": "0.000000m 0.000000m 0.461344m",
+              "fov": "53.13986deg"
+            }
+          }
         },
         {
           "id": "simfoundry",
           "label": "SimFoundry",
           "source": "assets/gallery/main/scene-14/simfoundry_source.webp",
-          "novel": "assets/gallery/main/scene-14/simfoundry_novel.webp"
+          "novel": "assets/gallery/main/scene-14/simfoundry_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-14/simfoundry.glb",
+            "bytes": 1695452,
+            "camera": {
+              "orbit": "0.00000deg 52.09016deg 0.788137m",
+              "target": "-0.031681m 0.000000m -0.052368m",
+              "fov": "43.73719deg"
+            }
+          }
         },
         {
           "id": "rest3d",
           "label": "REST3D",
           "source": "assets/gallery/main/scene-14/rest3d_source.webp",
-          "novel": "assets/gallery/main/scene-14/rest3d_novel.webp"
+          "novel": "assets/gallery/main/scene-14/rest3d_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-14/rest3d.glb",
+            "bytes": 640044,
+            "camera": {
+              "orbit": "176.76802deg 55.58041deg 1.037433m",
+              "target": "0.015711m -0.000000m 1.097020m",
+              "fov": "46.39163deg"
+            }
+          }
         },
         {
           "id": "sc",
           "label": "SceneConductor",
           "source": "assets/gallery/main/scene-14/sc_source.webp",
-          "novel": "assets/gallery/main/scene-14/sc_novel.webp"
+          "novel": "assets/gallery/main/scene-14/sc_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-14/sc.glb",
+            "bytes": 3456808,
+            "camera": {
+              "orbit": "0.88287deg 60.72349deg 3.572500m",
+              "target": "-0.048015m -1.747041m -3.115814m",
+              "fov": "41.70120deg"
+            }
+          }
         },
         {
           "id": "viga",
           "label": "VIGA",
           "source": "assets/gallery/main/scene-14/viga_source.webp",
-          "novel": "assets/gallery/main/scene-14/viga_novel.webp"
+          "novel": "assets/gallery/main/scene-14/viga_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-14/viga.glb",
+            "bytes": 6999388,
+            "camera": {
+              "orbit": "-6.98106deg 46.71238deg 1.403755m",
+              "target": "0.164194m -0.022500m -0.394247m",
+              "fov": "41.11209deg"
+            }
+          }
         }
       ],
       "input": "assets/gallery/main/scene-14/input.webp"
@@ -677,31 +1352,76 @@
           "id": "ours",
           "label": "SceneRig",
           "source": "assets/gallery/main/scene-15/ours_source.webp",
-          "novel": "assets/gallery/main/scene-15/ours_novel.webp"
+          "novel": "assets/gallery/main/scene-15/ours_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-15/ours.glb",
+            "bytes": 4692884,
+            "camera": {
+              "orbit": "180.00000deg 43.41732deg 1.076628m",
+              "target": "0.000000m 0.000000m 0.739974m",
+              "fov": "51.54470deg"
+            }
+          }
         },
         {
           "id": "simfoundry",
           "label": "SimFoundry",
           "source": "assets/gallery/main/scene-15/simfoundry_source.webp",
-          "novel": "assets/gallery/main/scene-15/simfoundry_novel.webp"
+          "novel": "assets/gallery/main/scene-15/simfoundry_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-15/simfoundry.glb",
+            "bytes": 5400088,
+            "camera": {
+              "orbit": "0.00000deg 43.06011deg 0.998282m",
+              "target": "-0.011236m 0.000000m -0.004160m",
+              "fov": "49.32460deg"
+            }
+          }
         },
         {
           "id": "rest3d",
           "label": "REST3D",
           "source": "assets/gallery/main/scene-15/rest3d_source.webp",
-          "novel": "assets/gallery/main/scene-15/rest3d_novel.webp"
+          "novel": "assets/gallery/main/scene-15/rest3d_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-15/rest3d.glb",
+            "bytes": 727576,
+            "camera": {
+              "orbit": "-178.36050deg 34.49890deg 2.266489m",
+              "target": "-0.014074m 0.000000m 2.643288m",
+              "fov": "40.38280deg"
+            }
+          }
         },
         {
           "id": "sc",
           "label": "SceneConductor",
           "source": "assets/gallery/main/scene-15/sc_source.webp",
-          "novel": "assets/gallery/main/scene-15/sc_novel.webp"
+          "novel": "assets/gallery/main/scene-15/sc_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-15/sc.glb",
+            "bytes": 3989104,
+            "camera": {
+              "orbit": "-1.99783deg 50.55915deg 5.361422m",
+              "target": "0.144345m -3.406011m -4.138007m",
+              "fov": "36.20320deg"
+            }
+          }
         },
         {
           "id": "viga",
           "label": "VIGA",
           "source": "assets/gallery/main/scene-15/viga_source.webp",
-          "novel": "assets/gallery/main/scene-15/viga_novel.webp"
+          "novel": "assets/gallery/main/scene-15/viga_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-15/viga.glb",
+            "bytes": 1997572,
+            "camera": {
+              "orbit": "-179.99999deg 90.00000deg 1.569228m",
+              "target": "0.000000m 0.000000m 1.569228m",
+              "fov": "45.74733deg"
+            }
+          }
         }
       ],
       "input": "assets/gallery/main/scene-15/input.webp"
@@ -717,31 +1437,76 @@
           "id": "ours",
           "label": "SceneRig",
           "source": "assets/gallery/main/scene-16/ours_source.webp",
-          "novel": "assets/gallery/main/scene-16/ours_novel.webp"
+          "novel": "assets/gallery/main/scene-16/ours_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-16/ours.glb",
+            "bytes": 9383232,
+            "camera": {
+              "orbit": "180.00000deg 59.32826deg 1.097576m",
+              "target": "0.000000m 0.000000m 0.944029m",
+              "fov": "52.40450deg"
+            }
+          }
         },
         {
           "id": "simfoundry",
           "label": "SimFoundry",
           "source": "assets/gallery/main/scene-16/simfoundry_source.webp",
-          "novel": "assets/gallery/main/scene-16/simfoundry_novel.webp"
+          "novel": "assets/gallery/main/scene-16/simfoundry_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-16/simfoundry.glb",
+            "bytes": 7859168,
+            "camera": {
+              "orbit": "0.00000deg 60.78885deg 1.151437m",
+              "target": "-0.008735m 0.000000m -0.249022m",
+              "fov": "51.10271deg"
+            }
+          }
         },
         {
           "id": "rest3d",
           "label": "REST3D",
           "source": "assets/gallery/main/scene-16/rest3d_source.webp",
-          "novel": "assets/gallery/main/scene-16/rest3d_novel.webp"
+          "novel": "assets/gallery/main/scene-16/rest3d_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-16/rest3d.glb",
+            "bytes": 1432420,
+            "camera": {
+              "orbit": "-179.30889deg 57.23870deg 3.071866m",
+              "target": "-0.015757m 0.000000m 3.319060m",
+              "fov": "48.91644deg"
+            }
+          }
         },
         {
           "id": "sc",
           "label": "SceneConductor",
           "source": "assets/gallery/main/scene-16/sc_source.webp",
-          "novel": "assets/gallery/main/scene-16/sc_novel.webp"
+          "novel": "assets/gallery/main/scene-16/sc_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-16/sc.glb",
+            "bytes": 9055432,
+            "camera": {
+              "orbit": "0.06926deg 73.72001deg 3.326316m",
+              "target": "-0.003860m -0.932471m -3.192940m",
+              "fov": "44.03106deg"
+            }
+          }
         },
         {
           "id": "viga",
           "label": "VIGA",
           "source": "assets/gallery/main/scene-16/viga_source.webp",
-          "novel": "assets/gallery/main/scene-16/viga_novel.webp"
+          "novel": "assets/gallery/main/scene-16/viga_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-16/viga.glb",
+            "bytes": 4510800,
+            "camera": {
+              "orbit": "-174.36167deg 59.58761deg 1.274228m",
+              "target": "0.207965m 0.054960m 0.073583m",
+              "fov": "37.29908deg"
+            }
+          }
         }
       ],
       "input": "assets/gallery/main/scene-16/input.webp"
@@ -757,31 +1522,76 @@
           "id": "ours",
           "label": "SceneRig",
           "source": "assets/gallery/main/scene-17/ours_source.webp",
-          "novel": "assets/gallery/main/scene-17/ours_novel.webp"
+          "novel": "assets/gallery/main/scene-17/ours_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-17/ours.glb",
+            "bytes": 4444480,
+            "camera": {
+              "orbit": "180.00000deg 38.98585deg 1.346410m",
+              "target": "0.000000m 0.000000m 0.847065m",
+              "fov": "53.74345deg"
+            }
+          }
         },
         {
           "id": "simfoundry",
           "label": "SimFoundry",
           "source": "assets/gallery/main/scene-17/simfoundry_source.webp",
-          "novel": "assets/gallery/main/scene-17/simfoundry_novel.webp"
+          "novel": "assets/gallery/main/scene-17/simfoundry_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-17/simfoundry.glb",
+            "bytes": 4312936,
+            "camera": {
+              "orbit": "0.00000deg 41.28719deg 1.101297m",
+              "target": "0.010393m 0.000000m -0.106754m",
+              "fov": "48.53882deg"
+            }
+          }
         },
         {
           "id": "rest3d",
           "label": "REST3D",
           "source": "assets/gallery/main/scene-17/rest3d_source.webp",
-          "novel": "assets/gallery/main/scene-17/rest3d_novel.webp"
+          "novel": "assets/gallery/main/scene-17/rest3d_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-17/rest3d.glb",
+            "bytes": 1265628,
+            "camera": {
+              "orbit": "178.84493deg 35.39040deg 2.024283m",
+              "target": "0.006354m 0.000000m 2.253388m",
+              "fov": "48.56152deg"
+            }
+          }
         },
         {
           "id": "sc",
           "label": "SceneConductor",
           "source": "assets/gallery/main/scene-17/sc_source.webp",
-          "novel": "assets/gallery/main/scene-17/sc_novel.webp"
+          "novel": "assets/gallery/main/scene-17/sc_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-17/sc.glb",
+            "bytes": 4998620,
+            "camera": {
+              "orbit": "-0.87211deg 58.34488deg 4.328024m",
+              "target": "0.056074m -2.271369m -3.683684m",
+              "fov": "43.69731deg"
+            }
+          }
         },
         {
           "id": "viga",
           "label": "VIGA",
           "source": "assets/gallery/main/scene-17/viga_source.webp",
-          "novel": "assets/gallery/main/scene-17/viga_novel.webp"
+          "novel": "assets/gallery/main/scene-17/viga_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-17/viga.glb",
+            "bytes": 2180276,
+            "camera": {
+              "orbit": "0.00000deg 0.00000deg 5.040093m",
+              "target": "0.500000m 0.959907m -0.000000m",
+              "fov": "42.18468deg"
+            }
+          }
         }
       ],
       "input": "assets/gallery/main/scene-17/input.webp"
@@ -797,31 +1607,76 @@
           "id": "ours",
           "label": "SceneRig",
           "source": "assets/gallery/main/scene-18/ours_source.webp",
-          "novel": "assets/gallery/main/scene-18/ours_novel.webp"
+          "novel": "assets/gallery/main/scene-18/ours_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-18/ours.glb",
+            "bytes": 11395636,
+            "camera": {
+              "orbit": "180.00000deg 58.35675deg 1.347074m",
+              "target": "0.000000m 0.000000m 1.146806m",
+              "fov": "57.26658deg"
+            }
+          }
         },
         {
           "id": "simfoundry",
           "label": "SimFoundry",
           "source": "assets/gallery/main/scene-18/simfoundry_source.webp",
-          "novel": "assets/gallery/main/scene-18/simfoundry_novel.webp"
+          "novel": "assets/gallery/main/scene-18/simfoundry_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-18/simfoundry.glb",
+            "bytes": 6948544,
+            "camera": {
+              "orbit": "0.00000deg 60.29923deg 1.279713m",
+              "target": "-0.015414m 0.000000m -0.239070m",
+              "fov": "50.70828deg"
+            }
+          }
         },
         {
           "id": "rest3d",
           "label": "REST3D",
           "source": "assets/gallery/main/scene-18/rest3d_source.webp",
-          "novel": "assets/gallery/main/scene-18/rest3d_novel.webp"
+          "novel": "assets/gallery/main/scene-18/rest3d_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-18/rest3d.glb",
+            "bytes": 2066668,
+            "camera": {
+              "orbit": "178.21546deg 52.44860deg 2.323846m",
+              "target": "0.023393m -0.000000m 2.520532m",
+              "fov": "51.86610deg"
+            }
+          }
         },
         {
           "id": "sc",
           "label": "SceneConductor",
           "source": "assets/gallery/main/scene-18/sc_source.webp",
-          "novel": "assets/gallery/main/scene-18/sc_novel.webp"
+          "novel": "assets/gallery/main/scene-18/sc_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-18/sc.glb",
+            "bytes": 8828868,
+            "camera": {
+              "orbit": "-0.05346deg 75.15628deg 2.501735m",
+              "target": "0.002256m -0.640903m -2.418247m",
+              "fov": "46.75632deg"
+            }
+          }
         },
         {
           "id": "viga",
           "label": "VIGA",
           "source": "assets/gallery/main/scene-18/viga_source.webp",
-          "novel": "assets/gallery/main/scene-18/viga_novel.webp"
+          "novel": "assets/gallery/main/scene-18/viga_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-18/viga.glb",
+            "bytes": 6639716,
+            "camera": {
+              "orbit": "-179.99999deg 68.00000deg 1.418850m",
+              "target": "0.000000m 0.018489m 0.265535m",
+              "fov": "42.18468deg"
+            }
+          }
         }
       ],
       "input": "assets/gallery/main/scene-18/input.webp"
@@ -837,31 +1692,76 @@
           "id": "ours",
           "label": "SceneRig",
           "source": "assets/gallery/main/scene-19/ours_source.webp",
-          "novel": "assets/gallery/main/scene-19/ours_novel.webp"
+          "novel": "assets/gallery/main/scene-19/ours_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-19/ours.glb",
+            "bytes": 8448504,
+            "camera": {
+              "orbit": "180.00000deg 59.50727deg 1.561343m",
+              "target": "0.000000m 0.000000m 1.345399m",
+              "fov": "53.09583deg"
+            }
+          }
         },
         {
           "id": "simfoundry",
           "label": "SimFoundry",
           "source": "assets/gallery/main/scene-19/simfoundry_source.webp",
-          "novel": "assets/gallery/main/scene-19/simfoundry_novel.webp"
+          "novel": "assets/gallery/main/scene-19/simfoundry_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-19/simfoundry.glb",
+            "bytes": 7021904,
+            "camera": {
+              "orbit": "0.00000deg 60.91180deg 1.332081m",
+              "target": "0.039262m 0.000000m -0.312307m",
+              "fov": "50.40739deg"
+            }
+          }
         },
         {
           "id": "rest3d",
           "label": "REST3D",
           "source": "assets/gallery/main/scene-19/rest3d_source.webp",
-          "novel": "assets/gallery/main/scene-19/rest3d_novel.webp"
+          "novel": "assets/gallery/main/scene-19/rest3d_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-19/rest3d.glb",
+            "bytes": 1401452,
+            "camera": {
+              "orbit": "-179.81147deg 51.42779deg 2.665990m",
+              "target": "-0.003511m 0.000000m 2.963776m",
+              "fov": "49.21942deg"
+            }
+          }
         },
         {
           "id": "sc",
           "label": "SceneConductor",
           "source": "assets/gallery/main/scene-19/sc_source.webp",
-          "novel": "assets/gallery/main/scene-19/sc_novel.webp"
+          "novel": "assets/gallery/main/scene-19/sc_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-19/sc.glb",
+            "bytes": 9012604,
+            "camera": {
+              "orbit": "0.16765deg 74.34873deg 3.445431m",
+              "target": "-0.009708m -0.929514m -3.317666m",
+              "fov": "44.30273deg"
+            }
+          }
         },
         {
           "id": "viga",
           "label": "VIGA",
           "source": "assets/gallery/main/scene-19/viga_source.webp",
-          "novel": "assets/gallery/main/scene-19/viga_novel.webp"
+          "novel": "assets/gallery/main/scene-19/viga_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-19/viga.glb",
+            "bytes": 5904592,
+            "camera": {
+              "orbit": "179.99999deg 95.69502deg 1.664047m",
+              "target": "-0.000000m 0.285030m 1.579756m",
+              "fov": "45.74733deg"
+            }
+          }
         }
       ],
       "input": "assets/gallery/main/scene-19/input.webp"
@@ -877,31 +1777,76 @@
           "id": "ours",
           "label": "SceneRig",
           "source": "assets/gallery/main/scene-20/ours_source.webp",
-          "novel": "assets/gallery/main/scene-20/ours_novel.webp"
+          "novel": "assets/gallery/main/scene-20/ours_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-20/ours.glb",
+            "bytes": 1392924,
+            "camera": {
+              "orbit": "180.00000deg 50.85745deg 1.877588m",
+              "target": "0.000000m 0.000000m 1.456216m",
+              "fov": "50.99714deg"
+            }
+          }
         },
         {
           "id": "simfoundry",
           "label": "SimFoundry",
           "source": "assets/gallery/main/scene-20/simfoundry_source.webp",
-          "novel": "assets/gallery/main/scene-20/simfoundry_novel.webp"
+          "novel": "assets/gallery/main/scene-20/simfoundry_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-20/simfoundry.glb",
+            "bytes": 1768976,
+            "camera": {
+              "orbit": "0.00000deg 49.35425deg 1.705268m",
+              "target": "0.319858m 0.000000m 0.624414m",
+              "fov": "48.60792deg"
+            }
+          }
         },
         {
           "id": "rest3d",
           "label": "REST3D",
           "source": "assets/gallery/main/scene-20/rest3d_source.webp",
-          "novel": "assets/gallery/main/scene-20/rest3d_novel.webp"
+          "novel": "assets/gallery/main/scene-20/rest3d_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-20/rest3d.glb",
+            "bytes": 630936,
+            "camera": {
+              "orbit": "-179.96275deg 46.28531deg 2.467319m",
+              "target": "-0.000364m 0.000000m 2.682202m",
+              "fov": "47.96211deg"
+            }
+          }
         },
         {
           "id": "sc",
           "label": "SceneConductor",
           "source": "assets/gallery/main/scene-20/sc_source.webp",
-          "novel": "assets/gallery/main/scene-20/sc_novel.webp"
+          "novel": "assets/gallery/main/scene-20/sc_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-20/sc.glb",
+            "bytes": 2049320,
+            "camera": {
+              "orbit": "0.38142deg 69.06779deg 1.833293m",
+              "target": "-0.011399m -0.654968m -1.712265m",
+              "fov": "43.15402deg"
+            }
+          }
         },
         {
           "id": "viga",
           "label": "VIGA",
           "source": "assets/gallery/main/scene-20/viga_source.webp",
-          "novel": "assets/gallery/main/scene-20/viga_novel.webp"
+          "novel": "assets/gallery/main/scene-20/viga_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-20/viga.glb",
+            "bytes": 1889868,
+            "camera": {
+              "orbit": "0.00000deg 43.81475deg 1.716834m",
+              "target": "0.060000m 0.281163m 0.031386m",
+              "fov": "48.45549deg"
+            }
+          }
         }
       ],
       "input": "assets/gallery/main/scene-20/input.webp"
@@ -917,31 +1862,76 @@
           "id": "ours",
           "label": "SceneRig",
           "source": "assets/gallery/main/scene-22/ours_source.webp",
-          "novel": "assets/gallery/main/scene-22/ours_novel.webp"
+          "novel": "assets/gallery/main/scene-22/ours_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-22/ours.glb",
+            "bytes": 6088296,
+            "camera": {
+              "orbit": "180.00000deg 49.57990deg 1.311373m",
+              "target": "0.000000m 0.000000m 0.998363m",
+              "fov": "42.23711deg"
+            }
+          }
         },
         {
           "id": "simfoundry",
           "label": "SimFoundry",
           "source": "assets/gallery/main/scene-22/simfoundry_source.webp",
-          "novel": "assets/gallery/main/scene-22/simfoundry_novel.webp"
+          "novel": "assets/gallery/main/scene-22/simfoundry_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-22/simfoundry.glb",
+            "bytes": 5268900,
+            "camera": {
+              "orbit": "0.00000deg 49.47629deg 1.232666m",
+              "target": "0.008328m 0.000000m -0.121446m",
+              "fov": "36.05878deg"
+            }
+          }
         },
         {
           "id": "rest3d",
           "label": "REST3D",
           "source": "assets/gallery/main/scene-22/rest3d_source.webp",
-          "novel": "assets/gallery/main/scene-22/rest3d_novel.webp"
+          "novel": "assets/gallery/main/scene-22/rest3d_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-22/rest3d.glb",
+            "bytes": 1433240,
+            "camera": {
+              "orbit": "179.85989deg 40.86695deg 1.465535m",
+              "target": "-0.000006m 0.000000m 1.464177m",
+              "fov": "38.16852deg"
+            }
+          }
         },
         {
           "id": "sc",
           "label": "SceneConductor",
           "source": "assets/gallery/main/scene-22/sc_source.webp",
-          "novel": "assets/gallery/main/scene-22/sc_novel.webp"
+          "novel": "assets/gallery/main/scene-22/sc_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-22/sc.glb",
+            "bytes": 7346448,
+            "camera": {
+              "orbit": "0.63488deg 64.51186deg 2.565495m",
+              "target": "-0.025661m -1.103995m -2.315665m",
+              "fov": "34.18686deg"
+            }
+          }
         },
         {
           "id": "viga",
           "label": "VIGA",
           "source": "assets/gallery/main/scene-22/viga_source.webp",
-          "novel": "assets/gallery/main/scene-22/viga_novel.webp"
+          "novel": "assets/gallery/main/scene-22/viga_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-22/viga.glb",
+            "bytes": 5653800,
+            "camera": {
+              "orbit": "-28.96005deg 62.22543deg 1.396936m",
+              "target": "0.048467m 0.769036m -0.081441m",
+              "fov": "37.29908deg"
+            }
+          }
         }
       ],
       "input": "assets/gallery/main/scene-22/input.webp"
@@ -957,31 +1947,77 @@
           "id": "ours",
           "label": "SceneRig",
           "source": "assets/gallery/main/scene-23/ours_source.webp",
-          "novel": "assets/gallery/main/scene-23/ours_novel.webp"
+          "novel": "assets/gallery/main/scene-23/ours_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-23/ours.glb",
+            "bytes": 3539948,
+            "camera": {
+              "orbit": "180.00000deg 39.27778deg 1.421417m",
+              "target": "0.000000m 0.000000m 0.899871m",
+              "fov": "43.45445deg"
+            }
+          }
         },
         {
           "id": "simfoundry",
           "label": "SimFoundry",
           "source": "assets/gallery/main/scene-23/simfoundry_source.webp",
-          "novel": "assets/gallery/main/scene-23/simfoundry_novel.webp"
+          "novel": "assets/gallery/main/scene-23/simfoundry_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-23/simfoundry.glb",
+            "bytes": 2729696,
+            "camera": {
+              "orbit": "0.00000deg 39.73169deg 1.048296m",
+              "target": "-0.028015m 0.000000m -0.094605m",
+              "fov": "37.15029deg"
+            }
+          }
         },
         {
           "id": "rest3d",
           "label": "REST3D",
           "source": "assets/gallery/main/scene-23/rest3d_source.webp",
-          "novel": "assets/gallery/main/scene-23/rest3d_novel.webp"
+          "novel": "assets/gallery/main/scene-23/rest3d_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-23/rest3d.glb",
+            "bytes": 744124,
+            "camera": {
+              "orbit": "0deg 45deg 100%",
+              "target": "auto auto auto",
+              "fov": "45deg"
+            },
+            "displayNote": "The saved source camera misses the reconstructed objects; this viewer opens with the full scene in view."
+          }
         },
         {
           "id": "sc",
           "label": "SceneConductor",
           "source": "assets/gallery/main/scene-23/sc_source.webp",
-          "novel": "assets/gallery/main/scene-23/sc_novel.webp"
+          "novel": "assets/gallery/main/scene-23/sc_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-23/sc.glb",
+            "bytes": 5073748,
+            "camera": {
+              "orbit": "0.34396deg 54.47761deg 11.072675m",
+              "target": "-0.054100m -6.433458m -9.011761m",
+              "fov": "34.23221deg"
+            }
+          }
         },
         {
           "id": "viga",
           "label": "VIGA",
           "source": "assets/gallery/main/scene-23/viga_source.webp",
-          "novel": "assets/gallery/main/scene-23/viga_novel.webp"
+          "novel": "assets/gallery/main/scene-23/viga_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-23/viga.glb",
+            "bytes": 122020,
+            "camera": {
+              "orbit": "0.00000deg 45.83662deg 1.657799m",
+              "target": "0.165000m 0.855000m -0.039232m",
+              "fov": "42.18468deg"
+            }
+          }
         }
       ],
       "input": "assets/gallery/main/scene-23/input.webp"
@@ -997,31 +2033,76 @@
           "id": "ours",
           "label": "SceneRig",
           "source": "assets/gallery/main/scene-24/ours_source.webp",
-          "novel": "assets/gallery/main/scene-24/ours_novel.webp"
+          "novel": "assets/gallery/main/scene-24/ours_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-24/ours.glb",
+            "bytes": 3466860,
+            "camera": {
+              "orbit": "180.00000deg 48.32403deg 1.273718m",
+              "target": "0.000000m 0.000000m 0.951362m",
+              "fov": "43.14593deg"
+            }
+          }
         },
         {
           "id": "simfoundry",
           "label": "SimFoundry",
           "source": "assets/gallery/main/scene-24/simfoundry_source.webp",
-          "novel": "assets/gallery/main/scene-24/simfoundry_novel.webp"
+          "novel": "assets/gallery/main/scene-24/simfoundry_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-24/simfoundry.glb",
+            "bytes": 4546132,
+            "camera": {
+              "orbit": "0.00000deg 49.68930deg 1.335001m",
+              "target": "-0.025026m 0.000000m -0.155653m",
+              "fov": "37.25584deg"
+            }
+          }
         },
         {
           "id": "rest3d",
           "label": "REST3D",
           "source": "assets/gallery/main/scene-24/rest3d_source.webp",
-          "novel": "assets/gallery/main/scene-24/rest3d_novel.webp"
+          "novel": "assets/gallery/main/scene-24/rest3d_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-24/rest3d.glb",
+            "bytes": 1710000,
+            "camera": {
+              "orbit": "-178.83490deg 35.77938deg 1.997535m",
+              "target": "0.006766m 0.000000m 1.761079m",
+              "fov": "36.91500deg"
+            }
+          }
         },
         {
           "id": "sc",
           "label": "SceneConductor",
           "source": "assets/gallery/main/scene-24/sc_source.webp",
-          "novel": "assets/gallery/main/scene-24/sc_novel.webp"
+          "novel": "assets/gallery/main/scene-24/sc_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-24/sc.glb",
+            "bytes": 4953748,
+            "camera": {
+              "orbit": "-0.10942deg 63.12958deg 9.755781m",
+              "target": "0.016619m -4.409362m -8.702443m",
+              "fov": "33.04467deg"
+            }
+          }
         },
         {
           "id": "viga",
           "label": "VIGA",
           "source": "assets/gallery/main/scene-24/viga_source.webp",
-          "novel": "assets/gallery/main/scene-24/viga_novel.webp"
+          "novel": "assets/gallery/main/scene-24/viga_novel.webp",
+          "model": {
+            "src": "assets/models/main/scene-24/viga.glb",
+            "bytes": 3482260,
+            "camera": {
+              "orbit": "-20.85446deg 52.89286deg 1.381551m",
+              "target": "0.052235m 0.786500m -0.009618m",
+              "fov": "42.18468deg"
+            }
+          }
         }
       ],
       "input": "assets/gallery/main/scene-24/input.webp"
@@ -1037,19 +2118,46 @@
           "id": "ours",
           "label": "SceneRig",
           "source": "assets/gallery/gpt6/scene-21/ours_source.webp",
-          "novel": "assets/gallery/gpt6/scene-21/ours_novel.webp"
+          "novel": "assets/gallery/gpt6/scene-21/ours_novel.webp",
+          "model": {
+            "src": "assets/models/gpt6/scene-21/ours.glb",
+            "bytes": 6379884,
+            "camera": {
+              "orbit": "180.00000deg 38.45931deg 1.377345m",
+              "target": "0.000000m 0.000000m 0.856652m",
+              "fov": "45.14871deg"
+            }
+          }
         },
         {
           "id": "viga",
           "label": "VIGA",
           "source": "assets/gallery/gpt6/scene-21/viga_source.webp",
-          "novel": "assets/gallery/gpt6/scene-21/viga_novel.webp"
+          "novel": "assets/gallery/gpt6/scene-21/viga_novel.webp",
+          "model": {
+            "src": "assets/models/gpt6/scene-21/viga.glb",
+            "bytes": 10929276,
+            "camera": {
+              "orbit": "0.00000deg 40.74445deg 2.948676m",
+              "target": "0.000000m -0.004000m -0.704561m",
+              "fov": "36.36731deg"
+            }
+          }
         },
         {
           "id": "codex",
           "label": "Codex",
           "source": "assets/gallery/gpt6/scene-21/codex_source.webp",
-          "novel": "assets/gallery/gpt6/scene-21/codex_novel.webp"
+          "novel": "assets/gallery/gpt6/scene-21/codex_novel.webp",
+          "model": {
+            "src": "assets/models/gpt6/scene-21/codex.glb",
+            "bytes": 5802860,
+            "camera": {
+              "orbit": "0.00000deg 40.00000deg 6.168050m",
+              "target": "0.000000m 1.650000m -0.199746m",
+              "fov": "35.95849deg"
+            }
+          }
         }
       ],
       "input": "assets/gallery/gpt6/scene-21/input.webp"
@@ -1065,19 +2173,46 @@
           "id": "ours",
           "label": "SceneRig",
           "source": "assets/gallery/gpt6/scene-01/ours_source.webp?v=edited-input",
-          "novel": "assets/gallery/gpt6/scene-01/ours_novel.webp?v=edited-input"
+          "novel": "assets/gallery/gpt6/scene-01/ours_novel.webp?v=edited-input",
+          "model": {
+            "src": "assets/models/gpt6/scene-01/ours.glb",
+            "bytes": 4274152,
+            "camera": {
+              "orbit": "179.99999deg 70.76312deg 0.849441m",
+              "target": "-0.000000m 0.000000m 0.802012m",
+              "fov": "43.78463deg"
+            }
+          }
         },
         {
           "id": "viga",
           "label": "VIGA",
           "source": "assets/gallery/gpt6/scene-01/viga_source.webp?v=edited-input",
-          "novel": "assets/gallery/gpt6/scene-01/viga_novel.webp?v=edited-input"
+          "novel": "assets/gallery/gpt6/scene-01/viga_novel.webp?v=edited-input",
+          "model": {
+            "src": "assets/models/gpt6/scene-01/viga.glb",
+            "bytes": 4783836,
+            "camera": {
+              "orbit": "-179.99999deg 71.66538deg 1.535448m",
+              "target": "0.000000m -0.483000m 1.457502m",
+              "fov": "35.11539deg"
+            }
+          }
         },
         {
           "id": "codex",
           "label": "Codex",
           "source": "assets/gallery/gpt6/scene-01/codex_source.webp?v=edited-input",
-          "novel": "assets/gallery/gpt6/scene-01/codex_novel.webp?v=edited-input"
+          "novel": "assets/gallery/gpt6/scene-01/codex_novel.webp?v=edited-input",
+          "model": {
+            "src": "assets/models/gpt6/scene-01/codex.glb",
+            "bytes": 1176692,
+            "camera": {
+              "orbit": "-17.66257deg 69.70258deg 2.196640m",
+              "target": "0.195098m -0.062000m -0.493118m",
+              "fov": "25.91790deg"
+            }
+          }
         }
       ],
       "input": "assets/gallery/gpt6/scene-01/input.webp?v=edited-input"
@@ -1093,19 +2228,46 @@
           "id": "ours",
           "label": "SceneRig",
           "source": "assets/gallery/gpt6/scene-02/ours_source.webp",
-          "novel": "assets/gallery/gpt6/scene-02/ours_novel.webp"
+          "novel": "assets/gallery/gpt6/scene-02/ours_novel.webp",
+          "model": {
+            "src": "assets/models/gpt6/scene-02/ours.glb",
+            "bytes": 2789768,
+            "camera": {
+              "orbit": "180.00000deg 37.06754deg 1.059715m",
+              "target": "0.000000m 0.000000m 0.638750m",
+              "fov": "53.32594deg"
+            }
+          }
         },
         {
           "id": "viga",
           "label": "VIGA",
           "source": "assets/gallery/gpt6/scene-02/viga_source.webp",
-          "novel": "assets/gallery/gpt6/scene-02/viga_novel.webp"
+          "novel": "assets/gallery/gpt6/scene-02/viga_novel.webp",
+          "model": {
+            "src": "assets/models/gpt6/scene-02/viga.glb",
+            "bytes": 2198940,
+            "camera": {
+              "orbit": "0.00000deg 36.00466deg 2.760303m",
+              "target": "-0.090000m 0.017000m 0.057353m",
+              "fov": "35.86119deg"
+            }
+          }
         },
         {
           "id": "codex",
           "label": "Codex",
           "source": "assets/gallery/gpt6/scene-02/codex_source.webp",
-          "novel": "assets/gallery/gpt6/scene-02/codex_novel.webp"
+          "novel": "assets/gallery/gpt6/scene-02/codex_novel.webp",
+          "model": {
+            "src": "assets/models/gpt6/scene-02/codex.glb",
+            "bytes": 4743020,
+            "camera": {
+              "orbit": "0.29010deg 47.65457deg 3.235605m",
+              "target": "-0.067108m 0.880500m 0.068604m",
+              "fov": "29.58866deg"
+            }
+          }
         }
       ],
       "input": "assets/gallery/gpt6/scene-02/input.webp"
@@ -1121,19 +2283,46 @@
           "id": "ours",
           "label": "SceneRig",
           "source": "assets/gallery/gpt6/scene-03/ours_source.webp",
-          "novel": "assets/gallery/gpt6/scene-03/ours_novel.webp"
+          "novel": "assets/gallery/gpt6/scene-03/ours_novel.webp",
+          "model": {
+            "src": "assets/models/gpt6/scene-03/ours.glb",
+            "bytes": 3672964,
+            "camera": {
+              "orbit": "180.00000deg 31.91863deg 0.986007m",
+              "target": "0.000000m 0.000000m 0.521316m",
+              "fov": "59.22088deg"
+            }
+          }
         },
         {
           "id": "viga",
           "label": "VIGA",
           "source": "assets/gallery/gpt6/scene-03/viga_source.webp",
-          "novel": "assets/gallery/gpt6/scene-03/viga_novel.webp"
+          "novel": "assets/gallery/gpt6/scene-03/viga_novel.webp",
+          "model": {
+            "src": "assets/models/gpt6/scene-03/viga.glb",
+            "bytes": 2811800,
+            "camera": {
+              "orbit": "-179.99999deg 90.00000deg 1.503112m",
+              "target": "0.000000m 0.000000m 1.503112m",
+              "fov": "53.70163deg"
+            }
+          }
         },
         {
           "id": "codex",
           "label": "Codex",
           "source": "assets/gallery/gpt6/scene-03/codex_source.webp",
-          "novel": "assets/gallery/gpt6/scene-03/codex_novel.webp"
+          "novel": "assets/gallery/gpt6/scene-03/codex_novel.webp",
+          "model": {
+            "src": "assets/models/gpt6/scene-03/codex.glb",
+            "bytes": 1817028,
+            "camera": {
+              "orbit": "0.00000deg 27.99871deg 4.747677m",
+              "target": "0.000000m 0.003000m 0.073195m",
+              "fov": "67.05937deg"
+            }
+          }
         }
       ],
       "input": "assets/gallery/gpt6/scene-03/input.webp"
@@ -1149,19 +2338,46 @@
           "id": "ours",
           "label": "SceneRig",
           "source": "assets/gallery/gpt6/scene-04/ours_source.webp",
-          "novel": "assets/gallery/gpt6/scene-04/ours_novel.webp"
+          "novel": "assets/gallery/gpt6/scene-04/ours_novel.webp",
+          "model": {
+            "src": "assets/models/gpt6/scene-04/ours.glb",
+            "bytes": 2336540,
+            "camera": {
+              "orbit": "180.00000deg 31.82533deg 1.668547m",
+              "target": "0.000000m 0.000000m 0.879877m",
+              "fov": "53.09848deg"
+            }
+          }
         },
         {
           "id": "viga",
           "label": "VIGA",
           "source": "assets/gallery/gpt6/scene-04/viga_source.webp",
-          "novel": "assets/gallery/gpt6/scene-04/viga_novel.webp"
+          "novel": "assets/gallery/gpt6/scene-04/viga_novel.webp",
+          "model": {
+            "src": "assets/models/gpt6/scene-04/viga.glb",
+            "bytes": 1433284,
+            "camera": {
+              "orbit": "0.00001deg 37.72928deg 1.850613m",
+              "target": "-0.000000m 0.023000m -0.488008m",
+              "fov": "46.85944deg"
+            }
+          }
         },
         {
           "id": "codex",
           "label": "Codex",
           "source": "assets/gallery/gpt6/scene-04/codex_source.webp",
-          "novel": "assets/gallery/gpt6/scene-04/codex_novel.webp"
+          "novel": "assets/gallery/gpt6/scene-04/codex_novel.webp",
+          "model": {
+            "src": "assets/models/gpt6/scene-04/codex.glb",
+            "bytes": 1024236,
+            "camera": {
+              "orbit": "0.00000deg 42.48465deg 3.819922m",
+              "target": "0.000000m -0.001034m -0.000947m",
+              "fov": "38.90594deg"
+            }
+          }
         }
       ],
       "input": "assets/gallery/gpt6/scene-04/input.webp"
@@ -1177,19 +2393,46 @@
           "id": "ours",
           "label": "SceneRig",
           "source": "assets/gallery/gpt6/scene-05/ours_source.webp",
-          "novel": "assets/gallery/gpt6/scene-05/ours_novel.webp"
+          "novel": "assets/gallery/gpt6/scene-05/ours_novel.webp",
+          "model": {
+            "src": "assets/models/gpt6/scene-05/ours.glb",
+            "bytes": 12773208,
+            "camera": {
+              "orbit": "180.00000deg 50.76843deg 1.038318m",
+              "target": "0.000000m 0.000000m 0.804277m",
+              "fov": "60.42080deg"
+            }
+          }
         },
         {
           "id": "viga",
           "label": "VIGA",
           "source": "assets/gallery/gpt6/scene-05/viga_source.webp",
-          "novel": "assets/gallery/gpt6/scene-05/viga_novel.webp"
+          "novel": "assets/gallery/gpt6/scene-05/viga_novel.webp",
+          "model": {
+            "src": "assets/models/gpt6/scene-05/viga.glb",
+            "bytes": 7224364,
+            "camera": {
+              "orbit": "0.00000deg 48.07116deg 1.895504m",
+              "target": "-0.085000m 0.013411m 0.139792m",
+              "fov": "39.11650deg"
+            }
+          }
         },
         {
           "id": "codex",
           "label": "Codex",
           "source": "assets/gallery/gpt6/scene-05/codex_source.webp",
-          "novel": "assets/gallery/gpt6/scene-05/codex_novel.webp"
+          "novel": "assets/gallery/gpt6/scene-05/codex_novel.webp",
+          "model": {
+            "src": "assets/models/gpt6/scene-05/codex.glb",
+            "bytes": 4278724,
+            "camera": {
+              "orbit": "0.00000deg 46.77757deg 1.838493m",
+              "target": "-0.040000m 0.900940m 0.120289m",
+              "fov": "45.74733deg"
+            }
+          }
         }
       ],
       "input": "assets/gallery/gpt6/scene-05/input.webp"
@@ -1205,19 +2448,46 @@
           "id": "ours",
           "label": "SceneRig",
           "source": "assets/gallery/gpt6/scene-06/ours_source.webp",
-          "novel": "assets/gallery/gpt6/scene-06/ours_novel.webp"
+          "novel": "assets/gallery/gpt6/scene-06/ours_novel.webp",
+          "model": {
+            "src": "assets/models/gpt6/scene-06/ours.glb",
+            "bytes": 5579736,
+            "camera": {
+              "orbit": "180.00000deg 67.95901deg 0.736827m",
+              "target": "0.000000m 0.192649m 0.682976m",
+              "fov": "60.82038deg"
+            }
+          }
         },
         {
           "id": "viga",
           "label": "VIGA",
           "source": "assets/gallery/gpt6/scene-06/viga_source.webp",
-          "novel": "assets/gallery/gpt6/scene-06/viga_novel.webp"
+          "novel": "assets/gallery/gpt6/scene-06/viga_novel.webp",
+          "model": {
+            "src": "assets/models/gpt6/scene-06/viga.glb",
+            "bytes": 972944,
+            "camera": {
+              "orbit": "179.99999deg 64.01078deg 2.085797m",
+              "target": "-0.000000m -0.214000m 1.404874m",
+              "fov": "44.49805deg"
+            }
+          }
         },
         {
           "id": "codex",
           "label": "Codex",
           "source": "assets/gallery/gpt6/scene-06/codex_source.webp",
-          "novel": "assets/gallery/gpt6/scene-06/codex_novel.webp"
+          "novel": "assets/gallery/gpt6/scene-06/codex_novel.webp",
+          "model": {
+            "src": "assets/models/gpt6/scene-06/codex.glb",
+            "bytes": 1609188,
+            "camera": {
+              "orbit": "-12.53579deg 58.96597deg 2.263973m",
+              "target": "0.421057m 0.782815m -0.243665m",
+              "fov": "41.64179deg"
+            }
+          }
         }
       ],
       "input": "assets/gallery/gpt6/scene-06/input.webp"
@@ -1233,19 +2503,46 @@
           "id": "ours",
           "label": "SceneRig",
           "source": "assets/gallery/gpt6/scene-07/ours_source.webp",
-          "novel": "assets/gallery/gpt6/scene-07/ours_novel.webp"
+          "novel": "assets/gallery/gpt6/scene-07/ours_novel.webp",
+          "model": {
+            "src": "assets/models/gpt6/scene-07/ours.glb",
+            "bytes": 5713840,
+            "camera": {
+              "orbit": "180.00000deg 71.46343deg 0.539845m",
+              "target": "0.000000m 0.141118m 0.511839m",
+              "fov": "44.67304deg"
+            }
+          }
         },
         {
           "id": "viga",
           "label": "VIGA",
           "source": "assets/gallery/gpt6/scene-07/viga_source.webp",
-          "novel": "assets/gallery/gpt6/scene-07/viga_novel.webp"
+          "novel": "assets/gallery/gpt6/scene-07/viga_novel.webp",
+          "model": {
+            "src": "assets/models/gpt6/scene-07/viga.glb",
+            "bytes": 3413932,
+            "camera": {
+              "orbit": "-179.99999deg 67.03606deg 1.406126m",
+              "target": "0.000000m 0.380398m 1.299691m",
+              "fov": "37.04202deg"
+            }
+          }
         },
         {
           "id": "codex",
           "label": "Codex",
           "source": "assets/gallery/gpt6/scene-07/codex_source.webp",
-          "novel": "assets/gallery/gpt6/scene-07/codex_novel.webp"
+          "novel": "assets/gallery/gpt6/scene-07/codex_novel.webp",
+          "model": {
+            "src": "assets/models/gpt6/scene-07/codex.glb",
+            "bytes": 1798460,
+            "camera": {
+              "orbit": "0.00000deg 64.14446deg 17.198893m",
+              "target": "0.000000m -0.000500m -2.477222m",
+              "fov": "30.96779deg"
+            }
+          }
         }
       ],
       "input": "assets/gallery/gpt6/scene-07/input.webp"
@@ -1261,19 +2558,46 @@
           "id": "ours",
           "label": "SceneRig",
           "source": "assets/gallery/gpt6/scene-08/ours_source.webp",
-          "novel": "assets/gallery/gpt6/scene-08/ours_novel.webp"
+          "novel": "assets/gallery/gpt6/scene-08/ours_novel.webp",
+          "model": {
+            "src": "assets/models/gpt6/scene-08/ours.glb",
+            "bytes": 4201148,
+            "camera": {
+              "orbit": "180.00000deg 66.88714deg 0.476797m",
+              "target": "0.000000m 0.103522m 0.438526m",
+              "fov": "46.13294deg"
+            }
+          }
         },
         {
           "id": "viga",
           "label": "VIGA",
           "source": "assets/gallery/gpt6/scene-08/viga_source.webp",
-          "novel": "assets/gallery/gpt6/scene-08/viga_novel.webp"
+          "novel": "assets/gallery/gpt6/scene-08/viga_novel.webp",
+          "model": {
+            "src": "assets/models/gpt6/scene-08/viga.glb",
+            "bytes": 4140528,
+            "camera": {
+              "orbit": "172.34603deg 64.45607deg 2.877246m",
+              "target": "0.004237m 0.249323m 1.722880m",
+              "fov": "28.64544deg"
+            }
+          }
         },
         {
           "id": "codex",
           "label": "Codex",
           "source": "assets/gallery/gpt6/scene-08/codex_source.webp",
-          "novel": "assets/gallery/gpt6/scene-08/codex_novel.webp"
+          "novel": "assets/gallery/gpt6/scene-08/codex_novel.webp",
+          "model": {
+            "src": "assets/models/gpt6/scene-08/codex.glb",
+            "bytes": 2876848,
+            "camera": {
+              "orbit": "-4.52246deg 65.85250deg 11.635663m",
+              "target": "0.137187m -0.360000m -1.684431m",
+              "fov": "29.24175deg"
+            }
+          }
         }
       ],
       "input": "assets/gallery/gpt6/scene-08/input.webp"
@@ -1289,19 +2613,46 @@
           "id": "ours",
           "label": "SceneRig",
           "source": "assets/gallery/gpt6/scene-09/ours_source.webp",
-          "novel": "assets/gallery/gpt6/scene-09/ours_novel.webp"
+          "novel": "assets/gallery/gpt6/scene-09/ours_novel.webp",
+          "model": {
+            "src": "assets/models/gpt6/scene-09/ours.glb",
+            "bytes": 3832372,
+            "camera": {
+              "orbit": "180.00000deg 57.50929deg 3.101240m",
+              "target": "0.000000m 0.000000m 2.615830m",
+              "fov": "49.89990deg"
+            }
+          }
         },
         {
           "id": "viga",
           "label": "VIGA",
           "source": "assets/gallery/gpt6/scene-09/viga_source.webp",
-          "novel": "assets/gallery/gpt6/scene-09/viga_novel.webp"
+          "novel": "assets/gallery/gpt6/scene-09/viga_novel.webp",
+          "model": {
+            "src": "assets/models/gpt6/scene-09/viga.glb",
+            "bytes": 2058848,
+            "camera": {
+              "orbit": "-177.77295deg 58.47400deg 4.895910m",
+              "target": "0.162172m -0.000000m 0.570136m",
+              "fov": "33.39849deg"
+            }
+          }
         },
         {
           "id": "codex",
           "label": "Codex",
           "source": "assets/gallery/gpt6/scene-09/codex_source.webp",
-          "novel": "assets/gallery/gpt6/scene-09/codex_novel.webp"
+          "novel": "assets/gallery/gpt6/scene-09/codex_novel.webp",
+          "model": {
+            "src": "assets/models/gpt6/scene-09/codex.glb",
+            "bytes": 4978848,
+            "camera": {
+              "orbit": "1.67065deg 59.17878deg 6.131339m",
+              "target": "-0.153509m 0.008542m -0.463173m",
+              "fov": "31.65231deg"
+            }
+          }
         }
       ],
       "input": "assets/gallery/gpt6/scene-09/input.webp"
@@ -1317,19 +2668,46 @@
           "id": "ours",
           "label": "SceneRig",
           "source": "assets/gallery/gpt6/scene-10/ours_source.webp",
-          "novel": "assets/gallery/gpt6/scene-10/ours_novel.webp"
+          "novel": "assets/gallery/gpt6/scene-10/ours_novel.webp",
+          "model": {
+            "src": "assets/models/gpt6/scene-10/ours.glb",
+            "bytes": 2225172,
+            "camera": {
+              "orbit": "180.00000deg 65.57295deg 2.210656m",
+              "target": "0.000000m 0.457275m 2.012777m",
+              "fov": "39.08535deg"
+            }
+          }
         },
         {
           "id": "viga",
           "label": "VIGA",
           "source": "assets/gallery/gpt6/scene-10/viga_source.webp",
-          "novel": "assets/gallery/gpt6/scene-10/viga_novel.webp"
+          "novel": "assets/gallery/gpt6/scene-10/viga_novel.webp",
+          "model": {
+            "src": "assets/models/gpt6/scene-10/viga.glb",
+            "bytes": 3351628,
+            "camera": {
+              "orbit": "27.85965deg 66.07667deg 3.144899m",
+              "target": "0.136623m 0.524700m 0.258477m",
+              "fov": "28.64544deg"
+            }
+          }
         },
         {
           "id": "codex",
           "label": "Codex",
           "source": "assets/gallery/gpt6/scene-10/codex_source.webp",
-          "novel": "assets/gallery/gpt6/scene-10/codex_novel.webp"
+          "novel": "assets/gallery/gpt6/scene-10/codex_novel.webp",
+          "model": {
+            "src": "assets/models/gpt6/scene-10/codex.glb",
+            "bytes": 4047936,
+            "camera": {
+              "orbit": "0.00000deg 67.55726deg 6.246494m",
+              "target": "0.000000m 0.015339m -1.173394m",
+              "fov": "20.91982deg"
+            }
+          }
         }
       ],
       "input": "assets/gallery/gpt6/scene-10/input.webp"
@@ -1345,19 +2723,46 @@
           "id": "ours",
           "label": "SceneRig",
           "source": "assets/gallery/gpt6/scene-11/ours_source.webp",
-          "novel": "assets/gallery/gpt6/scene-11/ours_novel.webp"
+          "novel": "assets/gallery/gpt6/scene-11/ours_novel.webp",
+          "model": {
+            "src": "assets/models/gpt6/scene-11/ours.glb",
+            "bytes": 5231564,
+            "camera": {
+              "orbit": "180.00000deg 77.66585deg 0.726919m",
+              "target": "0.000000m 0.116275m 0.710141m",
+              "fov": "33.19722deg"
+            }
+          }
         },
         {
           "id": "viga",
           "label": "VIGA",
           "source": "assets/gallery/gpt6/scene-11/viga_source.webp",
-          "novel": "assets/gallery/gpt6/scene-11/viga_novel.webp"
+          "novel": "assets/gallery/gpt6/scene-11/viga_novel.webp",
+          "model": {
+            "src": "assets/models/gpt6/scene-11/viga.glb",
+            "bytes": 10493504,
+            "camera": {
+              "orbit": "-27.97948deg 72.84216deg 0.112083m",
+              "target": "-1.559756m 1.851935m 2.405423m",
+              "fov": "20.86169deg"
+            }
+          }
         },
         {
           "id": "codex",
           "label": "Codex",
           "source": "assets/gallery/gpt6/scene-11/codex_source.webp",
-          "novel": "assets/gallery/gpt6/scene-11/codex_novel.webp"
+          "novel": "assets/gallery/gpt6/scene-11/codex_novel.webp",
+          "model": {
+            "src": "assets/models/gpt6/scene-11/codex.glb",
+            "bytes": 78284972,
+            "camera": {
+              "orbit": "-30.73928deg 75.20422deg 39.179721m",
+              "target": "1.362003m -0.005501m -2.558460m",
+              "fov": "12.00000deg"
+            }
+          }
         }
       ],
       "input": "assets/gallery/gpt6/scene-11/input.webp"
@@ -1373,19 +2778,47 @@
           "id": "ours",
           "label": "SceneRig",
           "source": "assets/gallery/gpt6/scene-12/ours_source.webp",
-          "novel": "assets/gallery/gpt6/scene-12/ours_novel.webp"
+          "novel": "assets/gallery/gpt6/scene-12/ours_novel.webp",
+          "model": {
+            "src": "assets/models/gpt6/scene-12/ours.glb",
+            "bytes": 3018488,
+            "camera": {
+              "orbit": "180.00000deg 68.00647deg 0.745816m",
+              "target": "0.000000m 0.168349m 0.691540m",
+              "fov": "38.63877deg"
+            }
+          }
         },
         {
           "id": "viga",
           "label": "VIGA",
           "source": "assets/gallery/gpt6/scene-12/viga_source.webp",
-          "novel": "assets/gallery/gpt6/scene-12/viga_novel.webp"
+          "novel": "assets/gallery/gpt6/scene-12/viga_novel.webp",
+          "model": {
+            "src": "assets/models/gpt6/scene-12/viga.glb",
+            "bytes": 3987828,
+            "camera": {
+              "orbit": "-179.99999deg 69.86369deg 3.221948m",
+              "target": "0.000000m -0.159171m 2.025010m",
+              "fov": "40.18723deg"
+            }
+          }
         },
         {
           "id": "codex",
           "label": "Codex",
           "source": "assets/gallery/gpt6/scene-12/codex_source.webp",
-          "novel": "assets/gallery/gpt6/scene-12/codex_novel.webp"
+          "novel": "assets/gallery/gpt6/scene-12/codex_novel.webp",
+          "model": {
+            "src": "assets/models/gpt6/scene-12/codex.glb",
+            "bytes": 5029208,
+            "camera": {
+              "orbit": "0.00000deg 65.00000deg 24.000296m",
+              "target": "0.000000m -0.256206m -3.625500m",
+              "fov": "26.35416deg"
+            },
+            "displayNote": "This scene’s custom painted shaders are approximated for the browser."
+          }
         }
       ],
       "input": "assets/gallery/gpt6/scene-12/input.webp"
@@ -1401,19 +2834,47 @@
           "id": "ours",
           "label": "SceneRig",
           "source": "assets/gallery/gpt6/scene-13/ours_source.webp",
-          "novel": "assets/gallery/gpt6/scene-13/ours_novel.webp"
+          "novel": "assets/gallery/gpt6/scene-13/ours_novel.webp",
+          "model": {
+            "src": "assets/models/gpt6/scene-13/ours.glb",
+            "bytes": 3887100,
+            "camera": {
+              "orbit": "180.00000deg 42.21563deg 0.927427m",
+              "target": "0.000000m 0.000000m 0.623159m",
+              "fov": "46.66968deg"
+            }
+          }
         },
         {
           "id": "viga",
           "label": "VIGA",
           "source": "assets/gallery/gpt6/scene-13/viga_source.webp",
-          "novel": "assets/gallery/gpt6/scene-13/viga_novel.webp"
+          "novel": "assets/gallery/gpt6/scene-13/viga_novel.webp",
+          "model": {
+            "src": "assets/models/gpt6/scene-13/viga.glb",
+            "bytes": 17348500,
+            "camera": {
+              "orbit": "-179.99999deg 90.00000deg 1.677111m",
+              "target": "0.000000m 0.000000m 1.677111m",
+              "fov": "45.74733deg"
+            },
+            "displayNote": "This very dense scene uses a lighter mesh for interactive viewing."
+          }
         },
         {
           "id": "codex",
           "label": "Codex",
           "source": "assets/gallery/gpt6/scene-13/codex_source.webp",
-          "novel": "assets/gallery/gpt6/scene-13/codex_novel.webp"
+          "novel": "assets/gallery/gpt6/scene-13/codex_novel.webp",
+          "model": {
+            "src": "assets/models/gpt6/scene-13/codex.glb",
+            "bytes": 1217460,
+            "camera": {
+              "orbit": "28.86126deg 42.26744deg 19.747305m",
+              "target": "-0.946492m -0.180000m -0.374070m",
+              "fov": "31.16136deg"
+            }
+          }
         }
       ],
       "input": "assets/gallery/gpt6/scene-13/input.webp"
@@ -1429,19 +2890,46 @@
           "id": "ours",
           "label": "SceneRig",
           "source": "assets/gallery/gpt6/scene-14/ours_source.webp",
-          "novel": "assets/gallery/gpt6/scene-14/ours_novel.webp"
+          "novel": "assets/gallery/gpt6/scene-14/ours_novel.webp",
+          "model": {
+            "src": "assets/models/gpt6/scene-14/ours.glb",
+            "bytes": 2493184,
+            "camera": {
+              "orbit": "180.00000deg 47.13706deg 0.629406m",
+              "target": "0.000000m 0.000000m 0.461344m",
+              "fov": "53.13986deg"
+            }
+          }
         },
         {
           "id": "viga",
           "label": "VIGA",
           "source": "assets/gallery/gpt6/scene-14/viga_source.webp",
-          "novel": "assets/gallery/gpt6/scene-14/viga_novel.webp"
+          "novel": "assets/gallery/gpt6/scene-14/viga_novel.webp",
+          "model": {
+            "src": "assets/models/gpt6/scene-14/viga.glb",
+            "bytes": 7362884,
+            "camera": {
+              "orbit": "-179.99999deg 90.00000deg 1.660165m",
+              "target": "0.000000m 0.000000m 1.660165m",
+              "fov": "45.74733deg"
+            }
+          }
         },
         {
           "id": "codex",
           "label": "Codex",
           "source": "assets/gallery/gpt6/scene-14/codex_source.webp",
-          "novel": "assets/gallery/gpt6/scene-14/codex_novel.webp"
+          "novel": "assets/gallery/gpt6/scene-14/codex_novel.webp",
+          "model": {
+            "src": "assets/models/gpt6/scene-14/codex.glb",
+            "bytes": 2940412,
+            "camera": {
+              "orbit": "29.06855deg 49.92001deg 8.635464m",
+              "target": "-1.270240m -2.200000m -2.285120m",
+              "fov": "45.11449deg"
+            }
+          }
         }
       ],
       "input": "assets/gallery/gpt6/scene-14/input.webp"
@@ -1457,19 +2945,46 @@
           "id": "ours",
           "label": "SceneRig",
           "source": "assets/gallery/gpt6/scene-15/ours_source.webp",
-          "novel": "assets/gallery/gpt6/scene-15/ours_novel.webp"
+          "novel": "assets/gallery/gpt6/scene-15/ours_novel.webp",
+          "model": {
+            "src": "assets/models/gpt6/scene-15/ours.glb",
+            "bytes": 5627860,
+            "camera": {
+              "orbit": "180.00000deg 43.41732deg 1.076628m",
+              "target": "0.000000m 0.000000m 0.739974m",
+              "fov": "51.54470deg"
+            }
+          }
         },
         {
           "id": "viga",
           "label": "VIGA",
           "source": "assets/gallery/gpt6/scene-15/viga_source.webp",
-          "novel": "assets/gallery/gpt6/scene-15/viga_novel.webp"
+          "novel": "assets/gallery/gpt6/scene-15/viga_novel.webp",
+          "model": {
+            "src": "assets/models/gpt6/scene-15/viga.glb",
+            "bytes": 1702904,
+            "camera": {
+              "orbit": "10.24666deg 43.23653deg 1.660874m",
+              "target": "-0.022384m 0.810000m 0.180427m",
+              "fov": "41.11209deg"
+            }
+          }
         },
         {
           "id": "codex",
           "label": "Codex",
           "source": "assets/gallery/gpt6/scene-15/codex_source.webp",
-          "novel": "assets/gallery/gpt6/scene-15/codex_novel.webp"
+          "novel": "assets/gallery/gpt6/scene-15/codex_novel.webp",
+          "model": {
+            "src": "assets/models/gpt6/scene-15/codex.glb",
+            "bytes": 1692052,
+            "camera": {
+              "orbit": "11.04323deg 41.20718deg 1.303720m",
+              "target": "0.039227m 0.745858m 0.148743m",
+              "fov": "49.29862deg"
+            }
+          }
         }
       ],
       "input": "assets/gallery/gpt6/scene-15/input.webp"
@@ -1485,19 +3000,46 @@
           "id": "ours",
           "label": "SceneRig",
           "source": "assets/gallery/gpt6/scene-16/ours_source.webp",
-          "novel": "assets/gallery/gpt6/scene-16/ours_novel.webp"
+          "novel": "assets/gallery/gpt6/scene-16/ours_novel.webp",
+          "model": {
+            "src": "assets/models/gpt6/scene-16/ours.glb",
+            "bytes": 9574312,
+            "camera": {
+              "orbit": "180.00000deg 59.32826deg 1.097576m",
+              "target": "0.000000m 0.000000m 0.944029m",
+              "fov": "52.40450deg"
+            }
+          }
         },
         {
           "id": "viga",
           "label": "VIGA",
           "source": "assets/gallery/gpt6/scene-16/viga_source.webp",
-          "novel": "assets/gallery/gpt6/scene-16/viga_novel.webp"
+          "novel": "assets/gallery/gpt6/scene-16/viga_novel.webp",
+          "model": {
+            "src": "assets/models/gpt6/scene-16/viga.glb",
+            "bytes": 10195936,
+            "camera": {
+              "orbit": "-179.99999deg 90.00000deg 1.476598m",
+              "target": "0.000000m 0.000000m 1.476598m",
+              "fov": "45.74733deg"
+            }
+          }
         },
         {
           "id": "codex",
           "label": "Codex",
           "source": "assets/gallery/gpt6/scene-16/codex_source.webp",
-          "novel": "assets/gallery/gpt6/scene-16/codex_novel.webp"
+          "novel": "assets/gallery/gpt6/scene-16/codex_novel.webp",
+          "model": {
+            "src": "assets/models/gpt6/scene-16/codex.glb",
+            "bytes": 3223776,
+            "camera": {
+              "orbit": "61.31399deg 62.27237deg 16.420612m",
+              "target": "-0.751043m 0.000000m -0.410947m",
+              "fov": "49.53538deg"
+            }
+          }
         }
       ],
       "input": "assets/gallery/gpt6/scene-16/input.webp"
@@ -1513,19 +3055,46 @@
           "id": "ours",
           "label": "SceneRig",
           "source": "assets/gallery/gpt6/scene-17/ours_source.webp",
-          "novel": "assets/gallery/gpt6/scene-17/ours_novel.webp"
+          "novel": "assets/gallery/gpt6/scene-17/ours_novel.webp",
+          "model": {
+            "src": "assets/models/gpt6/scene-17/ours.glb",
+            "bytes": 4059128,
+            "camera": {
+              "orbit": "180.00000deg 38.98585deg 1.346410m",
+              "target": "0.000000m 0.000000m 0.847065m",
+              "fov": "53.74345deg"
+            }
+          }
         },
         {
           "id": "viga",
           "label": "VIGA",
           "source": "assets/gallery/gpt6/scene-17/viga_source.webp",
-          "novel": "assets/gallery/gpt6/scene-17/viga_novel.webp"
+          "novel": "assets/gallery/gpt6/scene-17/viga_novel.webp",
+          "model": {
+            "src": "assets/models/gpt6/scene-17/viga.glb",
+            "bytes": 5665368,
+            "camera": {
+              "orbit": "-179.99999deg 90.00000deg 1.187652m",
+              "target": "0.000000m 0.000000m 1.187652m",
+              "fov": "45.74733deg"
+            }
+          }
         },
         {
           "id": "codex",
           "label": "Codex",
           "source": "assets/gallery/gpt6/scene-17/codex_source.webp",
-          "novel": "assets/gallery/gpt6/scene-17/codex_novel.webp"
+          "novel": "assets/gallery/gpt6/scene-17/codex_novel.webp",
+          "model": {
+            "src": "assets/models/gpt6/scene-17/codex.glb",
+            "bytes": 9885820,
+            "camera": {
+              "orbit": "28.00000deg 40.00001deg 22.092427m",
+              "target": "-0.027893m -0.070801m -0.052459m",
+              "fov": "30.21915deg"
+            }
+          }
         }
       ],
       "input": "assets/gallery/gpt6/scene-17/input.webp"
@@ -1541,19 +3110,46 @@
           "id": "ours",
           "label": "SceneRig",
           "source": "assets/gallery/gpt6/scene-18/ours_source.webp",
-          "novel": "assets/gallery/gpt6/scene-18/ours_novel.webp"
+          "novel": "assets/gallery/gpt6/scene-18/ours_novel.webp",
+          "model": {
+            "src": "assets/models/gpt6/scene-18/ours.glb",
+            "bytes": 11882980,
+            "camera": {
+              "orbit": "180.00000deg 58.35675deg 1.347074m",
+              "target": "0.000000m 0.000000m 1.146806m",
+              "fov": "57.26658deg"
+            }
+          }
         },
         {
           "id": "viga",
           "label": "VIGA",
           "source": "assets/gallery/gpt6/scene-18/viga_source.webp",
-          "novel": "assets/gallery/gpt6/scene-18/viga_novel.webp"
+          "novel": "assets/gallery/gpt6/scene-18/viga_novel.webp",
+          "model": {
+            "src": "assets/models/gpt6/scene-18/viga.glb",
+            "bytes": 6980588,
+            "camera": {
+              "orbit": "180.00000deg 59.03627deg 1.625627m",
+              "target": "-0.000000m 0.044395m 1.393964m",
+              "fov": "45.74733deg"
+            }
+          }
         },
         {
           "id": "codex",
           "label": "Codex",
           "source": "assets/gallery/gpt6/scene-18/codex_source.webp",
-          "novel": "assets/gallery/gpt6/scene-18/codex_novel.webp"
+          "novel": "assets/gallery/gpt6/scene-18/codex_novel.webp",
+          "model": {
+            "src": "assets/models/gpt6/scene-18/codex.glb",
+            "bytes": 3418060,
+            "camera": {
+              "orbit": "0.00000deg 59.99893deg 9.819681m",
+              "target": "0.000000m 0.000000m -0.000002m",
+              "fov": "49.44614deg"
+            }
+          }
         }
       ],
       "input": "assets/gallery/gpt6/scene-18/input.webp"
@@ -1569,19 +3165,46 @@
           "id": "ours",
           "label": "SceneRig",
           "source": "assets/gallery/gpt6/scene-19/ours_source.webp",
-          "novel": "assets/gallery/gpt6/scene-19/ours_novel.webp"
+          "novel": "assets/gallery/gpt6/scene-19/ours_novel.webp",
+          "model": {
+            "src": "assets/models/gpt6/scene-19/ours.glb",
+            "bytes": 8509388,
+            "camera": {
+              "orbit": "180.00000deg 59.50727deg 1.561343m",
+              "target": "0.000000m 0.000000m 1.345399m",
+              "fov": "53.09583deg"
+            }
+          }
         },
         {
           "id": "viga",
           "label": "VIGA",
           "source": "assets/gallery/gpt6/scene-19/viga_source.webp",
-          "novel": "assets/gallery/gpt6/scene-19/viga_novel.webp"
+          "novel": "assets/gallery/gpt6/scene-19/viga_novel.webp",
+          "model": {
+            "src": "assets/models/gpt6/scene-19/viga.glb",
+            "bytes": 3081748,
+            "camera": {
+              "orbit": "-179.99999deg 90.00000deg 1.378359m",
+              "target": "0.000000m 0.000000m 1.378359m",
+              "fov": "45.74733deg"
+            }
+          }
         },
         {
           "id": "codex",
           "label": "Codex",
           "source": "assets/gallery/gpt6/scene-19/codex_source.webp",
-          "novel": "assets/gallery/gpt6/scene-19/codex_novel.webp"
+          "novel": "assets/gallery/gpt6/scene-19/codex_novel.webp",
+          "model": {
+            "src": "assets/models/gpt6/scene-19/codex.glb",
+            "bytes": 3782808,
+            "camera": {
+              "orbit": "-28.14880deg 60.03677deg 24.502457m",
+              "target": "0.014402m -0.017607m -0.026920m",
+              "fov": "54.87946deg"
+            }
+          }
         }
       ],
       "input": "assets/gallery/gpt6/scene-19/input.webp"
@@ -1597,19 +3220,46 @@
           "id": "ours",
           "label": "SceneRig",
           "source": "assets/gallery/gpt6/scene-20/ours_source.webp",
-          "novel": "assets/gallery/gpt6/scene-20/ours_novel.webp"
+          "novel": "assets/gallery/gpt6/scene-20/ours_novel.webp",
+          "model": {
+            "src": "assets/models/gpt6/scene-20/ours.glb",
+            "bytes": 1486712,
+            "camera": {
+              "orbit": "180.00000deg 50.85745deg 1.877588m",
+              "target": "0.000000m 0.000000m 1.456216m",
+              "fov": "50.99714deg"
+            }
+          }
         },
         {
           "id": "viga",
           "label": "VIGA",
           "source": "assets/gallery/gpt6/scene-20/viga_source.webp",
-          "novel": "assets/gallery/gpt6/scene-20/viga_novel.webp"
+          "novel": "assets/gallery/gpt6/scene-20/viga_novel.webp",
+          "model": {
+            "src": "assets/models/gpt6/scene-20/viga.glb",
+            "bytes": 2300572,
+            "camera": {
+              "orbit": "-179.99999deg 90.00000deg 1.483561m",
+              "target": "0.000000m 0.000000m 1.483561m",
+              "fov": "45.74733deg"
+            }
+          }
         },
         {
           "id": "codex",
           "label": "Codex",
           "source": "assets/gallery/gpt6/scene-20/codex_source.webp",
-          "novel": "assets/gallery/gpt6/scene-20/codex_novel.webp"
+          "novel": "assets/gallery/gpt6/scene-20/codex_novel.webp",
+          "model": {
+            "src": "assets/models/gpt6/scene-20/codex.glb",
+            "bytes": 1947504,
+            "camera": {
+              "orbit": "-30.00115deg 49.98780deg 7.166716m",
+              "target": "-0.042383m 0.071155m 0.073405m",
+              "fov": "53.13010deg"
+            }
+          }
         }
       ],
       "input": "assets/gallery/gpt6/scene-20/input.webp"
@@ -1625,19 +3275,46 @@
           "id": "ours",
           "label": "SceneRig",
           "source": "assets/gallery/gpt6/scene-22/ours_source.webp",
-          "novel": "assets/gallery/gpt6/scene-22/ours_novel.webp"
+          "novel": "assets/gallery/gpt6/scene-22/ours_novel.webp",
+          "model": {
+            "src": "assets/models/gpt6/scene-22/ours.glb",
+            "bytes": 5989212,
+            "camera": {
+              "orbit": "180.00000deg 49.57990deg 1.311373m",
+              "target": "0.000000m 0.000000m 0.998363m",
+              "fov": "42.23711deg"
+            }
+          }
         },
         {
           "id": "viga",
           "label": "VIGA",
           "source": "assets/gallery/gpt6/scene-22/viga_source.webp",
-          "novel": "assets/gallery/gpt6/scene-22/viga_novel.webp"
+          "novel": "assets/gallery/gpt6/scene-22/viga_novel.webp",
+          "model": {
+            "src": "assets/models/gpt6/scene-22/viga.glb",
+            "bytes": 8692892,
+            "camera": {
+              "orbit": "-179.99999deg 90.00000deg 2.709129m",
+              "target": "0.000000m 0.000000m 2.709129m",
+              "fov": "37.29908deg"
+            }
+          }
         },
         {
           "id": "codex",
           "label": "Codex",
           "source": "assets/gallery/gpt6/scene-22/codex_source.webp",
-          "novel": "assets/gallery/gpt6/scene-22/codex_novel.webp"
+          "novel": "assets/gallery/gpt6/scene-22/codex_novel.webp",
+          "model": {
+            "src": "assets/models/gpt6/scene-22/codex.glb",
+            "bytes": 2334756,
+            "camera": {
+              "orbit": "-28.42256deg 49.98854deg 5.606703m",
+              "target": "0.834628m -0.420000m -1.513340m",
+              "fov": "34.76809deg"
+            }
+          }
         }
       ],
       "input": "assets/gallery/gpt6/scene-22/input.webp"
@@ -1653,19 +3330,46 @@
           "id": "ours",
           "label": "SceneRig",
           "source": "assets/gallery/gpt6/scene-23/ours_source.webp",
-          "novel": "assets/gallery/gpt6/scene-23/ours_novel.webp"
+          "novel": "assets/gallery/gpt6/scene-23/ours_novel.webp",
+          "model": {
+            "src": "assets/models/gpt6/scene-23/ours.glb",
+            "bytes": 2197076,
+            "camera": {
+              "orbit": "180.00000deg 39.27778deg 1.421417m",
+              "target": "0.000000m 0.000000m 0.899871m",
+              "fov": "43.45445deg"
+            }
+          }
         },
         {
           "id": "viga",
           "label": "VIGA",
           "source": "assets/gallery/gpt6/scene-23/viga_source.webp",
-          "novel": "assets/gallery/gpt6/scene-23/viga_novel.webp"
+          "novel": "assets/gallery/gpt6/scene-23/viga_novel.webp",
+          "model": {
+            "src": "assets/models/gpt6/scene-23/viga.glb",
+            "bytes": 6191024,
+            "camera": {
+              "orbit": "-179.99999deg 90.00000deg 3.265362m",
+              "target": "0.000000m 0.000000m 3.495362m",
+              "fov": "45.74733deg"
+            }
+          }
         },
         {
           "id": "codex",
           "label": "Codex",
           "source": "assets/gallery/gpt6/scene-23/codex_source.webp",
-          "novel": "assets/gallery/gpt6/scene-23/codex_novel.webp"
+          "novel": "assets/gallery/gpt6/scene-23/codex_novel.webp",
+          "model": {
+            "src": "assets/models/gpt6/scene-23/codex.glb",
+            "bytes": 2576380,
+            "camera": {
+              "orbit": "0.00000deg 40.02122deg 2.715374m",
+              "target": "0.000000m 0.754550m 0.003821m",
+              "fov": "34.48292deg"
+            }
+          }
         }
       ],
       "input": "assets/gallery/gpt6/scene-23/input.webp"
@@ -1681,19 +3385,46 @@
           "id": "ours",
           "label": "SceneRig",
           "source": "assets/gallery/gpt6/scene-24/ours_source.webp",
-          "novel": "assets/gallery/gpt6/scene-24/ours_novel.webp"
+          "novel": "assets/gallery/gpt6/scene-24/ours_novel.webp",
+          "model": {
+            "src": "assets/models/gpt6/scene-24/ours.glb",
+            "bytes": 3812788,
+            "camera": {
+              "orbit": "180.00000deg 48.35269deg 1.273835m",
+              "target": "0.000000m 0.000000m 0.951873m",
+              "fov": "43.14593deg"
+            }
+          }
         },
         {
           "id": "viga",
           "label": "VIGA",
           "source": "assets/gallery/gpt6/scene-24/viga_source.webp",
-          "novel": "assets/gallery/gpt6/scene-24/viga_novel.webp"
+          "novel": "assets/gallery/gpt6/scene-24/viga_novel.webp",
+          "model": {
+            "src": "assets/models/gpt6/scene-24/viga.glb",
+            "bytes": 5488120,
+            "camera": {
+              "orbit": "29.07066deg 45.91270deg 2.200429m",
+              "target": "-0.318335m -0.546000m -0.538821m",
+              "fov": "33.39849deg"
+            }
+          }
         },
         {
           "id": "codex",
           "label": "Codex",
           "source": "assets/gallery/gpt6/scene-24/codex_source.webp",
-          "novel": "assets/gallery/gpt6/scene-24/codex_novel.webp"
+          "novel": "assets/gallery/gpt6/scene-24/codex_novel.webp",
+          "model": {
+            "src": "assets/models/gpt6/scene-24/codex.glb",
+            "bytes": 4988524,
+            "camera": {
+              "orbit": "30.70966deg 52.21316deg 10.170776m",
+              "target": "-1.552169m -0.472081m -2.606337m",
+              "fov": "35.86478deg"
+            }
+          }
         }
       ],
       "input": "assets/gallery/gpt6/scene-24/input.webp"

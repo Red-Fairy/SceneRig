@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>3D reconstruction viewer · SceneRig</title>
+    <link rel="icon" type="image/svg+xml" href="assets/icon.svg" />
+    <meta name="description" content="Explore the reconstructed scenes from SceneRig and comparison methods in 3D." />
+    <link rel="stylesheet" href="styles.css?v=viewers-1" />
+    <link rel="stylesheet" href="assets/css/viewer.css" />
+    <script type="module" src="assets/js/viewer.js"></script>
+  </head>
+  <body class="viewer-page">
+    <header class="viewer-header">
+      <a id="back-to-gallery" href="./#reconstructions">← Reconstruction comparisons</a>
+      <span>SceneRig <span class="viewer-header-label">/ 3D viewer</span></span>
+    </header>
+    <main class="viewer-main">
+      <div class="viewer-heading">
+        <div><p class="eyebrow">Explore the reconstruction</p><h1 id="viewer-title">3D scene</h1></div>
+        <div class="viewer-selectors">
+          <label>Model group<select id="viewer-group" disabled></select></label>
+          <label>Scene<select id="viewer-scene" disabled></select></label>
+          <label>Method<select id="viewer-method" disabled></select></label>
+        </div>
+      </div>
+      <div class="viewer-layout">
+        <section class="viewer-stage" aria-label="Interactive 3D reconstruction" aria-busy="true">
+          <model-viewer id="scene-model" camera-controls touch-action="none" interaction-prompt="none"
+            environment-image="neutral" shadow-intensity="0" exposure="1"
+            min-camera-orbit="auto 0deg 0.001m" max-camera-orbit="auto 180deg 1000%"
+            min-field-of-view="10deg" max-field-of-view="100deg" loading="eager">
+            <div slot="progress-bar"></div>
+          </model-viewer>
+          <div class="viewer-loading" id="viewer-loading" role="status" aria-live="polite">Loading scene…</div>
+          <div class="viewer-stage-actions">
+            <button type="button" id="viewer-reset" disabled>Reset view</button>
+            <button type="button" id="viewer-retry" hidden>Try again</button>
+          </div>
+        </section>
+        <aside class="viewer-reference">
+          <figure><img id="viewer-input" alt="Input image for the selected scene" /><figcaption>Input image</figcaption></figure>
+          <figure><img id="viewer-render" alt="Reconstruction from the source view" /><figcaption id="viewer-render-label">Source view</figcaption></figure>
+          <p>Drag to orbit. Scroll or pinch to zoom. Right-drag or use two fingers to pan. You can also focus the scene and use the arrow keys.</p>
+          <p class="viewer-appearance-note">The 3D viewer uses neutral lighting; shading may differ from the rendered comparison.</p>
+        </aside>
+      </div>
+      <p id="viewer-note" class="protocol-note"></p>
+      <noscript><p>Please enable JavaScript to explore these 3D scenes.</p></noscript>
+    </main>
+  </body>
+</html>
