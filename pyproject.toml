@@ -127,7 +127,7 @@ url = "https://download.pytorch.org/whl/cu128"
 explicit = true
 
 [tool.pytest.ini_options]
-testpaths = ["lib", "isaac", "scripts"]
+testpaths = ["lib", "isaac", "scripts", "site"]
 python_files = ["*_test.py", "*_checks.py"]
 norecursedirs = ["third_party", ".venv", "output", "outputs", "audits", "dataset", "logs", "run_logs", "*_dist", "__pycache__", "node_modules", ".git"]
 markers = ["native: launches bundled Blender/Isaac; run explicitly with -m native"]
