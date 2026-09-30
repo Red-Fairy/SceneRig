@@ -203,6 +203,7 @@ section[id] {
 }
 .hero-links {
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
   gap: 10px;
 }
@@ -223,6 +224,28 @@ section[id] {
 }
 .button:hover {
   transform: translateY(-1px);
+}
+.button-icon {
+  width: 17px;
+  height: 17px;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.button.coming-soon {
+  color: var(--muted);
+  background: #f4f6fa;
+  opacity: 1;
+  cursor: default;
+  transform: none;
+}
+.coming-soon-label {
+  font-size: 10px;
+  font-weight: 500;
+  white-space: nowrap;
 }
 .primary {
   background: var(--blue-dark);
