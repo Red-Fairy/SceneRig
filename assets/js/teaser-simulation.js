@@ -13,6 +13,7 @@
   const restart = find('simulation-restart');
   const scrub = find('simulation-time');
   const status = find('simulation-status');
+  const gravity = document.querySelector('.gravity-label');
   const state = find('simulation-state');
   const clock = find('simulation-clock');
   const note = find('simulation-note');
@@ -49,6 +50,7 @@
   function update() {
     const running = active() && videos.every(v => !v.paused && v.readyState >= 3);
     status.classList.toggle('playing', running);
+    gravity.classList.toggle('is-playing', running);
     if (ready) state.textContent = running ? 'Playing' : waiting ? 'Loading' : 'Paused';
     play.innerHTML = `<span aria-hidden="true">${wanted ? 'Ⅱ' : '▶'}</span>`;
     play.setAttribute('aria-label', wanted ? 'Pause simulation' : 'Play simulation');

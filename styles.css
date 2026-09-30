@@ -2372,8 +2372,15 @@ footer .wordmark {
 /* Recorded physics shares one clock across the textured and clay views. */
 .simulation-source { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin: 10px 0; font-size: 11px; color: var(--muted); }
 .simulation-source select { min-width: 132px; max-width: 100%; padding: 5px 25px 5px 9px; border: 1px solid var(--line); border-radius: 6px; background: #fff; color: var(--blue-dark); font: inherit; font-weight: 600; }
-.gravity-label { margin-left: auto; white-space: nowrap; }
-.gravity-label > span { display: inline-block; margin-right: 3px; font-size: 15px; color: var(--blue-dark); }
+.gravity-label { display: inline-flex; align-items: center; gap: 6px; margin-left: auto; padding: 4px 10px 4px 6px; border-radius: 8px; background: var(--blue-dark); color: #fff; font-size: 12px; font-weight: 700; line-height: 1; white-space: nowrap; box-shadow: 0 2px 7px #24477520; }
+.gravity-icon { width: 28px; height: 28px; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.gravity-ground { opacity: .65; }
+.gravity-label.is-playing .gravity-arrows { animation: gravity-fall 1.3s ease-in infinite; }
+@keyframes gravity-fall {
+  0% { transform: translateY(-2px); opacity: .35; }
+  65% { transform: translateY(3px); opacity: 1; }
+  100% { transform: translateY(5px); opacity: 0; }
+}
 .simulation-controls { display: flex; align-items: center; gap: 8px; margin-top: 10px; min-height: 30px; }
 .simulation-controls button { display: grid; place-items: center; flex: 0 0 30px; height: 30px; border: 1px solid var(--line); border-radius: 50%; background: #fff; color: var(--blue-dark); font-size: 14px; cursor: pointer; }
 .simulation-controls button:hover { background: #edf2fa; }
@@ -2385,7 +2392,7 @@ footer .wordmark {
 #simulation-time { min-width: 25px; flex: 1; width: 100%; accent-color: #527bd0; cursor: pointer; }
 #simulation-clock { flex: 0 0 auto; font-size: 10px; font-variant-numeric: tabular-nums; color: var(--muted); }
 .simulation-note { margin: 6px 0 0; font-size: 10px; line-height: 1.5; color: var(--muted); }
-@media (prefers-reduced-motion: reduce) { .simulation-status.playing .simulation-dot { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .simulation-status.playing .simulation-dot, .gravity-label.is-playing .gravity-arrows { animation: none; } }
 @media (max-width: 430px) { .simulation-controls { gap: 5px; } .simulation-status { min-width: 52px; font-size: 9px; } }
 
 .simulation-details { margin-right: auto; color: var(--muted); text-underline-offset: 3px; }
