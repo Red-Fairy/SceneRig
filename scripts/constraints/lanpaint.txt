@@ -1,0 +1,15 @@
+# LanPaint's upstream requirements.txt does not resolve: diffusers HEAD
+# requires huggingface-hub>=1.32, and torchvision==0.25.0+cu128 now depends
+# on torch==2.10.0. scripts/install.sh installs torch for the detected CUDA build.
+diffusers==0.36.0
+transformers==4.57.6
+accelerate==1.12.0
+huggingface-hub==0.36.0
+safetensors==0.7.0
+numpy==2.3.2
+Pillow==11.3.0
+scipy==1.17.0
+sentencepiece==0.2.1
+protobuf==6.33.4
+tqdm==4.67.1
+requests==2.32.5

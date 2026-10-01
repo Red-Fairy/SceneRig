@@ -6,6 +6,10 @@ import argparse
 import json
 from pathlib import Path
 
+from lib.utils.cuda_toolkit import use_cuda_toolkit
+
+use_cuda_toolkit(str(Path(__file__).resolve().parents[2] / "utils" / "third_party" / "sharp" / "cuda"))
+
 import numpy as np
 import torch
 from PIL import Image

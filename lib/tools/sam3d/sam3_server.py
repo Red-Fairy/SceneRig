@@ -145,10 +145,24 @@ def _segment_points(predictor, state, points, labels, out_path, all_candidates=F
     return float(ious[bi])
 
 
+def sam3_checkpoint():
+    """Local weight file, then the Hugging Face download inside ``build_sam3_image_model``."""
+    explicit = os.environ.get("SAM3_CHECKPOINT")
+    if explicit:
+        return explicit
+    default = os.path.join(ROOT, "utils", "third_party", "sam3", "checkpoints", "sam3.pt")
+    if os.path.isfile(default) and os.path.getsize(default) > 0:
+        return default
+    return None
+
+
 def main():
     # enable_inst_interactivity exposes the SAM2-style point predictor alongside the
     # concept/text detector (they share the backbone).
-    model = build_sam3_image_model(enable_inst_interactivity=True)
+    model = build_sam3_image_model(
+        enable_inst_interactivity=True,
+        checkpoint_path=sam3_checkpoint(),
+    )
     proc = Sam3Processor(model)
     predictor = model.inst_interactive_predictor
     torch.set_grad_enabled(False)  # F8: inference-only; no autograd graph on cached states

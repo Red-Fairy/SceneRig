@@ -1,0 +1,5 @@
+transformers==4.57.1
+accelerate==1.15.0
+einops==0.8.2
+pillow
+requests

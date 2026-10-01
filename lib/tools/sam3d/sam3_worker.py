@@ -19,6 +19,16 @@ from sam3.model.sam3_image_processor import Sam3Processor
 from sam3.model_builder import build_sam3_image_model
 
 
+def sam3_checkpoint() -> str | None:
+    explicit = os.environ.get("SAM3_CHECKPOINT")
+    if explicit:
+        return explicit
+    default = os.path.join(ROOT, "utils", "third_party", "sam3", "checkpoints", "sam3.pt")
+    if os.path.isfile(default) and os.path.getsize(default) > 0:
+        return default
+    return None
+
+
 def main() -> None:
     """Run SAM3 segmentation on an image with a text prompt.
 
@@ -33,7 +43,7 @@ def main() -> None:
     p.add_argument("--out", required=True, help="Path for output mask npy file")
     args = p.parse_args()
 
-    model = build_sam3_image_model()
+    model = build_sam3_image_model(checkpoint_path=sam3_checkpoint())
     proc = Sam3Processor(model)
     img = Image.open(args.image).convert("RGB")
     # SAM3 weights are meant to run under bf16 autocast (its detector/predictor

@@ -35,6 +35,10 @@ export HUGGING_FACE_HUB_TOKEN="${HUGGING_FACE_HUB_TOKEN:-$HF_TOKEN}"
 export OPENAI_API_KEY="${OPENAI_API_KEY:-}"
 export CLAUDE_API_KEY="${CLAUDE_API_KEY:-${ANTHROPIC_API_KEY:-}}"
 
+if [ -z "${SAM3_CHECKPOINT:-}" ] && [ -s lib/utils/third_party/sam3/checkpoints/sam3.pt ]; then
+    export SAM3_CHECKPOINT="$SCENERIG_ROOT/lib/utils/third_party/sam3/checkpoints/sam3.pt"
+fi
+
 export HF_HUB_OFFLINE="${HF_HUB_OFFLINE:-0}"
 export TRANSFORMERS_OFFLINE="${TRANSFORMERS_OFFLINE:-0}"
 unset HUGGINGFACE_HUB_CACHE

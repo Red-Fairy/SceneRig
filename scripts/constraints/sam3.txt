@@ -1,0 +1,4 @@
+# Import-time dependencies missing from SAM3's base install.
+einops
+pycocotools
+psutil

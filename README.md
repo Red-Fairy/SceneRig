@@ -31,45 +31,62 @@ be inspected in the local web viewer.
 
 ## 🛠️ Setup
 
-SceneRig requires Linux, Python 3.11, CUDA 12.8, Blender 4.5 LTS, and Isaac Sim
-5.1.
-
-### 🐍 Python
+Requirements: Linux x86_64, an NVIDIA GPU with a driver for CUDA 12.6 or newer
+(driver 560+), [uv](https://docs.astral.sh/uv/), and about 150 GB of disk for
+environments and weights. A system CUDA toolkit is not needed. Isaac Sim needs
+glibc 2.35+ (Ubuntu 22.04 or newer).
 
 ```bash
 git clone https://github.com/Red-Fairy/SceneRig.git
 cd SceneRig
-
-uv sync
-source .venv/bin/activate
+bash scripts/install.sh --detect   # optional: show what will be installed
+bash scripts/install.sh
 ```
 
-`uv sync` installs the main environment, PyTorch, and MoGE-2.
+The script reads the driver and installs the newest tested PyTorch CUDA build
+it supports: cu128 on CUDA 12.8+ drivers, cu126 on CUDA 12.6 drivers. Override
+with `SCENERIG_TORCH_BACKEND=cu126|cu128|cu129|cu130`. Re-running skips
+finished components; `--only sam3,molmo` and `--skip isaac` limit the work, and
+`--verify` reports what is installed.
 
-### 🎬 Blender And Isaac Sim
+The model backends cannot share one environment: they need different Python
+and PyTorch builds, and the runtime calls each one at a fixed path.
 
-Install Blender under `lib/utils/third_party/blender-4.5`, then install its
-headless system libraries:
+| Backend | Interpreter | Build |
+| --- | --- | --- |
+| SceneRig | `.venv` | Python 3.11, torch 2.11.0 |
+| SAM 3 | `lib/utils/third_party/sam3/.venv` | Python 3.12, torch 2.11.0 |
+| SAM 3D | `lib/utils/third_party/sam3d/.venv` | conda env, torch 2.5.1+cu121, CUDA 12.1 toolkit |
+| MolmoPoint | `lib/utils/third_party/molmo/.venv` | Python 3.11, torch 2.11.0, transformers 4.57.1 |
+| SHARP | `lib/utils/third_party/sharp/.venv` | Python 3.13, torch 2.8.0, CUDA toolkit for gsplat |
+| LanPaint | `lib/utils/third_party/lanpaint-qwen/.venv` | Python 3.12, torch 2.11.0, diffusers 0.36.0 |
+| Isaac Sim | `lib/utils/third_party/isaac/venv` | Python 3.11, isaacsim 5.1.0 |
+
+SAM 3D and SHARP compile CUDA extensions, so each gets a conda CUDA toolkit
+that matches its torch build. SAM 3D's torch 2.5.1 has no Blackwell
+(B200, RTX 50-series) kernels, so the script skips it on those GPUs.
+
+To install only the main environment by hand, `uv sync` uses cu128. For another
+build:
 
 ```bash
-mkdir -p lib/utils/third_party
-curl -L https://download.blender.org/release/Blender4.5/blender-4.5.14-linux-x64.tar.xz \
-  | tar -xJ -C lib/utils/third_party
-ln -sfn blender-4.5.14-linux-x64 lib/utils/third_party/blender-4.5
-
-bash scripts/install_system_libs.sh
+uv sync --no-default-groups --group dev --group cu126
 ```
 
-Install Isaac Sim in its own Python 3.11 environment:
+`facebook/sam3` and `facebook/sam-3d-objects` are gated. Request access on both
+model pages, then:
 
 ```bash
-uv venv --python 3.11 lib/utils/third_party/isaac/venv
-lib/utils/third_party/isaac/venv/bin/pip install \
-  'isaacsim[all,extscache]==5.1.0' \
-  --extra-index-url https://pypi.nvidia.com
+export HF_TOKEN=...
+bash scripts/download_weights.sh
 ```
 
-Verify both installations:
+SAM 3D weights land in `lib/utils/third_party/sam3d/checkpoints/hf/` and SAM 3
+in `lib/utils/third_party/sam3/checkpoints/sam3.pt`. MolmoPoint-8B and
+Qwen-Image-Edit-2509 go to the Hugging Face cache (`HF_HOME`). MoGE-2 downloads
+on first use.
+
+Check Blender and Isaac:
 
 ```bash
 lib/utils/third_party/blender-4.5/blender --version
@@ -77,53 +94,19 @@ OMNI_KIT_ACCEPT_EULA=YES lib/utils/third_party/isaac/venv/bin/python -c \
   'from isaacsim import SimulationApp; app=SimulationApp({"headless": True}); app.close()'
 ```
 
-### 🧠 Models
-
-Install model backends in these default locations:
-
-- SAM3: `lib/utils/third_party/sam3/.venv`
-- SAM3D Objects: `lib/utils/third_party/sam3d/.venv`
-- MolmoPoint: `lib/utils/third_party/molmo/.venv`
-- LanPaint/Qwen: `lib/utils/third_party/lanpaint-qwen/.venv`
-- SHARP: `lib/utils/third_party/sharp/.venv`
-
-Clone SAM3 and LanPaint, then follow their upstream installation instructions:
-
-```bash
-git clone https://github.com/facebookresearch/sam3.git lib/utils/third_party/sam3
-git clone https://github.com/charrywhite/LanPaint-diffusers.git \
-  lib/utils/third_party/lanpaint-qwen
-```
-
-SAM3D is included in `lib/utils/third_party/sam3d`. Follow
-[`doc/setup.md`](lib/utils/third_party/sam3d/doc/setup.md), including its CUDA,
-PyTorch3D, Kaolin, and `nvdiffrast` steps.
-
-Log in to Hugging Face and download the model weights:
-
-```bash
-export HF_TOKEN=...
-
-huggingface-cli download facebook/sam-3d-objects \
-  --local-dir lib/utils/third_party/sam3d/checkpoints/hf
-huggingface-cli download facebook/sam3
-huggingface-cli download allenai/MolmoPoint-8B
-huggingface-cli download Qwen/Qwen-Image-Edit-2509
-```
-
-MoGE-2 downloads `Ruicheng/moge-2-vitl-normal` automatically on first use.
-
 ### 🔑 API Keys
 
-Export the provider keys in your shell or add them to `~/.zshrc`:
+The default agent is Claude, including for `--preprocess-only`. OpenAI is used
+only for novel-view polish (`gpt-image-2`); without it the raw SHARP renders
+are kept.
 
 ```bash
-export OPENAI_API_KEY=...
 export CLAUDE_API_KEY=...        # or ANTHROPIC_API_KEY
+export OPENAI_API_KEY=...        # optional; novel-view polish only
 export CLAUDE_BASE_URL=...       # only if using an OpenAI-compatible proxy
 ```
 
-Do not commit API keys.
+`scripts/run_e2e.sh` reads these exports from `~/.zshrc`. Do not commit API keys.
 
 ## 🚀 Run
 
