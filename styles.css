@@ -296,15 +296,56 @@ section[id] {
 }
 .teaser-reconstruction {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
-  grid-template-areas: "input scene";
+  grid-template-columns: minmax(0, var(--input-column, 30fr)) 24px minmax(0, var(--scene-column, 70fr));
+  grid-template-areas: "input divider scene";
   align-items: start;
-  gap: 18px 28px;
+  gap: 18px 8px;
   padding: 25px 25px 13px;
   background: linear-gradient(116deg, #fffafa 0%, white 43%, #f2f6ff 100%);
 }
 .input-panel {
   grid-area: input;
+  align-self: center;
+}
+.teaser-divider {
+  grid-area: divider;
+  position: relative;
+  align-self: stretch;
+  cursor: col-resize;
+  touch-action: none;
+  border-radius: 6px;
+}
+.teaser-divider::before,
+.teaser-divider::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  border-radius: 4px;
+  background: #cbd4e2;
+}
+.teaser-divider::before {
+  width: 1px;
+  top: 24px;
+  bottom: 24px;
+}
+.teaser-divider::after {
+  width: 6px;
+  height: 44px;
+  top: calc(50% - 22px);
+}
+.teaser-divider:hover::after,
+.teaser-divider:focus-visible::after,
+.teaser-reconstruction.is-resizing .teaser-divider::after {
+  background: var(--blue-dark);
+}
+.teaser-divider:focus-visible {
+  outline: 2px solid var(--blue-dark);
+  outline-offset: 1px;
+}
+.teaser-reconstruction.is-resizing {
+  user-select: none;
+  cursor: col-resize;
 }
 .scene-panel {
   grid-area: scene;
@@ -1579,7 +1620,7 @@ footer .wordmark {
     padding-inline: 24px;
   }
   .teaser-reconstruction {
-    gap: 17px;
+    gap: 17px 6px;
     padding: 22px 20px 13px;
   }
   .step-title {
@@ -1691,7 +1732,7 @@ footer .wordmark {
     font-size: 13px;
   }
   .teaser-reconstruction {
-    gap: 16px;
+    gap: 16px 4px;
     padding: 20px;
   }
   .scene-panel .step-title {
@@ -2017,6 +2058,14 @@ footer .wordmark {
     grid-template-areas: "input" "scene";
     padding: 14px;
     gap: 17px 12px;
+  }
+  .teaser-divider {
+    display: none;
+  }
+  .input-panel {
+    width: 78%;
+    max-width: 320px;
+    justify-self: center;
   }
   .step-title {
     font-size: 11px;

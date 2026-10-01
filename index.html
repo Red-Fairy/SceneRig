@@ -26,8 +26,8 @@
     />
     <title>SceneRig · Single-image, simulation-ready 3D scenes</title>
     <link rel="icon" href="assets/icon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=teaser-overlay-1" />
-    <script src="app.js?v=viewers-1" defer></script>
+    <link rel="stylesheet" href="styles.css?v=teaser-layout-1" />
+    <script src="app.js?v=teaser-layout-1" defer></script>
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
@@ -88,7 +88,7 @@
 
         <div class="teaser" id="teaser">
           <div class="teaser-reconstruction">
-            <figure class="input-panel">
+            <figure class="input-panel" id="teaser-input">
               <figcaption class="step-title">
                 <span class="step-number">01</span
                 ><span
@@ -105,7 +105,13 @@
                 /><span class="image-tag">Input</span>
               </div>
             </figure>
-            <figure class="scene-panel">
+            <div class="teaser-divider" id="teaser-divider" role="separator"
+              tabindex="0" aria-label="Resize input image and 3D scene"
+              aria-orientation="vertical" aria-controls="teaser-input teaser-scene"
+              aria-valuemin="22" aria-valuemax="45" aria-valuenow="30"
+              aria-valuetext="Input image 30 percent, 3D scene 70 percent"
+              title="Drag to resize · Arrow keys to adjust · Double-click to reset"></div>
+            <figure class="scene-panel" id="teaser-scene">
               <figcaption class="step-title">
                 <span class="step-number">02</span
                 ><span

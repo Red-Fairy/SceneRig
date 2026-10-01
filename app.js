@@ -16,6 +16,58 @@ async function readData(name) {
   return response.json();
 }
 
+// This divider resizes the two teaser panels, independently of the RGB/clay reveal.
+function setupTeaserDivider() {
+  const divider = $("#teaser-divider");
+  const layout = $(".teaser-reconstruction");
+  let share = 30;
+  let drag = null;
+
+  function resize(value) {
+    share = Math.max(22, Math.min(45, value));
+    layout.style.setProperty("--input-column", `${share}fr`);
+    layout.style.setProperty("--scene-column", `${100 - share}fr`);
+    divider.setAttribute("aria-valuenow", String(Math.round(share)));
+    divider.setAttribute("aria-valuetext",
+      `Input image ${Math.round(share)} percent, 3D scene ${100 - Math.round(share)} percent`);
+  }
+  divider.addEventListener("pointerdown", (event) => {
+    if (!event.isPrimary || event.button !== 0) return;
+    event.preventDefault();
+    divider.focus({ preventScroll: true });
+    drag = {
+      id: event.pointerId,
+      x: event.clientX,
+      share,
+      width: $("#teaser-input").getBoundingClientRect().width +
+        $("#teaser-scene").getBoundingClientRect().width,
+    };
+    divider.setPointerCapture(event.pointerId);
+    layout.classList.add("is-resizing");
+  });
+  divider.addEventListener("pointermove", (event) => {
+    if (drag?.id === event.pointerId)
+      resize(drag.share + (event.clientX - drag.x) / drag.width * 100);
+  });
+  function stopDrag(event) {
+    if (drag?.id !== event.pointerId) return;
+    drag = null;
+    layout.classList.remove("is-resizing");
+    if (divider.hasPointerCapture(event.pointerId))
+      divider.releasePointerCapture(event.pointerId);
+  }
+  divider.addEventListener("pointerup", stopDrag);
+  divider.addEventListener("pointercancel", stopDrag);
+  divider.addEventListener("lostpointercapture", stopDrag);
+  divider.addEventListener("dblclick", () => resize(30));
+  divider.addEventListener("keydown", (event) => {
+    const values = { ArrowLeft: share - 2, ArrowRight: share + 2, Home: 22, End: 45 };
+    if (!(event.key in values)) return;
+    event.preventDefault();
+    resize(values[event.key]);
+  });
+}
+
 // The reveal uses the same render dimensions and camera for both materials.
 function setupClaySlider() {
   const slider = $("#clay-slider");
@@ -579,6 +631,7 @@ function setupPoseTrace(data) {
   render(0);
 }
 
+setupTeaserDivider();
 setupClaySlider();
 readData("pose-trace")
   .then(setupPoseTrace)
