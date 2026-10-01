@@ -1,5 +1,11 @@
+# One group per PyTorch CUDA build. `uv sync` uses cu128; scripts/install.sh
+# picks the newest build the local driver supports.
 [dependency-groups]
 dev = ["pytest"]
+cu126 = ["torch==2.11.0", "torchvision==0.26.0"]
+cu128 = ["torch==2.11.0", "torchvision==0.26.0"]
+cu129 = ["torch==2.11.0", "torchvision==0.26.0"]
+cu130 = ["torch==2.11.0", "torchvision==0.26.0"]
 
 [project]
 name = "scenerig"
@@ -8,8 +14,6 @@ description = "SceneRig single-image reconstruction runtime."
 requires-python = ">=3.11,<3.12"
 dependencies = [
     "moge @ git+https://github.com/microsoft/MoGe.git@b942f00",
-    "torch==2.11.0",
-    "torchvision==0.26.0",
     "coacd==1.0.7",
     "mcp==1.28.0",
     "openai==2.43.0",
@@ -21,6 +25,10 @@ dependencies = [
 [tool.uv]
 package = false
 environments = ["sys_platform == 'linux'"]
+default-groups = ["dev", "cu128"]
+conflicts = [
+    [{ group = "cu126" }, { group = "cu128" }, { group = "cu129" }, { group = "cu130" }],
+]
 constraint-dependencies = [
     "annotated-doc==0.0.4",
     "annotated-types==0.7.0",
@@ -116,14 +124,39 @@ constraint-dependencies = [
 ]
 
 [tool.uv.sources]
-torch = { index = "pytorch-cu128" }
-torchvision = { index = "pytorch-cu128" }
+torch = [
+    { index = "pytorch-cu126", group = "cu126" },
+    { index = "pytorch-cu128", group = "cu128" },
+    { index = "pytorch-cu129", group = "cu129" },
+    { index = "pytorch-cu130", group = "cu130" },
+]
+torchvision = [
+    { index = "pytorch-cu126", group = "cu126" },
+    { index = "pytorch-cu128", group = "cu128" },
+    { index = "pytorch-cu129", group = "cu129" },
+    { index = "pytorch-cu130", group = "cu130" },
+]
 utils3d = { git = "https://github.com/EasternJournalist/utils3d.git", rev = "3fab839f0be9931dac7c8488eb0e1600c236e183" }
 pipeline = { git = "https://github.com/EasternJournalist/pipeline.git", rev = "866f059d2a05cde05e4a52211ec5051fd5f276d6" }
 
 [[tool.uv.index]]
+name = "pytorch-cu126"
+url = "https://download.pytorch.org/whl/cu126"
+explicit = true
+
+[[tool.uv.index]]
 name = "pytorch-cu128"
 url = "https://download.pytorch.org/whl/cu128"
+explicit = true
+
+[[tool.uv.index]]
+name = "pytorch-cu129"
+url = "https://download.pytorch.org/whl/cu129"
+explicit = true
+
+[[tool.uv.index]]
+name = "pytorch-cu130"
+url = "https://download.pytorch.org/whl/cu130"
 explicit = true
 
 [tool.pytest.ini_options]
