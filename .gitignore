@@ -6,7 +6,9 @@ __pycache__/
 .ruff_cache/
 
 # Local environments and machine state
-.venv/
+.venv
+.micromamba/
+.tools/
 .env
 .env.*
 .DS_Store
