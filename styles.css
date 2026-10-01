@@ -296,8 +296,8 @@ section[id] {
 }
 .teaser-reconstruction {
   display: grid;
-  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.8fr);
-  grid-template-areas: "input scene" "closeup scene";
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+  grid-template-areas: "input scene";
   align-items: start;
   gap: 18px 28px;
   padding: 25px 25px 13px;
@@ -305,9 +305,6 @@ section[id] {
 }
 .input-panel {
   grid-area: input;
-}
-.closeup-panel {
-  grid-area: closeup;
 }
 .scene-panel {
   grid-area: scene;
@@ -364,35 +361,6 @@ section[id] {
   background: #fffefce6;
   font-size: 9px;
   font-weight: 650;
-}
-.closeup-panel .step-title {
-  margin-bottom: 14px;
-}
-.detail-pair {
-  display: flex;
-  gap: 9px;
-}
-.detail-pair > div {
-  min-width: 0;
-  flex: 1;
-}
-.detail-pair img {
-  width: 100%;
-  aspect-ratio: 1;
-  object-fit: contain;
-  border-radius: 5px;
-  background: #fff;
-  border: 1px solid #dcdfe7;
-}
-.detail-pair > div:last-child img {
-  border-color: #537fbc77;
-}
-.detail-pair span {
-  display: block;
-  text-align: center;
-  font-size: 10px;
-  font-weight: 650;
-  margin-top: 5px;
 }
 .ours-text {
   color: var(--blue-dark);
@@ -2046,7 +2014,7 @@ footer .wordmark {
   }
   .teaser-reconstruction {
     grid-template-columns: minmax(0, 1fr);
-    grid-template-areas: "input" "closeup" "scene";
+    grid-template-areas: "input" "scene";
     padding: 14px;
     gap: 17px 12px;
   }
@@ -2061,13 +2029,6 @@ footer .wordmark {
     font-size: 8px;
   }
   .step-title small {
-    font-size: 8px;
-  }
-  .detail-pair {
-    width: 100%;
-    gap: 5px;
-  }
-  .detail-pair span {
     font-size: 8px;
   }
   .scene-panel {
@@ -2395,6 +2356,7 @@ footer .wordmark {
 /* Recorded physics shares one clock across the textured and clay views. */
 .simulation-source { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin: 10px 0; font-size: 11px; color: var(--muted); }
 .simulation-source select { min-width: 132px; max-width: 100%; padding: 5px 25px 5px 9px; border: 1px solid var(--line); border-radius: 6px; background: #fff; color: var(--blue-dark); font: inherit; font-weight: 600; }
+.simulation-source .simulation-viewer { gap: 5px; padding: 7px 9px; font-size: 11px; color: var(--blue-dark); white-space: nowrap; }
 .gravity-label { display: inline-flex; align-items: center; gap: 6px; margin-left: auto; padding: 4px 10px 4px 6px; border-radius: 8px; background: var(--blue-dark); color: #fff; font-size: 12px; font-weight: 700; line-height: 1; white-space: nowrap; box-shadow: 0 2px 7px #24477520; }
 .gravity-icon { width: 28px; height: 28px; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .gravity-ground { opacity: .65; }

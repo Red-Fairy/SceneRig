@@ -10,7 +10,8 @@
       "clay": "assets/teaser/simulation/scenerig-clay.mp4",
       "rgb_poster": "assets/teaser/simulation/scenerig-rgb.webp",
       "clay_poster": "assets/teaser/simulation/scenerig-clay.webp",
-      "note": "Recorded physics \u00b7 1\u00d7 speed \u00b7 RGB and clay share the same motion."
+      "note": "Recorded physics \u00b7 1\u00d7 speed \u00b7 RGB and clay share the same motion.",
+      "viewer": "viewer.html?group=gpt6&scene=scene-01&method=ours"
     },
     "viga": {
       "label": "VIGA",
@@ -18,7 +19,8 @@
       "clay": "assets/teaser/simulation/viga-clay.mp4",
       "rgb_poster": "assets/teaser/simulation/viga-rgb.webp",
       "clay_poster": "assets/teaser/simulation/viga-clay.webp",
-      "note": "Recorded physics \u00b7 1\u00d7 speed \u00b7 VIGA uses object grouping; supports remain fixed."
+      "note": "Recorded physics \u00b7 1\u00d7 speed \u00b7 VIGA uses object grouping; supports remain fixed.",
+      "viewer": "viewer.html?group=main&scene=scene-01&method=viga"
     },
     "simfoundry": {
       "label": "SimFoundry",
@@ -26,7 +28,8 @@
       "clay": "assets/teaser/simulation/simfoundry-clay.mp4",
       "rgb_poster": "assets/teaser/simulation/simfoundry-rgb.webp",
       "clay_poster": "assets/teaser/simulation/simfoundry-clay.webp",
-      "note": "Recorded physics \u00b7 1\u00d7 speed \u00b7 native SimFoundry scene and collisions."
+      "note": "Recorded physics \u00b7 1\u00d7 speed \u00b7 native SimFoundry scene and collisions.",
+      "viewer": "viewer.html?group=main&scene=scene-01&method=simfoundry"
     }
   }
 }

@@ -26,7 +26,7 @@
     />
     <title>SceneRig · Single-image, simulation-ready 3D scenes</title>
     <link rel="icon" href="assets/icon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=project-links-1" />
+    <link rel="stylesheet" href="styles.css?v=teaser-viewers-1" />
     <script src="app.js?v=viewers-1" defer></script>
   </head>
   <body>
@@ -105,37 +105,9 @@
                 /><span class="image-tag">Input</span>
               </div>
             </figure>
-            <figure class="closeup-panel">
-              <figcaption class="step-title">
-                <span class="step-number">02</span
-                ><span
-                  >Reconstruction closeups<small
-                    >Object geometry &amp; placement</small
-                  ></span
-                >
-              </figcaption>
-              <div class="detail-pair">
-                <div>
-                  <img
-                    src="assets/teaser/closeup-simfoundry.webp?v=edited-input"
-                    alt="SimFoundry reconstruction closeup: the rear black mug lies on its side."
-                    width="400"
-                    height="300"
-                  /><span>SimFoundry</span>
-                </div>
-                <div>
-                  <img
-                    src="assets/teaser/closeup-scenerig.webp?v=edited-input"
-                    alt="SceneRig reconstruction closeup: the rear black mug remains upright, matching the input."
-                    width="400"
-                    height="300"
-                  /><span class="ours-text">SceneRig</span>
-                </div>
-              </div>
-            </figure>
             <figure class="scene-panel">
               <figcaption class="step-title">
-                <span class="step-number">03</span
+                <span class="step-number">02</span
                 ><span
                   >3D scene under gravity<small
                     >Five seconds of simulation · RGB &amp; clay</small
@@ -149,6 +121,7 @@
                   <option value="viga">VIGA</option>
                   <option value="simfoundry">SimFoundry</option>
                 </select>
+                <a id="simulation-viewer" class="button secondary simulation-viewer" href="viewer.html?group=gpt6&amp;scene=scene-01&amp;method=ours" target="_blank" rel="noopener" aria-label="View SceneRig reconstruction in 3D (opens in a new tab)">View in 3D <span aria-hidden="true">↗</span></a>
                 <span class="gravity-label" title="Recorded gravity simulation">
                   <svg class="gravity-icon" viewBox="0 0 28 28" aria-hidden="true" focusable="false">
                     <g class="gravity-arrows"><path d="m8 5 6 5 6-5" /><path d="m8 12 6 5 6-5" /></g>
@@ -215,7 +188,7 @@
           <div class="teaser-applications">
             <div class="application-intro">
               <div class="step-title">
-                <span class="step-number">04</span
+                <span class="step-number">03</span
                 ><span
                   >Robotics applications<small
                     >Experiments in reconstructed robot workspaces</small
@@ -672,6 +645,6 @@
         material slider, and load the robot video gallery.
       </p></noscript
     >
-    <script src="assets/js/teaser-simulation.js?v=gravity-icon-1" defer></script>
+    <script src="assets/js/teaser-simulation.js?v=teaser-viewers-1" defer></script>
   </body>
 </html>

@@ -9,6 +9,7 @@
   const showInset = find('simulation-inset-show');
   let insetDismissed = false;
   const source = find('simulation-source');
+  const viewer = find('simulation-viewer');
   const play = find('simulation-play');
   const restart = find('simulation-restart');
   const scrub = find('simulation-time');
@@ -115,6 +116,8 @@
   }
   function load() {
     const method = manifest.methods[source.value];
+    viewer.href = method.viewer;
+    viewer.setAttribute('aria-label', `View ${method.label} reconstruction in 3D (opens in a new tab)`);
     updateInset();
     generation++;
     ready = false;
