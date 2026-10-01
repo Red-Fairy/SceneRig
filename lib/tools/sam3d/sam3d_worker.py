@@ -10,21 +10,29 @@ import json
 import os
 import sys
 
-os.environ["PATH"] = os.path.dirname(sys.executable) + os.pathsep + os.environ.get("PATH", "")
-
-import numpy as np
-import torch
-from pytorch3d.transforms import Transform3d, quaternion_to_matrix
-
 ROOT: str = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+sys.path.append(os.path.dirname(ROOT))
+
+from lib.utils.cuda_toolkit import use_cuda_toolkit  # noqa: E402
+
+# The sam3d-objects env ships CUDA 12.1 to match its torch 2.5.1+cu121 build;
+# a newer or older system toolkit cannot compile its extensions.
+_env_prefix = os.path.dirname(os.path.dirname(sys.executable))
+if use_cuda_toolkit(_env_prefix):
+    os.environ["CONDA_PREFIX"] = _env_prefix
+else:
+    cuda_home = os.environ.get("CUDA_HOME", "/usr/local/cuda")
+    if os.path.isfile(os.path.join(cuda_home, "bin", "nvcc")):
+        os.environ["CONDA_PREFIX"] = cuda_home
+    else:
+        os.environ.setdefault("CONDA_PREFIX", _env_prefix)
+
+import numpy as np  # noqa: E402
+import torch  # noqa: E402
+from pytorch3d.transforms import Transform3d, quaternion_to_matrix  # noqa: E402
+
 sys.path.append(os.path.join(ROOT, "utils", "third_party", "sam3d", "notebook"))
 sys.path.append(os.path.join(ROOT, "utils", "third_party", "sam3d"))
-
-cuda_home = os.environ.get("CUDA_HOME", "/usr/local/cuda")
-if os.path.isfile(os.path.join(cuda_home, "bin", "nvcc")):
-    os.environ["CONDA_PREFIX"] = cuda_home
-else:
-    os.environ.setdefault("CONDA_PREFIX", os.path.dirname(os.path.dirname(sys.executable)))
 os.environ.setdefault(
     "TORCH_EXTENSIONS_DIR",
     os.path.join(os.path.expanduser("~"), ".cache", "torch_extensions_scenerig"),
