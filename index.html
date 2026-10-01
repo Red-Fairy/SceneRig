@@ -26,7 +26,7 @@
     />
     <title>SceneRig · Single-image, simulation-ready 3D scenes</title>
     <link rel="icon" href="assets/icon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=teaser-viewers-1" />
+    <link rel="stylesheet" href="styles.css?v=teaser-overlay-1" />
     <script src="app.js?v=viewers-1" defer></script>
   </head>
   <body>
@@ -121,7 +121,7 @@
                   <option value="viga">VIGA</option>
                   <option value="simfoundry">SimFoundry</option>
                 </select>
-                <a id="simulation-viewer" class="button secondary simulation-viewer" href="viewer.html?group=gpt6&amp;scene=scene-01&amp;method=ours" target="_blank" rel="noopener" aria-label="View SceneRig reconstruction in 3D (opens in a new tab)">View in 3D <span aria-hidden="true">↗</span></a>
+                <button id="simulation-viewer" class="button secondary simulation-viewer" type="button" data-viewer="viewer.html?group=main&amp;scene=scene-01&amp;method=ours" aria-haspopup="dialog" aria-controls="teaser-viewer" aria-label="View SceneRig headline reconstruction in 3D">View in 3D <span aria-hidden="true">⤢</span></button>
                 <span class="gravity-label" title="Recorded gravity simulation">
                   <svg class="gravity-icon" viewBox="0 0 28 28" aria-hidden="true" focusable="false">
                     <g class="gravity-arrows"><path d="m8 5 6 5 6-5" /><path d="m8 12 6 5 6-5" /></g>
@@ -632,6 +632,22 @@
         </div>
       </section>
     </main>
+    <dialog id="teaser-viewer" class="teaser-viewer-dialog" aria-labelledby="teaser-viewer-title">
+      <div class="teaser-viewer-heading">
+        <div><p class="eyebrow">Claude Opus 5 · Headline results</p><h2 id="teaser-viewer-title">3D reconstruction</h2></div>
+        <button id="teaser-viewer-close" type="button" aria-label="Close 3D viewer" autofocus>×</button>
+      </div>
+      <div id="teaser-viewer-stage" class="teaser-viewer-stage" aria-busy="true">
+        <div id="teaser-viewer-canvas"></div>
+        <div id="teaser-viewer-status" class="teaser-viewer-status" role="status" aria-live="polite">Loading scene…</div>
+      </div>
+      <div class="teaser-viewer-footer">
+        <p>Drag to orbit · Scroll or pinch to zoom · Right-drag or use two fingers to pan</p>
+        <button id="teaser-viewer-reset" class="button secondary small" type="button" disabled>Reset view</button>
+        <button id="teaser-viewer-retry" class="button secondary small" type="button" hidden>Try again</button>
+      </div>
+      <p class="teaser-viewer-note">Headline reconstruction before the gravity test. Browser lighting may differ from the comparison renders.</p>
+    </dialog>
     <footer class="section-wrap">
       <a class="wordmark" href="#"
         >SceneRig<span class="wordmark-dot">.</span></a
@@ -645,6 +661,7 @@
         material slider, and load the robot video gallery.
       </p></noscript
     >
-    <script src="assets/js/teaser-simulation.js?v=teaser-viewers-1" defer></script>
+    <script src="assets/js/teaser-simulation.js?v=teaser-overlay-1" defer></script>
+    <script type="module" src="assets/js/teaser-viewer.js?v=1"></script>
   </body>
 </html>

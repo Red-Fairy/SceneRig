@@ -11,7 +11,7 @@
       "rgb_poster": "assets/teaser/simulation/scenerig-rgb.webp",
       "clay_poster": "assets/teaser/simulation/scenerig-clay.webp",
       "note": "Recorded physics \u00b7 1\u00d7 speed \u00b7 RGB and clay share the same motion.",
-      "viewer": "viewer.html?group=gpt6&scene=scene-01&method=ours"
+      "viewer": "viewer.html?group=main&scene=scene-01&method=ours"
     },
     "viga": {
       "label": "VIGA",

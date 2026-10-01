@@ -10,6 +10,7 @@
   let insetDismissed = false;
   const source = find('simulation-source');
   const viewer = find('simulation-viewer');
+  const viewerDialog = find('teaser-viewer');
   const play = find('simulation-play');
   const restart = find('simulation-restart');
   const scrub = find('simulation-time');
@@ -29,7 +30,7 @@
   let waiting = false;
   let starting = false;
   const duration = () => manifest?.seconds || 5;
-  const active = () => ready && wanted && visible && !document.hidden;
+  const active = () => ready && wanted && visible && !document.hidden && !viewerDialog.open;
 
   function updateInset() {
     const available = source.value !== 'viga';
@@ -116,8 +117,8 @@
   }
   function load() {
     const method = manifest.methods[source.value];
-    viewer.href = method.viewer;
-    viewer.setAttribute('aria-label', `View ${method.label} reconstruction in 3D (opens in a new tab)`);
+    viewer.dataset.viewer = method.viewer;
+    viewer.setAttribute('aria-label', `View ${method.label} headline reconstruction in 3D`);
     updateInset();
     generation++;
     ready = false;
@@ -173,6 +174,7 @@
     reconcile();
   }, { threshold: .15 }).observe(find('clay-slider'));
   document.addEventListener('visibilitychange', reconcile);
+  viewerDialog.addEventListener('close', reconcile);
   reduced.addEventListener('change', () => {
     if (reduced.matches) wanted = false;
     reconcile();
