@@ -196,8 +196,18 @@ section[id] {
   color: var(--muted);
   font-size: 14px;
 }
+.paper-author-notes {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 3px 16px;
+  margin-top: 7px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
 .hero-description {
-  font-size: 16px;
+  font-size: 18px;
   margin: 14px 0 17px;
   color: #4d5c72;
 }
@@ -1729,7 +1739,7 @@ footer .wordmark {
     margin-inline: auto;
   }
   .hero-description {
-    font-size: 13px;
+    font-size: 15px;
   }
   .teaser-reconstruction {
     gap: 16px 4px;
@@ -2034,7 +2044,7 @@ footer .wordmark {
     letter-spacing: -0.9px;
   }
   .hero-description {
-    font-size: 12px;
+    font-size: 14px;
     max-width: 290px;
     margin-inline: auto;
   }
