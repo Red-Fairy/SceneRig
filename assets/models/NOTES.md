@@ -14,4 +14,6 @@ Models are compressed using meshoptimizer/gltfpack v1.3 with 16-bit positions, 1
 
 One exceptionally dense scene, `gpt6/scene-13/viga.glb`, contains a broccoli mesh with about 40 million source vertices. Its browser copy additionally uses gltfpack's `-si 0.05 -se 0.0005` simplification settings, retaining about four million triangles in the full scene. The original layout and gallery render are unchanged. Other models do not request mesh simplification.
 
+For hosting, the GLBs are stored as `.glb.gz` and decompressed in the browser. This outer gzip layer is lossless: every decompressed file is byte-identical to its previous GLB, without further changes to geometry, textures, or materials. `data/gallery.json` records the download size, original size, and SHA-256 of the original GLB. Run `python3 scripts/compress_models.py` after adding new GLBs; `python3 tests/test_model_integrity.py` verifies the stored files. Downloaded files can be unpacked with `gzip -dk scene.glb.gz` for use outside the viewer.
+
 The page loads one scene at a time. Viewer code, decoder, models, and reference images are all served from this repository.

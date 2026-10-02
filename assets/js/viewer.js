@@ -1,4 +1,5 @@
 import "../vendor/model-viewer.min.js";
+import { modelURL, releaseModelURL } from "./model-source.js";
 
 const $ = (selector) => document.querySelector(selector);
 const model = $("#scene-model");
@@ -10,6 +11,9 @@ await customElements.whenDefined("model-viewer");
 customElements.get("model-viewer").meshoptDecoderLocation = new URL("../vendor/meshopt_decoder.js", import.meta.url).href;
 let gallery;
 let selected;
+let request = 0;
+let download;
+let activeURL;
 
 function showError(message) {
   status.textContent = message;
@@ -37,7 +41,13 @@ function resetView() {
   model.jumpCameraToGoal();
 }
 
-function loadSelection(groupId, sourceId, methodId, push = false) {
+async function loadSelection(groupId, sourceId, methodId, push = false) {
+  const current = ++request;
+  download?.abort();
+  download = new AbortController();
+  model.removeAttribute("src");
+  releaseModelURL(activeURL);
+  activeURL = null;
   const scene = gallery.scenes.find((item) => item.group === groupId && item.sourceId === sourceId);
   const method = scene?.methods.find((item) => item.id === methodId);
   if (!method?.model) {
@@ -69,7 +79,14 @@ function loadSelection(groupId, sourceId, methodId, push = false) {
   $("#viewer-retry").hidden = true;
   model.alt = `${method.label} reconstruction of ${sceneLabel(scene)}. Drag to orbit, scroll to zoom, or use the arrow keys.`;
   resetView();
-  model.src = method.model.src;
+  try {
+    const source = await modelURL(method.model.src, download.signal);
+    if (current !== request) { releaseModelURL(source); return; }
+    activeURL = source;
+    model.src = source;
+  } catch {
+    if (current === request) showError("The 3D scene could not load. Check your connection and try again.");
+  }
 }
 
 function loadURL() {
@@ -80,12 +97,15 @@ function loadURL() {
 }
 
 model.addEventListener("load", () => {
+  if (!activeURL || model.src !== activeURL) return;
   resetView();
   status.hidden = true;
   stage.setAttribute("aria-busy", "false");
   $("#viewer-reset").disabled = false;
 });
-model.addEventListener("error", () => showError("The 3D scene could not load. Check your connection and try again."));
+model.addEventListener("error", () => {
+  if (activeURL && model.src === activeURL) showError("The 3D scene could not load. Check your connection and try again.");
+});
 model.addEventListener("progress", (event) => {
   if (!status.hidden) status.textContent = `Loading scene… ${Math.round(event.detail.totalProgress * 100)}%`;
 });

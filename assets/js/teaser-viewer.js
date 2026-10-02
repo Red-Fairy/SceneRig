@@ -1,3 +1,5 @@
+import { modelURL, releaseModelURL } from './model-source.js';
+
 const find = (id) => document.getElementById(id);
 const trigger = find('simulation-viewer');
 const dialog = find('teaser-viewer');
@@ -11,6 +13,8 @@ let model;
 let selected;
 let request = 0;
 let failed = false;
+let download;
+let activeURL;
 const modelAttempts = new Map();
 
 function loadAssets() {
@@ -53,6 +57,10 @@ function showError() {
 
 async function openViewer() {
   const current = ++request;
+  download?.abort();
+  download = new AbortController();
+  releaseModelURL(activeURL);
+  activeURL = null;
   failed = false;
   canvas.replaceChildren();
   model = selected = null;
@@ -107,7 +115,10 @@ async function openViewer() {
     canvas.append(model);
     resetView();
     const attempt = modelAttempts.get(source) || 0;
-    model.src = source + (attempt ? `?retry=${attempt}` : '');
+    const url = await modelURL(source + (attempt ? `?retry=${attempt}` : ''), download.signal);
+    if (current !== request || !dialog.open) { releaseModelURL(url); return; }
+    activeURL = url;
+    model.src = url;
   } catch {
     if (current === request && dialog.open) showError();
   }
@@ -137,7 +148,10 @@ dialog.addEventListener('click', (event) => {
 });
 dialog.addEventListener('close', () => {
   request++;
+  download?.abort();
   canvas.replaceChildren();
+  releaseModelURL(activeURL);
+  activeURL = null;
   model = selected = null;
   trigger.focus({ preventScroll: true });
 });

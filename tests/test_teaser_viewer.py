@@ -57,8 +57,8 @@ class TeaserViewerTests(unittest.TestCase):
             self.wait_for_model()
             self.assertEqual(self.page.url, original_url)
             self.assertEqual(len(self.context.pages), 1)
-            self.assertEqual(self.page.locator('#teaser-viewer-canvas model-viewer').evaluate('e => e.src'),
-                             f'assets/models/main/scene-01/{model}.glb')
+            self.assertTrue(self.page.locator('#teaser-viewer-canvas model-viewer').evaluate("e => e.src.startsWith('blob:')"))
+            self.assertTrue(any(url.endswith(f'assets/models/main/scene-01/{model}.glb.gz') for url in self.requests))
             self.assertIn('Claude Opus 5', self.page.locator('.teaser-viewer-heading').text_content())
             self.assertEqual(self.page.locator('#teaser-viewer select').count(), 0)
             self.page.locator('#teaser-viewer-reset').click()
@@ -95,13 +95,26 @@ class TeaserViewerTests(unittest.TestCase):
         self.page.wait_for_function('!document.querySelector("#teaser-viewer").open')
 
     def test_failed_model_can_be_retried(self):
-        pattern = '**/assets/models/main/scene-01/ours.glb'
+        pattern = '**/assets/models/main/scene-01/ours.glb.gz*'
         self.page.route(pattern, lambda route: route.abort())
         self.open_viewer()
         self.page.wait_for_selector('#teaser-viewer-retry:not([hidden])', timeout=60000)
         self.assertIn('could not load', self.page.locator('#teaser-viewer-status').inner_text())
         self.page.unroute(pattern)
         self.page.locator('#teaser-viewer-retry').click()
+        self.wait_for_model()
+
+    def test_closing_during_download_and_reopening(self):
+        pattern = '**/assets/models/main/scene-01/ours.glb.gz*'
+        pending = []
+        self.page.route(pattern, lambda route: pending.append(route))
+        self.open_viewer()
+        self.page.wait_for_timeout(500)
+        self.page.locator('#teaser-viewer-close').click()
+        for route in pending:
+            route.abort()
+        self.page.unroute(pattern)
+        self.open_viewer()
         self.wait_for_model()
 
 

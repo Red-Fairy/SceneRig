@@ -79,13 +79,15 @@
           "source": "assets/gallery/main/scene-21/ours_source.webp",
           "novel": "assets/gallery/main/scene-21/ours_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-21/ours.glb",
-            "bytes": 6163540,
+            "src": "assets/models/main/scene-21/ours.glb.gz",
+            "bytes": 5118959,
             "camera": {
               "orbit": "180.00000deg 38.45931deg 1.377345m",
               "target": "0.000000m 0.000000m 0.856652m",
               "fov": "45.14871deg"
-            }
+            },
+            "uncompressedBytes": 6163540,
+            "sha256": "ec7798d8b01da9318b7ead66c4494eb240502127eb1cee248a803fc266440c07"
           }
         },
         {
@@ -94,13 +96,15 @@
           "source": "assets/gallery/main/scene-21/simfoundry_source.webp",
           "novel": "assets/gallery/main/scene-21/simfoundry_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-21/simfoundry.glb",
-            "bytes": 8384788,
+            "src": "assets/models/main/scene-21/simfoundry.glb.gz",
+            "bytes": 7533972,
             "camera": {
               "orbit": "0.00000deg 39.75688deg 1.302369m",
               "target": "0.014210m 0.000000m -0.138833m",
               "fov": "37.35492deg"
-            }
+            },
+            "uncompressedBytes": 8384788,
+            "sha256": "f9d6c1d88174d0124b4ca81d8b8fcbe53fa294b404ba11f210e6ac02ea3e419b"
           }
         },
         {
@@ -109,13 +113,15 @@
           "source": "assets/gallery/main/scene-21/rest3d_source.webp",
           "novel": "assets/gallery/main/scene-21/rest3d_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-21/rest3d.glb",
-            "bytes": 1877056,
+            "src": "assets/models/main/scene-21/rest3d.glb.gz",
+            "bytes": 1634917,
             "camera": {
               "orbit": "179.76704deg 30.91256deg 1.605972m",
               "target": "0.000733m 0.000000m 1.776606m",
               "fov": "39.07889deg"
-            }
+            },
+            "uncompressedBytes": 1877056,
+            "sha256": "666aeeef9966da1a9b6ec219a86f9da754a2f6306215239aa3a90f8da0467923"
           }
         },
         {
@@ -124,13 +130,15 @@
           "source": "assets/gallery/main/scene-21/sc_source.webp",
           "novel": "assets/gallery/main/scene-21/sc_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-21/sc.glb",
-            "bytes": 6699708,
+            "src": "assets/models/main/scene-21/sc.glb.gz",
+            "bytes": 5817524,
             "camera": {
               "orbit": "0.21286deg 57.80438deg 10.491470m",
               "target": "-0.032983m -5.589977m -8.878177m",
               "fov": "35.01472deg"
-            }
+            },
+            "uncompressedBytes": 6699708,
+            "sha256": "b50961361b7803a652807f7870e4ce705d1df9488decfcf79e5dd39fffe155ee"
           }
         },
         {
@@ -139,13 +147,15 @@
           "source": "assets/gallery/main/scene-21/viga_source.webp",
           "novel": "assets/gallery/main/scene-21/viga_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-21/viga.glb",
-            "bytes": 5774084,
+            "src": "assets/models/main/scene-21/viga.glb.gz",
+            "bytes": 4755717,
             "camera": {
               "orbit": "179.85055deg 42.00009deg 1.535520m",
               "target": "0.007230m 0.790667m -0.415374m",
               "fov": "44.49805deg"
-            }
+            },
+            "uncompressedBytes": 5774084,
+            "sha256": "1e479b94ff83beb809645127e485a7bac76791e5c75d5d9fa0f17bf1e2093ced"
           }
         }
       ],
@@ -164,13 +174,15 @@
           "source": "assets/gallery/main/scene-01/ours_source.webp?v=edited-input",
           "novel": "assets/gallery/main/scene-01/ours_novel.webp?v=edited-input",
           "model": {
-            "src": "assets/models/main/scene-01/ours.glb",
-            "bytes": 4104780,
+            "src": "assets/models/main/scene-01/ours.glb.gz",
+            "bytes": 3457235,
             "camera": {
               "orbit": "179.99999deg 70.76312deg 0.849441m",
               "target": "-0.000000m 0.000000m 0.802012m",
               "fov": "43.78463deg"
-            }
+            },
+            "uncompressedBytes": 4104780,
+            "sha256": "e3ed22272ddfa18cfd14a70dc080527002c2e308dfeebcdafef2fd068e8f1756"
           }
         },
         {
@@ -179,13 +191,15 @@
           "source": "assets/gallery/main/scene-01/simfoundry_source.webp?v=edited-input",
           "novel": "assets/gallery/main/scene-01/simfoundry_novel.webp?v=edited-input",
           "model": {
-            "src": "assets/models/main/scene-01/simfoundry.glb",
-            "bytes": 4360488,
+            "src": "assets/models/main/scene-01/simfoundry.glb.gz",
+            "bytes": 3897078,
             "camera": {
               "orbit": "0.00000deg 69.83649deg 0.977493m",
               "target": "-0.011235m 0.000000m -0.355158m",
               "fov": "37.54451deg"
-            }
+            },
+            "uncompressedBytes": 4360488,
+            "sha256": "f7022b66a9eb489042093bc5c22552499f0ab5d2ca23951a67b7319096a523da"
           }
         },
         {
@@ -194,13 +208,15 @@
           "source": "assets/gallery/main/scene-01/rest3d_source.webp?v=edited-input",
           "novel": "assets/gallery/main/scene-01/rest3d_novel.webp?v=edited-input",
           "model": {
-            "src": "assets/models/main/scene-01/rest3d.glb",
-            "bytes": 6190328,
+            "src": "assets/models/main/scene-01/rest3d.glb.gz",
+            "bytes": 5055403,
             "camera": {
               "orbit": "51.55823deg 17.54930deg 2.217314m",
               "target": "-0.087142m 0.000000m 1.779161m",
               "fov": "37.06799deg"
-            }
+            },
+            "uncompressedBytes": 6190328,
+            "sha256": "c0ac89f22bf7fb73becbbaebc7f2e40d7ec4588ffc74fde0fef983a48f32cb54"
           }
         },
         {
@@ -209,13 +225,15 @@
           "source": "assets/gallery/main/scene-01/sc_source.webp?v=edited-input",
           "novel": "assets/gallery/main/scene-01/sc_novel.webp?v=edited-input",
           "model": {
-            "src": "assets/models/main/scene-01/sc.glb",
-            "bytes": 3944100,
+            "src": "assets/models/main/scene-01/sc.glb.gz",
+            "bytes": 3361979,
             "camera": {
               "orbit": "0.65063deg 69.89950deg 4.896663m",
               "target": "-0.052217m -1.682826m -4.598117m",
               "fov": "43.33749deg"
-            }
+            },
+            "uncompressedBytes": 3944100,
+            "sha256": "8f2d74fabfa4fcc87d5153281ef2942eb743379f50449df3a3dd34eff8d1ebb5"
           }
         },
         {
@@ -224,13 +242,15 @@
           "source": "assets/gallery/main/scene-01/viga_source.webp?v=edited-input",
           "novel": "assets/gallery/main/scene-01/viga_novel.webp?v=edited-input",
           "model": {
-            "src": "assets/models/main/scene-01/viga.glb",
-            "bytes": 3986960,
+            "src": "assets/models/main/scene-01/viga.glb.gz",
+            "bytes": 3120629,
             "camera": {
               "orbit": "-179.99999deg 90.00000deg 1.868792m",
               "target": "0.000000m 0.000000m 1.868792m",
               "fov": "35.11539deg"
-            }
+            },
+            "uncompressedBytes": 3986960,
+            "sha256": "98d2509dfa593cdcd241f66cd91cecf9ae7549227d737e502f0fb033d4dbf8bc"
           }
         }
       ],
@@ -249,13 +269,15 @@
           "source": "assets/gallery/main/scene-02/ours_source.webp",
           "novel": "assets/gallery/main/scene-02/ours_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-02/ours.glb",
-            "bytes": 2795060,
+            "src": "assets/models/main/scene-02/ours.glb.gz",
+            "bytes": 2374903,
             "camera": {
               "orbit": "180.00000deg 37.06754deg 1.059715m",
               "target": "0.000000m 0.000000m 0.638750m",
               "fov": "53.32594deg"
-            }
+            },
+            "uncompressedBytes": 2795060,
+            "sha256": "4b40f19f8c422aa2790cb2af422ab3173c8a8db149f9aed1864397a076406640"
           }
         },
         {
@@ -264,13 +286,15 @@
           "source": "assets/gallery/main/scene-02/simfoundry_source.webp",
           "novel": "assets/gallery/main/scene-02/simfoundry_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-02/simfoundry.glb",
-            "bytes": 2601276,
+            "src": "assets/models/main/scene-02/simfoundry.glb.gz",
+            "bytes": 2312296,
             "camera": {
               "orbit": "0.00000deg 38.97629deg 1.385870m",
               "target": "-0.060840m 0.000000m -0.003489m",
               "fov": "42.76084deg"
-            }
+            },
+            "uncompressedBytes": 2601276,
+            "sha256": "dcbc87cf3f3de9b66c98ac02f28df2babafc43a87c2e272339f0c299528cd201"
           }
         },
         {
@@ -279,13 +303,15 @@
           "source": "assets/gallery/main/scene-02/rest3d_source.webp",
           "novel": "assets/gallery/main/scene-02/rest3d_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-02/rest3d.glb",
-            "bytes": 497656,
+            "src": "assets/models/main/scene-02/rest3d.glb.gz",
+            "bytes": 433449,
             "camera": {
               "orbit": "163.98345deg 43.18976deg 2.016091m",
               "target": "0.122000m 0.000000m 2.237135m",
               "fov": "49.46218deg"
-            }
+            },
+            "uncompressedBytes": 497656,
+            "sha256": "83c83d469a1fd990ebfec7f9ebb8283e907d55a4a8fc9da6caaf8afb6ae4405e"
           }
         },
         {
@@ -294,13 +320,15 @@
           "source": "assets/gallery/main/scene-02/sc_source.webp",
           "novel": "assets/gallery/main/scene-02/sc_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-02/sc.glb",
-            "bytes": 3636604,
+            "src": "assets/models/main/scene-02/sc.glb.gz",
+            "bytes": 3185198,
             "camera": {
               "orbit": "0.33358deg 55.25126deg 3.479902m",
               "target": "-0.016647m -1.983470m -2.859246m",
               "fov": "56.22655deg"
-            }
+            },
+            "uncompressedBytes": 3636604,
+            "sha256": "d753a5b8e9898a104816953f3f1ed972d8a1a6adf50bb84c91b929469923f9b3"
           }
         },
         {
@@ -309,13 +337,15 @@
           "source": "assets/gallery/main/scene-02/viga_source.webp",
           "novel": "assets/gallery/main/scene-02/viga_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-02/viga.glb",
-            "bytes": 3637400,
+            "src": "assets/models/main/scene-02/viga.glb.gz",
+            "bytes": 3039856,
             "camera": {
               "orbit": "-179.99999deg 45.20424deg 1.607447m",
               "target": "0.000000m 0.050422m 1.140681m",
               "fov": "46.67473deg"
-            }
+            },
+            "uncompressedBytes": 3637400,
+            "sha256": "bfb1eb1aa74b12f18a0574c783bd137ef36307085922a87ef386252857902a1c"
           }
         }
       ],
@@ -334,13 +364,15 @@
           "source": "assets/gallery/main/scene-03/ours_source.webp",
           "novel": "assets/gallery/main/scene-03/ours_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-03/ours.glb",
-            "bytes": 3498780,
+            "src": "assets/models/main/scene-03/ours.glb.gz",
+            "bytes": 3001852,
             "camera": {
               "orbit": "180.00000deg 31.91863deg 0.986007m",
               "target": "0.000000m 0.000000m 0.521316m",
               "fov": "59.22088deg"
-            }
+            },
+            "uncompressedBytes": 3498780,
+            "sha256": "5a388b59859ce9a4c7fba855591ff35091b76a4e07c047b922b82c4f30f5b32e"
           }
         },
         {
@@ -349,13 +381,15 @@
           "source": "assets/gallery/main/scene-03/simfoundry_source.webp",
           "novel": "assets/gallery/main/scene-03/simfoundry_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-03/simfoundry.glb",
-            "bytes": 4546888,
+            "src": "assets/models/main/scene-03/simfoundry.glb.gz",
+            "bytes": 4121360,
             "camera": {
               "orbit": "0.00000deg 33.72777deg 0.797289m",
               "target": "-0.011082m 0.000000m -0.120138m",
               "fov": "55.11078deg"
-            }
+            },
+            "uncompressedBytes": 4546888,
+            "sha256": "6f6e4475afa7d8dd99fef8f7c585125c1db702252af6556fd2231522d22f0700"
           }
         },
         {
@@ -364,13 +398,15 @@
           "source": "assets/gallery/main/scene-03/rest3d_source.webp",
           "novel": "assets/gallery/main/scene-03/rest3d_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-03/rest3d.glb",
-            "bytes": 845492,
+            "src": "assets/models/main/scene-03/rest3d.glb.gz",
+            "bytes": 729841,
             "camera": {
               "orbit": "178.67847deg 30.58699deg 1.558218m",
               "target": "0.001014m 0.000000m 1.600685m",
               "fov": "54.22315deg"
-            }
+            },
+            "uncompressedBytes": 845492,
+            "sha256": "22258304c19ee1354d9bed8a7868d6a3e62c5fd2aa45b9e2fec0e7e40894433b"
           }
         },
         {
@@ -379,13 +415,15 @@
           "source": "assets/gallery/main/scene-03/sc_source.webp",
           "novel": "assets/gallery/main/scene-03/sc_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-03/sc.glb",
-            "bytes": 3247944,
+            "src": "assets/models/main/scene-03/sc.glb.gz",
+            "bytes": 2890507,
             "camera": {
               "orbit": "-0.84419deg 53.72872deg 1.938386m",
               "target": "0.023025m -1.146767m -1.562606m",
               "fov": "62.48028deg"
-            }
+            },
+            "uncompressedBytes": 3247944,
+            "sha256": "72883cf04abd4d0354e445245f92d6580386fb6bf685d30bf4d627f8a91f76ba"
           }
         },
         {
@@ -394,13 +432,15 @@
           "source": "assets/gallery/main/scene-03/viga_source.webp",
           "novel": "assets/gallery/main/scene-03/viga_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-03/viga.glb",
-            "bytes": 2730008,
+            "src": "assets/models/main/scene-03/viga.glb.gz",
+            "bytes": 2182890,
             "camera": {
               "orbit": "179.99985deg 89.95437deg 1.532857m",
               "target": "-0.000004m -0.001221m 1.532856m",
               "fov": "51.39616deg"
-            }
+            },
+            "uncompressedBytes": 2730008,
+            "sha256": "7ac8b4a9ccfde0ced54a4fdfbe180941ce28247e3ef0fa28df2d5e5db7e05e2a"
           }
         }
       ],
@@ -419,13 +459,15 @@
           "source": "assets/gallery/main/scene-04/ours_source.webp",
           "novel": "assets/gallery/main/scene-04/ours_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-04/ours.glb",
-            "bytes": 1838920,
+            "src": "assets/models/main/scene-04/ours.glb.gz",
+            "bytes": 1602565,
             "camera": {
               "orbit": "180.00000deg 31.82533deg 1.668547m",
               "target": "0.000000m 0.000000m 0.879877m",
               "fov": "53.09848deg"
-            }
+            },
+            "uncompressedBytes": 1838920,
+            "sha256": "33f2038d83f18081089e0b8a875e2b8849b1791c5baaf55f825ee1a7dd6d6085"
           }
         },
         {
@@ -434,13 +476,15 @@
           "source": "assets/gallery/main/scene-04/simfoundry_source.webp",
           "novel": "assets/gallery/main/scene-04/simfoundry_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-04/simfoundry.glb",
-            "bytes": 2325496,
+            "src": "assets/models/main/scene-04/simfoundry.glb.gz",
+            "bytes": 2050702,
             "camera": {
               "orbit": "0.00000deg 38.25293deg 1.498279m",
               "target": "0.027850m 0.000000m -0.086806m",
               "fov": "46.26828deg"
-            }
+            },
+            "uncompressedBytes": 2325496,
+            "sha256": "6b349917302617ec53ee09db4bb14acb2a69d0500ea3f00da3234a9349f6dfc2"
           }
         },
         {
@@ -449,13 +493,15 @@
           "source": "assets/gallery/main/scene-04/rest3d_source.webp",
           "novel": "assets/gallery/main/scene-04/rest3d_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-04/rest3d.glb",
-            "bytes": 758148,
+            "src": "assets/models/main/scene-04/rest3d.glb.gz",
+            "bytes": 664249,
             "camera": {
               "orbit": "-176.91867deg 39.70414deg 1.927815m",
               "target": "-0.002552m 0.000000m 1.954723m",
               "fov": "48.53481deg"
-            }
+            },
+            "uncompressedBytes": 758148,
+            "sha256": "235893477246f0029cd1d5dc0b940a2230e3595f4ad6e0cbcf5b34bd887f1b96"
           }
         },
         {
@@ -464,13 +510,15 @@
           "source": "assets/gallery/main/scene-04/sc_source.webp",
           "novel": "assets/gallery/main/scene-04/sc_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-04/sc.glb",
-            "bytes": 2672040,
+            "src": "assets/models/main/scene-04/sc.glb.gz",
+            "bytes": 2326484,
             "camera": {
               "orbit": "0.17400deg 47.26621deg 2.300314m",
               "target": "-0.005131m -1.560977m -1.689606m",
               "fov": "54.98375deg"
-            }
+            },
+            "uncompressedBytes": 2672040,
+            "sha256": "fd85193be25f98b0e407637af2e870d76681893d4d7bf451a68cc568e0004f58"
           }
         },
         {
@@ -479,13 +527,15 @@
           "source": "assets/gallery/main/scene-04/viga_source.webp",
           "novel": "assets/gallery/main/scene-04/viga_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-04/viga.glb",
-            "bytes": 2823064,
+            "src": "assets/models/main/scene-04/viga.glb.gz",
+            "bytes": 2429630,
             "camera": {
               "orbit": "-179.99999deg 90.00000deg 1.869971m",
               "target": "0.000000m 0.000000m 1.869971m",
               "fov": "36.00998deg"
-            }
+            },
+            "uncompressedBytes": 2823064,
+            "sha256": "6ad585f2431b0e602517278ac24d1f3bbdd5d4dd650848b070b9b6de18d846bf"
           }
         }
       ],
@@ -504,13 +554,15 @@
           "source": "assets/gallery/main/scene-05/ours_source.webp",
           "novel": "assets/gallery/main/scene-05/ours_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-05/ours.glb",
-            "bytes": 13316416,
+            "src": "assets/models/main/scene-05/ours.glb.gz",
+            "bytes": 10961246,
             "camera": {
               "orbit": "180.00000deg 50.73482deg 1.037922m",
               "target": "0.000000m 0.000000m 0.803585m",
               "fov": "60.42080deg"
-            }
+            },
+            "uncompressedBytes": 13316416,
+            "sha256": "c433b44bffb5237f2415561f80ed8305e5860c6d263d73bc3a0015548dec9dc6"
           }
         },
         {
@@ -519,13 +571,15 @@
           "source": "assets/gallery/main/scene-05/simfoundry_source.webp",
           "novel": "assets/gallery/main/scene-05/simfoundry_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-05/simfoundry.glb",
-            "bytes": 9818644,
+            "src": "assets/models/main/scene-05/simfoundry.glb.gz",
+            "bytes": 8833936,
             "camera": {
               "orbit": "0.00000deg 50.13720deg 0.915442m",
               "target": "-0.049314m 0.000000m -0.078114m",
               "fov": "56.22592deg"
-            }
+            },
+            "uncompressedBytes": 9818644,
+            "sha256": "69c493895d497249cf70b823d458a3b04488881c02ec5f0efa9d002cfa935054"
           }
         },
         {
@@ -534,13 +588,15 @@
           "source": "assets/gallery/main/scene-05/rest3d_source.webp",
           "novel": "assets/gallery/main/scene-05/rest3d_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-05/rest3d.glb",
-            "bytes": 1727476,
+            "src": "assets/models/main/scene-05/rest3d.glb.gz",
+            "bytes": 1496071,
             "camera": {
               "orbit": "179.11449deg 42.06435deg 1.268831m",
               "target": "0.019358m 0.000000m 1.886023m",
               "fov": "56.94102deg"
-            }
+            },
+            "uncompressedBytes": 1727476,
+            "sha256": "5d7cd3a8588b340c0f479ce3d2c2b53db6290f765f8742f55acf03b2845d4c95"
           }
         },
         {
@@ -549,13 +605,15 @@
           "source": "assets/gallery/main/scene-05/sc_source.webp",
           "novel": "assets/gallery/main/scene-05/sc_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-05/sc.glb",
-            "bytes": 17259368,
+            "src": "assets/models/main/scene-05/sc.glb.gz",
+            "bytes": 14896575,
             "camera": {
               "orbit": "0.12320deg 62.53633deg 3.757587m",
               "target": "-0.007169m -1.732947m -3.334112m",
               "fov": "51.49960deg"
-            }
+            },
+            "uncompressedBytes": 17259368,
+            "sha256": "4f771f1ef494bca2e91c1373833ca15d30e9840cc157bda0e806d8cb5e770cf3"
           }
         },
         {
@@ -564,13 +622,15 @@
           "source": "assets/gallery/main/scene-05/viga_source.webp",
           "novel": "assets/gallery/main/scene-05/viga_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-05/viga.glb",
-            "bytes": 6834856,
+            "src": "assets/models/main/scene-05/viga.glb.gz",
+            "bytes": 5615773,
             "camera": {
               "orbit": "-179.99959deg 90.01166deg 1.342421m",
               "target": "0.000010m 0.000273m 1.342421m",
               "fov": "45.74733deg"
-            }
+            },
+            "uncompressedBytes": 6834856,
+            "sha256": "4fa388d57b874777d0bccd55e6edd345bf16cac5bc950508e8a290156e1e8063"
           }
         }
       ],
@@ -589,13 +649,15 @@
           "source": "assets/gallery/main/scene-06/ours_source.webp",
           "novel": "assets/gallery/main/scene-06/ours_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-06/ours.glb",
-            "bytes": 5133384,
+            "src": "assets/models/main/scene-06/ours.glb.gz",
+            "bytes": 4166619,
             "camera": {
               "orbit": "180.00000deg 67.95901deg 1.250187m",
               "target": "0.000000m 0.000000m 1.158818m",
               "fov": "60.82038deg"
-            }
+            },
+            "uncompressedBytes": 5133384,
+            "sha256": "2a69cf64818ef70d7d74860c3cc72e602a8f3d92835976d8e8173f898c547dda"
           }
         },
         {
@@ -604,13 +666,15 @@
           "source": "assets/gallery/main/scene-06/simfoundry_source.webp",
           "novel": "assets/gallery/main/scene-06/simfoundry_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-06/simfoundry.glb",
-            "bytes": 17175648,
+            "src": "assets/models/main/scene-06/simfoundry.glb.gz",
+            "bytes": 15310689,
             "camera": {
               "orbit": "0.00000deg 68.23704deg 1.345005m",
               "target": "-0.115820m 0.000000m -0.524262m",
               "fov": "54.97771deg"
-            }
+            },
+            "uncompressedBytes": 17175648,
+            "sha256": "3b15e2d692eac57c7ea8a393002482f74ca4c311ad6e08a76964bd50110cf921"
           }
         },
         {
@@ -619,13 +683,15 @@
           "source": "assets/gallery/main/scene-06/rest3d_source.webp",
           "novel": "assets/gallery/main/scene-06/rest3d_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-06/rest3d.glb",
-            "bytes": 1539396,
+            "src": "assets/models/main/scene-06/rest3d.glb.gz",
+            "bytes": 1325518,
             "camera": {
               "orbit": "179.63587deg 54.76163deg 1.541826m",
               "target": "0.004336m 0.000000m 1.694895m",
               "fov": "55.64410deg"
-            }
+            },
+            "uncompressedBytes": 1539396,
+            "sha256": "2e8248152091009ba960a6201ce9e13dfd8760c7d51ca31f16a5cf58235a1cd9"
           }
         },
         {
@@ -634,13 +700,15 @@
           "source": "assets/gallery/main/scene-06/sc_source.webp",
           "novel": "assets/gallery/main/scene-06/sc_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-06/sc.glb",
-            "bytes": 8370516,
+            "src": "assets/models/main/scene-06/sc.glb.gz",
+            "bytes": 7142939,
             "camera": {
               "orbit": "-0.04443deg 72.87280deg 6.735415m",
               "target": "0.004991m -1.983539m -6.436719m",
               "fov": "50.28489deg"
-            }
+            },
+            "uncompressedBytes": 8370516,
+            "sha256": "aa42d2316b0c885bcbb95d9ceeab6129e6da2b1ddcbfe18829016c63062217e2"
           }
         },
         {
@@ -649,13 +717,15 @@
           "source": "assets/gallery/main/scene-06/viga_source.webp",
           "novel": "assets/gallery/main/scene-06/viga_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-06/viga.glb",
-            "bytes": 220244,
+            "src": "assets/models/main/scene-06/viga.glb.gz",
+            "bytes": 60565,
             "camera": {
               "orbit": "0.00000deg 70.00000deg 1.206885m",
               "target": "0.000000m 0.831221m -0.249101m",
               "fov": "51.48142deg"
-            }
+            },
+            "uncompressedBytes": 220244,
+            "sha256": "12769cd1bee829bddc2ab0ad3fa951ad2881db08106f4e24a425d853e8c16b02"
           }
         }
       ],
@@ -674,13 +744,15 @@
           "source": "assets/gallery/main/scene-07/ours_source.webp",
           "novel": "assets/gallery/main/scene-07/ours_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-07/ours.glb",
-            "bytes": 5679460,
+            "src": "assets/models/main/scene-07/ours.glb.gz",
+            "bytes": 4761572,
             "camera": {
               "orbit": "180.00000deg 71.46343deg 0.983739m",
               "target": "0.000000m 0.000000m 0.932704m",
               "fov": "44.67304deg"
-            }
+            },
+            "uncompressedBytes": 5679460,
+            "sha256": "29b11e85e6c333a3969d4db90cc703a4597b067984b99d4ff3cc9541c0a324bc"
           }
         },
         {
@@ -689,13 +761,15 @@
           "source": "assets/gallery/main/scene-07/simfoundry_source.webp",
           "novel": "assets/gallery/main/scene-07/simfoundry_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-07/simfoundry.glb",
-            "bytes": 4047232,
+            "src": "assets/models/main/scene-07/simfoundry.glb.gz",
+            "bytes": 3631999,
             "camera": {
               "orbit": "0.00000deg 72.02141deg 1.544830m",
               "target": "0.004067m 0.000000m -0.523584m",
               "fov": "30.56066deg"
-            }
+            },
+            "uncompressedBytes": 4047232,
+            "sha256": "4e657563e3aaa470d04a15e04bd30766cfa5517c429df2e2656dd98610243c1e"
           }
         },
         {
@@ -704,13 +778,15 @@
           "source": "assets/gallery/main/scene-07/rest3d_source.webp",
           "novel": "assets/gallery/main/scene-07/rest3d_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-07/rest3d.glb",
-            "bytes": 1396944,
+            "src": "assets/models/main/scene-07/rest3d.glb.gz",
+            "bytes": 1219884,
             "camera": {
               "orbit": "179.90191deg 72.75773deg 2.254544m",
               "target": "0.001397m 0.000000m 2.292955m",
               "fov": "36.77289deg"
-            }
+            },
+            "uncompressedBytes": 1396944,
+            "sha256": "65f0c7ff25b90da1a869f000c1cfeebc0d6fbf051e3cbd07bd48f94c9366b895"
           }
         },
         {
@@ -719,13 +795,15 @@
           "source": "assets/gallery/main/scene-07/sc_source.webp",
           "novel": "assets/gallery/main/scene-07/sc_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-07/sc.glb",
-            "bytes": 5573560,
+            "src": "assets/models/main/scene-07/sc.glb.gz",
+            "bytes": 4818341,
             "camera": {
               "orbit": "-0.14755deg 80.94133deg 7.946334m",
               "target": "0.020208m -1.251117m -7.847198m",
               "fov": "30.95042deg"
-            }
+            },
+            "uncompressedBytes": 5573560,
+            "sha256": "70bfcd6e3cf741bf843f669cdb38c8ab18580b75bf49df7ea8e87463f8b2058b"
           }
         },
         {
@@ -734,13 +812,15 @@
           "source": "assets/gallery/main/scene-07/viga_source.webp",
           "novel": "assets/gallery/main/scene-07/viga_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-07/viga.glb",
-            "bytes": 4402644,
+            "src": "assets/models/main/scene-07/viga.glb.gz",
+            "bytes": 3629489,
             "camera": {
               "orbit": "-179.99999deg 71.61972deg 2.943019m",
               "target": "-0.030000m 0.092000m 1.992880m",
               "fov": "33.40974deg"
-            }
+            },
+            "uncompressedBytes": 4402644,
+            "sha256": "d1ae90f59d4619ef69810c8597441b7b9bc11f70414992cad9abfbd0f5435e0b"
           }
         }
       ],
@@ -759,13 +839,15 @@
           "source": "assets/gallery/main/scene-08/ours_source.webp",
           "novel": "assets/gallery/main/scene-08/ours_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-08/ours.glb",
-            "bytes": 4460576,
+            "src": "assets/models/main/scene-08/ours.glb.gz",
+            "bytes": 3794930,
             "camera": {
               "orbit": "180.00000deg 66.88714deg 0.740518m",
               "target": "0.000000m 0.000000m 0.681079m",
               "fov": "46.13294deg"
-            }
+            },
+            "uncompressedBytes": 4460576,
+            "sha256": "7f8200cd3156f9f0c1e01bb923bfd81b61e485956e39cf9151e9f75766ef5ddb"
           }
         },
         {
@@ -774,13 +856,15 @@
           "source": "assets/gallery/main/scene-08/simfoundry_source.webp",
           "novel": "assets/gallery/main/scene-08/simfoundry_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-08/simfoundry.glb",
-            "bytes": 2801100,
+            "src": "assets/models/main/scene-08/simfoundry.glb.gz",
+            "bytes": 2553511,
             "camera": {
               "orbit": "0.00000deg 66.82065deg 1.093575m",
               "target": "0.013803m 0.000000m -0.260433m",
               "fov": "32.02228deg"
-            }
+            },
+            "uncompressedBytes": 2801100,
+            "sha256": "9319f519d427b2c2bdb84e04a41f21a52edbf1fdf8ab07cc408fc7029b2ee937"
           }
         },
         {
@@ -789,13 +873,15 @@
           "source": "assets/gallery/main/scene-08/rest3d_source.webp",
           "novel": "assets/gallery/main/scene-08/rest3d_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-08/rest3d.glb",
-            "bytes": 772140,
+            "src": "assets/models/main/scene-08/rest3d.glb.gz",
+            "bytes": 686014,
             "camera": {
               "orbit": "179.57731deg 65.73213deg 1.811654m",
               "target": "0.002923m 0.000000m 1.850066m",
               "fov": "38.41698deg"
-            }
+            },
+            "uncompressedBytes": 772140,
+            "sha256": "dee76693001c5f41e3dce6685e1126aafba06be787be7b470a95c09f1c0f29db"
           }
         },
         {
@@ -804,13 +890,15 @@
           "source": "assets/gallery/main/scene-08/sc_source.webp",
           "novel": "assets/gallery/main/scene-08/sc_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-08/sc.glb",
-            "bytes": 5553812,
+            "src": "assets/models/main/scene-08/sc.glb.gz",
+            "bytes": 4703565,
             "camera": {
               "orbit": "-0.20498deg 73.55214deg 6.883078m",
               "target": "0.023617m -1.948893m -6.601366m",
               "fov": "38.41656deg"
-            }
+            },
+            "uncompressedBytes": 5553812,
+            "sha256": "41cbb624ce50327c84a2bc4179192b428d2844e7d817bd9ab02c6d2ac480b882"
           }
         },
         {
@@ -819,13 +907,15 @@
           "source": "assets/gallery/main/scene-08/viga_source.webp",
           "novel": "assets/gallery/main/scene-08/viga_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-08/viga.glb",
-            "bytes": 5579668,
+            "src": "assets/models/main/scene-08/viga.glb.gz",
+            "bytes": 4403077,
             "camera": {
               "orbit": "-2.86241deg 59.06780deg 1.072743m",
               "target": "0.045951m 0.028585m -0.219025m",
               "fov": "43.60282deg"
-            }
+            },
+            "uncompressedBytes": 5579668,
+            "sha256": "85593f4f589bc894aac79eeeb4791f961f2ea5a9fc8ea4fb06bad847c263dd0f"
           }
         }
       ],
@@ -844,13 +934,15 @@
           "source": "assets/gallery/main/scene-09/ours_source.webp",
           "novel": "assets/gallery/main/scene-09/ours_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-09/ours.glb",
-            "bytes": 3588148,
+            "src": "assets/models/main/scene-09/ours.glb.gz",
+            "bytes": 3031977,
             "camera": {
               "orbit": "180.00000deg 57.50929deg 3.101240m",
               "target": "0.000000m 0.000000m 2.615830m",
               "fov": "49.89990deg"
-            }
+            },
+            "uncompressedBytes": 3588148,
+            "sha256": "c5828cc968b5adb927074d5b41b3bf99c25e33debe9964840cae8fce5a8f86d1"
           }
         },
         {
@@ -859,13 +951,15 @@
           "source": "assets/gallery/main/scene-09/simfoundry_source.webp",
           "novel": "assets/gallery/main/scene-09/simfoundry_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-09/simfoundry.glb",
-            "bytes": 648852,
+            "src": "assets/models/main/scene-09/simfoundry.glb.gz",
+            "bytes": 581014,
             "camera": {
               "orbit": "0.00000deg 57.21375deg 2.116591m",
               "target": "-0.131062m 0.000000m 0.527067m",
               "fov": "42.17522deg"
-            }
+            },
+            "uncompressedBytes": 648852,
+            "sha256": "030f2bda136d9ac32bc04f5776e4781ecab3805923f2c13425fb6c602a6585d2"
           }
         },
         {
@@ -874,13 +968,15 @@
           "source": "assets/gallery/main/scene-09/rest3d_source.webp",
           "novel": "assets/gallery/main/scene-09/rest3d_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-09/rest3d.glb",
-            "bytes": 1017496,
+            "src": "assets/models/main/scene-09/rest3d.glb.gz",
+            "bytes": 896269,
             "camera": {
               "orbit": "179.94025deg 64.26494deg 2.472120m",
               "target": "0.000084m 0.000000m 2.480973m",
               "fov": "44.47774deg"
-            }
+            },
+            "uncompressedBytes": 1017496,
+            "sha256": "a6275891eed0d9ef06affd57023e8fe22ad9ae704300decfcc852c1f2dd7e42c"
           }
         },
         {
@@ -889,13 +985,15 @@
           "source": "assets/gallery/main/scene-09/sc_source.webp",
           "novel": "assets/gallery/main/scene-09/sc_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-09/sc.glb",
-            "bytes": 2680420,
+            "src": "assets/models/main/scene-09/sc.glb.gz",
+            "bytes": 2311155,
             "camera": {
               "orbit": "0.33269deg 73.65820deg 8.207594m",
               "target": "-0.045732m -2.309345m -7.875877m",
               "fov": "30.49611deg"
-            }
+            },
+            "uncompressedBytes": 2680420,
+            "sha256": "2a5836938c90079127dc676a098838b1a21ddd48a3b090ee0a54472b8b11100f"
           }
         },
         {
@@ -904,13 +1002,15 @@
           "source": "assets/gallery/main/scene-09/viga_source.webp",
           "novel": "assets/gallery/main/scene-09/viga_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-09/viga.glb",
-            "bytes": 171972,
+            "src": "assets/models/main/scene-09/viga.glb.gz",
+            "bytes": 115481,
             "camera": {
               "orbit": "135.00000deg 55.76377deg 1.967628m",
               "target": "0.179758m 0.793000m -0.179758m",
               "fov": "50.69235deg"
-            }
+            },
+            "uncompressedBytes": 171972,
+            "sha256": "13c64e07214f697429965b8ec777699145a7f42a99efe9010395bb858cc096f4"
           }
         }
       ],
@@ -929,13 +1029,15 @@
           "source": "assets/gallery/main/scene-10/ours_source.webp",
           "novel": "assets/gallery/main/scene-10/ours_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-10/ours.glb",
-            "bytes": 2164152,
+            "src": "assets/models/main/scene-10/ours.glb.gz",
+            "bytes": 1835231,
             "camera": {
               "orbit": "180.00000deg 65.57295deg 3.316429m",
               "target": "0.000000m 0.000000m 3.019570m",
               "fov": "39.08535deg"
-            }
+            },
+            "uncompressedBytes": 2164152,
+            "sha256": "a6dc190a6bc9157cd8702942eef2cb725c1f8732de2b49a28385031ed8af6654"
           }
         },
         {
@@ -944,13 +1046,15 @@
           "source": "assets/gallery/main/scene-10/simfoundry_source.webp",
           "novel": "assets/gallery/main/scene-10/simfoundry_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-10/simfoundry.glb",
-            "bytes": 530704,
+            "src": "assets/models/main/scene-10/simfoundry.glb.gz",
+            "bytes": 498074,
             "camera": {
               "orbit": "0.00000deg 65.12525deg 1.903204m",
               "target": "0.007161m 0.000000m 0.583023m",
               "fov": "34.98919deg"
-            }
+            },
+            "uncompressedBytes": 530704,
+            "sha256": "cbb19d8c5915a010531a8118602cce866facecdc1879851e9ad24f2d0902e678"
           }
         },
         {
@@ -959,13 +1063,15 @@
           "source": "assets/gallery/main/scene-10/rest3d_source.webp",
           "novel": "assets/gallery/main/scene-10/rest3d_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-10/rest3d.glb",
-            "bytes": 645216,
+            "src": "assets/models/main/scene-10/rest3d.glb.gz",
+            "bytes": 571726,
             "camera": {
               "orbit": "179.75541deg 68.55847deg 2.053598m",
               "target": "0.000992m 0.000000m 2.070875m",
               "fov": "37.93424deg"
-            }
+            },
+            "uncompressedBytes": 645216,
+            "sha256": "32aff994f46535ba2a78d10137b0695bd2679bf0bc17f81a25aee5bf8b40be06"
           }
         },
         {
@@ -974,13 +1080,15 @@
           "source": "assets/gallery/main/scene-10/sc_source.webp",
           "novel": "assets/gallery/main/scene-10/sc_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-10/sc.glb",
-            "bytes": 1528552,
+            "src": "assets/models/main/scene-10/sc.glb.gz",
+            "bytes": 1314474,
             "camera": {
               "orbit": "-0.02930deg 73.74973deg 10.638210m",
               "target": "0.005223m -2.976927m -10.213197m",
               "fov": "37.92813deg"
-            }
+            },
+            "uncompressedBytes": 1528552,
+            "sha256": "a46cc6cebfd96985171baf3d2dd59d5dcadba8fc62cc29cd6201bca44f894ff7"
           }
         },
         {
@@ -989,13 +1097,15 @@
           "source": "assets/gallery/main/scene-10/viga_source.webp",
           "novel": "assets/gallery/main/scene-10/viga_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-10/viga.glb",
-            "bytes": 4507340,
+            "src": "assets/models/main/scene-10/viga.glb.gz",
+            "bytes": 3621302,
             "camera": {
               "orbit": "-3.19459deg 48.72644deg 2.924620m",
               "target": "0.062491m 0.220760m 1.655363m",
               "fov": "37.84929deg"
-            }
+            },
+            "uncompressedBytes": 4507340,
+            "sha256": "6686a18a7551b1204742de780dbf251fffb31c51ec71bc1755f38e81ea5c0e9a"
           }
         }
       ],
@@ -1014,13 +1124,15 @@
           "source": "assets/gallery/main/scene-11/ours_source.webp",
           "novel": "assets/gallery/main/scene-11/ours_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-11/ours.glb",
-            "bytes": 5090360,
+            "src": "assets/models/main/scene-11/ours.glb.gz",
+            "bytes": 4174246,
             "camera": {
               "orbit": "180.00000deg 77.66585deg 1.271243m",
               "target": "0.000000m 0.000000m 1.241901m",
               "fov": "33.19722deg"
-            }
+            },
+            "uncompressedBytes": 5090360,
+            "sha256": "507d58bd2a6e7a4716622234ffe060cd2032dcb1a636438cb555345bc8ac107c"
           }
         },
         {
@@ -1029,13 +1141,15 @@
           "source": "assets/gallery/main/scene-11/simfoundry_source.webp",
           "novel": "assets/gallery/main/scene-11/simfoundry_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-11/simfoundry.glb",
-            "bytes": 3088256,
+            "src": "assets/models/main/scene-11/simfoundry.glb.gz",
+            "bytes": 2792774,
             "camera": {
               "orbit": "0.00000deg 76.63578deg 1.349354m",
               "target": "-0.072733m 0.000000m -0.514025m",
               "fov": "31.10409deg"
-            }
+            },
+            "uncompressedBytes": 3088256,
+            "sha256": "faf3d8a0419d48d922a8ee4813a62c572fc0675cf6dcfc3bbf1240802c5ad837"
           }
         },
         {
@@ -1044,13 +1158,15 @@
           "source": "assets/gallery/main/scene-11/rest3d_source.webp",
           "novel": "assets/gallery/main/scene-11/rest3d_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-11/rest3d.glb",
-            "bytes": 1134252,
+            "src": "assets/models/main/scene-11/rest3d.glb.gz",
+            "bytes": 989280,
             "camera": {
               "orbit": "179.85043deg 80.49197deg 2.480741m",
               "target": "0.001803m 0.000000m 2.490361m",
               "fov": "29.36905deg"
-            }
+            },
+            "uncompressedBytes": 1134252,
+            "sha256": "8d3ac8a48223b1db3ad24abb63266bc5477cfa5d0549e48de031ec1a3bcf98f2"
           }
         },
         {
@@ -1059,13 +1175,15 @@
           "source": "assets/gallery/main/scene-11/sc_source.webp",
           "novel": "assets/gallery/main/scene-11/sc_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-11/sc.glb",
-            "bytes": 5256852,
+            "src": "assets/models/main/scene-11/sc.glb.gz",
+            "bytes": 4531266,
             "camera": {
               "orbit": "-0.10090deg 81.88324deg 8.418656m",
               "target": "0.014677m -1.188637m -8.334309m",
               "fov": "34.56186deg"
-            }
+            },
+            "uncompressedBytes": 5256852,
+            "sha256": "ad05c528e12a9674dc8010e4bc79fdfd039c066b1b1d405e948cabe62b5ec757"
           }
         },
         {
@@ -1074,13 +1192,15 @@
           "source": "assets/gallery/main/scene-11/viga_source.webp",
           "novel": "assets/gallery/main/scene-11/viga_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-11/viga.glb",
-            "bytes": 674548,
+            "src": "assets/models/main/scene-11/viga.glb.gz",
+            "bytes": 148589,
             "camera": {
               "orbit": "-8.02141deg 85.94367deg 0.734430m",
               "target": "-0.087772m 0.083048m 0.134577m",
               "fov": "32.26880deg"
-            }
+            },
+            "uncompressedBytes": 674548,
+            "sha256": "f494c3120b326b41045d8881fac5d7b81ce2f01446b42a10be297d39a2d7aa3c"
           }
         }
       ],
@@ -1099,13 +1219,15 @@
           "source": "assets/gallery/main/scene-12/ours_source.webp",
           "novel": "assets/gallery/main/scene-12/ours_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-12/ours.glb",
-            "bytes": 2748264,
+            "src": "assets/models/main/scene-12/ours.glb.gz",
+            "bytes": 2334727,
             "camera": {
               "orbit": "180.00000deg 68.00647deg 1.195345m",
               "target": "0.000000m 0.000000m 1.108355m",
               "fov": "38.63877deg"
-            }
+            },
+            "uncompressedBytes": 2748264,
+            "sha256": "6c764697b961575fbd92ed2d02ead5a1571c62d347d4980d4d762732708e68a2"
           }
         },
         {
@@ -1114,13 +1236,15 @@
           "source": "assets/gallery/main/scene-12/simfoundry_source.webp",
           "novel": "assets/gallery/main/scene-12/simfoundry_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-12/simfoundry.glb",
-            "bytes": 4577816,
+            "src": "assets/models/main/scene-12/simfoundry.glb.gz",
+            "bytes": 4152725,
             "camera": {
               "orbit": "0.00000deg 13.29891deg 1.845456m",
               "target": "0.099998m 0.000000m -0.231895m",
               "fov": "23.68745deg"
-            }
+            },
+            "uncompressedBytes": 4577816,
+            "sha256": "3a56eb2d9db5d17238159ceb630db6ce5ec8079b6d22db3e973a0686957d9863"
           }
         },
         {
@@ -1129,13 +1253,15 @@
           "source": "assets/gallery/main/scene-12/rest3d_source.webp",
           "novel": "assets/gallery/main/scene-12/rest3d_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-12/rest3d.glb",
-            "bytes": 1152268,
+            "src": "assets/models/main/scene-12/rest3d.glb.gz",
+            "bytes": 1020094,
             "camera": {
               "orbit": "179.58109deg 61.43291deg 2.246477m",
               "target": "0.003794m 0.000000m 2.318419m",
               "fov": "37.96939deg"
-            }
+            },
+            "uncompressedBytes": 1152268,
+            "sha256": "831fd295ccfd67b9f53d395ee17d2aec708092afca47d89594d06dc4411c9259"
           }
         },
         {
@@ -1144,13 +1270,15 @@
           "source": "assets/gallery/main/scene-12/sc_source.webp",
           "novel": "assets/gallery/main/scene-12/sc_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-12/sc.glb",
-            "bytes": 1694968,
+            "src": "assets/models/main/scene-12/sc.glb.gz",
+            "bytes": 1479322,
             "camera": {
               "orbit": "-0.03516deg 79.58905deg 5.776407m",
               "target": "0.003486m -1.043838m -5.681308m",
               "fov": "38.85285deg"
-            }
+            },
+            "uncompressedBytes": 1694968,
+            "sha256": "b20e554a35fe52dfce462591d1fb253a8d29c6169e3c2af02f5effa3016bd958"
           }
         },
         {
@@ -1159,13 +1287,15 @@
           "source": "assets/gallery/main/scene-12/viga_source.webp",
           "novel": "assets/gallery/main/scene-12/viga_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-12/viga.glb",
-            "bytes": 3099604,
+            "src": "assets/models/main/scene-12/viga.glb.gz",
+            "bytes": 2550776,
             "camera": {
               "orbit": "-179.99999deg 80.99999deg 2.483852m",
               "target": "0.000000m -0.208560m 2.273272m",
               "fov": "40.18723deg"
-            }
+            },
+            "uncompressedBytes": 3099604,
+            "sha256": "2ec73968e83ac5b9ce52a5adb538356a9a93db77bb722b1b121fbd8e95bb9970"
           }
         }
       ],
@@ -1184,13 +1314,15 @@
           "source": "assets/gallery/main/scene-13/ours_source.webp",
           "novel": "assets/gallery/main/scene-13/ours_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-13/ours.glb",
-            "bytes": 4342260,
+            "src": "assets/models/main/scene-13/ours.glb.gz",
+            "bytes": 3638301,
             "camera": {
               "orbit": "180.00000deg 42.21563deg 0.927427m",
               "target": "0.000000m 0.000000m 0.623159m",
               "fov": "46.66968deg"
-            }
+            },
+            "uncompressedBytes": 4342260,
+            "sha256": "996e3dc9908e5ecd06f0a5f8acd2a61da40dce7cd60b8a653a04e7ecfdedc879"
           }
         },
         {
@@ -1199,13 +1331,15 @@
           "source": "assets/gallery/main/scene-13/simfoundry_source.webp",
           "novel": "assets/gallery/main/scene-13/simfoundry_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-13/simfoundry.glb",
-            "bytes": 4138408,
+            "src": "assets/models/main/scene-13/simfoundry.glb.gz",
+            "bytes": 3677864,
             "camera": {
               "orbit": "0.00000deg 41.48188deg 0.703500m",
               "target": "-0.003351m 0.000000m -0.070499m",
               "fov": "42.95586deg"
-            }
+            },
+            "uncompressedBytes": 4138408,
+            "sha256": "c85b820a7459655e5d52c19bfeecda80c526722bc6ef9994eb977cec58e5b9cc"
           }
         },
         {
@@ -1214,13 +1348,15 @@
           "source": "assets/gallery/main/scene-13/rest3d_source.webp",
           "novel": "assets/gallery/main/scene-13/rest3d_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-13/rest3d.glb",
-            "bytes": 1110612,
+            "src": "assets/models/main/scene-13/rest3d.glb.gz",
+            "bytes": 963566,
             "camera": {
               "orbit": "-178.64124deg 38.08982deg 1.767841m",
               "target": "0.005044m 0.000000m 1.635680m",
               "fov": "47.62097deg"
-            }
+            },
+            "uncompressedBytes": 1110612,
+            "sha256": "d3e9dbbe0a3f630e0df3ac465d373f907665654e8282f4ff6ab7edb3b1ea1218"
           }
         },
         {
@@ -1229,13 +1365,15 @@
           "source": "assets/gallery/main/scene-13/sc_source.webp",
           "novel": "assets/gallery/main/scene-13/sc_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-13/sc.glb",
-            "bytes": 4414540,
+            "src": "assets/models/main/scene-13/sc.glb.gz",
+            "bytes": 3790534,
             "camera": {
               "orbit": "-0.32465deg 57.05134deg 2.790302m",
               "target": "0.013268m -1.517610m -2.341468m",
               "fov": "42.83097deg"
-            }
+            },
+            "uncompressedBytes": 4414540,
+            "sha256": "86044ef3a4847ca1fc7fe3792e81186db1aa21858a46ed5d8de1b269874d19bd"
           }
         },
         {
@@ -1244,13 +1382,15 @@
           "source": "assets/gallery/main/scene-13/viga_source.webp",
           "novel": "assets/gallery/main/scene-13/viga_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-13/viga.glb",
-            "bytes": 5895404,
+            "src": "assets/models/main/scene-13/viga.glb.gz",
+            "bytes": 4592429,
             "camera": {
               "orbit": "-179.99999deg 90.00000deg 1.714014m",
               "target": "0.000000m 0.000000m 1.714014m",
               "fov": "43.31198deg"
-            }
+            },
+            "uncompressedBytes": 5895404,
+            "sha256": "ea84b72d02eb8bd0d6fb37461765e0278b7ddc100f59e6a845b6b7cd16b885b7"
           }
         }
       ],
@@ -1269,13 +1409,15 @@
           "source": "assets/gallery/main/scene-14/ours_source.webp",
           "novel": "assets/gallery/main/scene-14/ours_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-14/ours.glb",
-            "bytes": 2466904,
+            "src": "assets/models/main/scene-14/ours.glb.gz",
+            "bytes": 1997040,
             "camera": {
               "orbit": "180.00000deg 47.13706deg 0.629406m",
               "target": "0.000000m 0.000000m 0.461344m",
               "fov": "53.13986deg"
-            }
+            },
+            "uncompressedBytes": 2466904,
+            "sha256": "305936f3d41820b434a7b3894b7213869e3e7439afa74e98881b7f17b1ebfe6b"
           }
         },
         {
@@ -1284,13 +1426,15 @@
           "source": "assets/gallery/main/scene-14/simfoundry_source.webp",
           "novel": "assets/gallery/main/scene-14/simfoundry_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-14/simfoundry.glb",
-            "bytes": 1695452,
+            "src": "assets/models/main/scene-14/simfoundry.glb.gz",
+            "bytes": 1525614,
             "camera": {
               "orbit": "0.00000deg 52.09016deg 0.788137m",
               "target": "-0.031681m 0.000000m -0.052368m",
               "fov": "43.73719deg"
-            }
+            },
+            "uncompressedBytes": 1695452,
+            "sha256": "b93d8a03f757d4d228037c0856b16fd1719fb0c61c34b3a3ced1a9eaa543e608"
           }
         },
         {
@@ -1299,13 +1443,15 @@
           "source": "assets/gallery/main/scene-14/rest3d_source.webp",
           "novel": "assets/gallery/main/scene-14/rest3d_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-14/rest3d.glb",
-            "bytes": 640044,
+            "src": "assets/models/main/scene-14/rest3d.glb.gz",
+            "bytes": 566142,
             "camera": {
               "orbit": "176.76802deg 55.58041deg 1.037433m",
               "target": "0.015711m -0.000000m 1.097020m",
               "fov": "46.39163deg"
-            }
+            },
+            "uncompressedBytes": 640044,
+            "sha256": "38d7f702c94703751e8681c4719b9c5855959017b79b3c58a9578eb07c82627d"
           }
         },
         {
@@ -1314,13 +1460,15 @@
           "source": "assets/gallery/main/scene-14/sc_source.webp",
           "novel": "assets/gallery/main/scene-14/sc_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-14/sc.glb",
-            "bytes": 3456808,
+            "src": "assets/models/main/scene-14/sc.glb.gz",
+            "bytes": 2942063,
             "camera": {
               "orbit": "0.88287deg 60.72349deg 3.572500m",
               "target": "-0.048015m -1.747041m -3.115814m",
               "fov": "41.70120deg"
-            }
+            },
+            "uncompressedBytes": 3456808,
+            "sha256": "a955f9ba2ea647710e61ee15a31829ed05545dfcea20368e67e54e885a7af906"
           }
         },
         {
@@ -1329,13 +1477,15 @@
           "source": "assets/gallery/main/scene-14/viga_source.webp",
           "novel": "assets/gallery/main/scene-14/viga_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-14/viga.glb",
-            "bytes": 6999388,
+            "src": "assets/models/main/scene-14/viga.glb.gz",
+            "bytes": 5571967,
             "camera": {
               "orbit": "-6.98106deg 46.71238deg 1.403755m",
               "target": "0.164194m -0.022500m -0.394247m",
               "fov": "41.11209deg"
-            }
+            },
+            "uncompressedBytes": 6999388,
+            "sha256": "4782dfbe7c0818ab3a649a229dc884000e745a83277768985c972ec736ce7023"
           }
         }
       ],
@@ -1354,13 +1504,15 @@
           "source": "assets/gallery/main/scene-15/ours_source.webp",
           "novel": "assets/gallery/main/scene-15/ours_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-15/ours.glb",
-            "bytes": 4692884,
+            "src": "assets/models/main/scene-15/ours.glb.gz",
+            "bytes": 3822294,
             "camera": {
               "orbit": "180.00000deg 43.41732deg 1.076628m",
               "target": "0.000000m 0.000000m 0.739974m",
               "fov": "51.54470deg"
-            }
+            },
+            "uncompressedBytes": 4692884,
+            "sha256": "a010440ca9692bdcbd3da4cbfbd88b85f05be2995a017efa09681442be33bc93"
           }
         },
         {
@@ -1369,13 +1521,15 @@
           "source": "assets/gallery/main/scene-15/simfoundry_source.webp",
           "novel": "assets/gallery/main/scene-15/simfoundry_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-15/simfoundry.glb",
-            "bytes": 5400088,
+            "src": "assets/models/main/scene-15/simfoundry.glb.gz",
+            "bytes": 4843254,
             "camera": {
               "orbit": "0.00000deg 43.06011deg 0.998282m",
               "target": "-0.011236m 0.000000m -0.004160m",
               "fov": "49.32460deg"
-            }
+            },
+            "uncompressedBytes": 5400088,
+            "sha256": "603e69a025147ad55170dc9236230a2758b5c302a14cdd3620b08ba4af3ac248"
           }
         },
         {
@@ -1384,13 +1538,15 @@
           "source": "assets/gallery/main/scene-15/rest3d_source.webp",
           "novel": "assets/gallery/main/scene-15/rest3d_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-15/rest3d.glb",
-            "bytes": 727576,
+            "src": "assets/models/main/scene-15/rest3d.glb.gz",
+            "bytes": 628464,
             "camera": {
               "orbit": "-178.36050deg 34.49890deg 2.266489m",
               "target": "-0.014074m 0.000000m 2.643288m",
               "fov": "40.38280deg"
-            }
+            },
+            "uncompressedBytes": 727576,
+            "sha256": "890cd730b7453656f6a033ad0a1a8fb6a3a254120a11756d33d59a4cb6c2fcf4"
           }
         },
         {
@@ -1399,13 +1555,15 @@
           "source": "assets/gallery/main/scene-15/sc_source.webp",
           "novel": "assets/gallery/main/scene-15/sc_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-15/sc.glb",
-            "bytes": 3989104,
+            "src": "assets/models/main/scene-15/sc.glb.gz",
+            "bytes": 3437658,
             "camera": {
               "orbit": "-1.99783deg 50.55915deg 5.361422m",
               "target": "0.144345m -3.406011m -4.138007m",
               "fov": "36.20320deg"
-            }
+            },
+            "uncompressedBytes": 3989104,
+            "sha256": "c54ad5abf39e03463f4bbbd5e152836cb0db0979183dcfff109d4772ea6b8085"
           }
         },
         {
@@ -1414,13 +1572,15 @@
           "source": "assets/gallery/main/scene-15/viga_source.webp",
           "novel": "assets/gallery/main/scene-15/viga_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-15/viga.glb",
-            "bytes": 1997572,
+            "src": "assets/models/main/scene-15/viga.glb.gz",
+            "bytes": 1624559,
             "camera": {
               "orbit": "-179.99999deg 90.00000deg 1.569228m",
               "target": "0.000000m 0.000000m 1.569228m",
               "fov": "45.74733deg"
-            }
+            },
+            "uncompressedBytes": 1997572,
+            "sha256": "49274a7f36ae565c28796ca3ebad4dc870ea1ef5aea16567f011ca24aed9e5f0"
           }
         }
       ],
@@ -1439,13 +1599,15 @@
           "source": "assets/gallery/main/scene-16/ours_source.webp",
           "novel": "assets/gallery/main/scene-16/ours_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-16/ours.glb",
-            "bytes": 9383232,
+            "src": "assets/models/main/scene-16/ours.glb.gz",
+            "bytes": 7754174,
             "camera": {
               "orbit": "180.00000deg 59.32826deg 1.097576m",
               "target": "0.000000m 0.000000m 0.944029m",
               "fov": "52.40450deg"
-            }
+            },
+            "uncompressedBytes": 9383232,
+            "sha256": "be3b3c0381cefb0f8fd7c25a407c69488ae0f0dfa0e9dd29a99f06f5b9dc8d65"
           }
         },
         {
@@ -1454,13 +1616,15 @@
           "source": "assets/gallery/main/scene-16/simfoundry_source.webp",
           "novel": "assets/gallery/main/scene-16/simfoundry_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-16/simfoundry.glb",
-            "bytes": 7859168,
+            "src": "assets/models/main/scene-16/simfoundry.glb.gz",
+            "bytes": 7086124,
             "camera": {
               "orbit": "0.00000deg 60.78885deg 1.151437m",
               "target": "-0.008735m 0.000000m -0.249022m",
               "fov": "51.10271deg"
-            }
+            },
+            "uncompressedBytes": 7859168,
+            "sha256": "42167a7f52c8ad9939cb74ccbafd737d6a72e2d27ada600a96e10a8658f04f3e"
           }
         },
         {
@@ -1469,13 +1633,15 @@
           "source": "assets/gallery/main/scene-16/rest3d_source.webp",
           "novel": "assets/gallery/main/scene-16/rest3d_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-16/rest3d.glb",
-            "bytes": 1432420,
+            "src": "assets/models/main/scene-16/rest3d.glb.gz",
+            "bytes": 1250049,
             "camera": {
               "orbit": "-179.30889deg 57.23870deg 3.071866m",
               "target": "-0.015757m 0.000000m 3.319060m",
               "fov": "48.91644deg"
-            }
+            },
+            "uncompressedBytes": 1432420,
+            "sha256": "d652eb74505e31d7ee43ea1a8bb97277a4a55e0c4f2cea282e8bbe64e96572e5"
           }
         },
         {
@@ -1484,13 +1650,15 @@
           "source": "assets/gallery/main/scene-16/sc_source.webp",
           "novel": "assets/gallery/main/scene-16/sc_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-16/sc.glb",
-            "bytes": 9055432,
+            "src": "assets/models/main/scene-16/sc.glb.gz",
+            "bytes": 7868838,
             "camera": {
               "orbit": "0.06926deg 73.72001deg 3.326316m",
               "target": "-0.003860m -0.932471m -3.192940m",
               "fov": "44.03106deg"
-            }
+            },
+            "uncompressedBytes": 9055432,
+            "sha256": "1601778142fca26cf4843d1d8b941fbecc4f8d0ce5791ff74ac25a316d04694e"
           }
         },
         {
@@ -1499,13 +1667,15 @@
           "source": "assets/gallery/main/scene-16/viga_source.webp",
           "novel": "assets/gallery/main/scene-16/viga_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-16/viga.glb",
-            "bytes": 4510800,
+            "src": "assets/models/main/scene-16/viga.glb.gz",
+            "bytes": 3559352,
             "camera": {
               "orbit": "-174.36167deg 59.58761deg 1.274228m",
               "target": "0.207965m 0.054960m 0.073583m",
               "fov": "37.29908deg"
-            }
+            },
+            "uncompressedBytes": 4510800,
+            "sha256": "b45c001715279fa4ef29274fa66c95e15fa324f42f6fb7d2be0732dd6655731a"
           }
         }
       ],
@@ -1524,13 +1694,15 @@
           "source": "assets/gallery/main/scene-17/ours_source.webp",
           "novel": "assets/gallery/main/scene-17/ours_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-17/ours.glb",
-            "bytes": 4444480,
+            "src": "assets/models/main/scene-17/ours.glb.gz",
+            "bytes": 3685307,
             "camera": {
               "orbit": "180.00000deg 38.98585deg 1.346410m",
               "target": "0.000000m 0.000000m 0.847065m",
               "fov": "53.74345deg"
-            }
+            },
+            "uncompressedBytes": 4444480,
+            "sha256": "1f444b1f43a1691d23bcea6f1b54db2957c9ac6817b865ca93fa2a89e41962b3"
           }
         },
         {
@@ -1539,13 +1711,15 @@
           "source": "assets/gallery/main/scene-17/simfoundry_source.webp",
           "novel": "assets/gallery/main/scene-17/simfoundry_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-17/simfoundry.glb",
-            "bytes": 4312936,
+            "src": "assets/models/main/scene-17/simfoundry.glb.gz",
+            "bytes": 3900479,
             "camera": {
               "orbit": "0.00000deg 41.28719deg 1.101297m",
               "target": "0.010393m 0.000000m -0.106754m",
               "fov": "48.53882deg"
-            }
+            },
+            "uncompressedBytes": 4312936,
+            "sha256": "81d0b54e171245333a3c77fd1e421a9f635c0f83f032f89e80893ad54c8432e3"
           }
         },
         {
@@ -1554,13 +1728,15 @@
           "source": "assets/gallery/main/scene-17/rest3d_source.webp",
           "novel": "assets/gallery/main/scene-17/rest3d_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-17/rest3d.glb",
-            "bytes": 1265628,
+            "src": "assets/models/main/scene-17/rest3d.glb.gz",
+            "bytes": 1100743,
             "camera": {
               "orbit": "178.84493deg 35.39040deg 2.024283m",
               "target": "0.006354m 0.000000m 2.253388m",
               "fov": "48.56152deg"
-            }
+            },
+            "uncompressedBytes": 1265628,
+            "sha256": "a087dd5f7a9bdd41e7745e07c3d327f230d625f9cd01a35c38183b31f350c96c"
           }
         },
         {
@@ -1569,13 +1745,15 @@
           "source": "assets/gallery/main/scene-17/sc_source.webp",
           "novel": "assets/gallery/main/scene-17/sc_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-17/sc.glb",
-            "bytes": 4998620,
+            "src": "assets/models/main/scene-17/sc.glb.gz",
+            "bytes": 4261989,
             "camera": {
               "orbit": "-0.87211deg 58.34488deg 4.328024m",
               "target": "0.056074m -2.271369m -3.683684m",
               "fov": "43.69731deg"
-            }
+            },
+            "uncompressedBytes": 4998620,
+            "sha256": "a66d650584b1ab13d1b1d1a5e10549302a50796bd1e057cb71b2135d14791e21"
           }
         },
         {
@@ -1584,13 +1762,15 @@
           "source": "assets/gallery/main/scene-17/viga_source.webp",
           "novel": "assets/gallery/main/scene-17/viga_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-17/viga.glb",
-            "bytes": 2180276,
+            "src": "assets/models/main/scene-17/viga.glb.gz",
+            "bytes": 1832500,
             "camera": {
               "orbit": "0.00000deg 0.00000deg 5.040093m",
               "target": "0.500000m 0.959907m -0.000000m",
               "fov": "42.18468deg"
-            }
+            },
+            "uncompressedBytes": 2180276,
+            "sha256": "18dfabf4ec3157ca85b502425b6bdf620e9a622154217f9af060a6ffd539b9c0"
           }
         }
       ],
@@ -1609,13 +1789,15 @@
           "source": "assets/gallery/main/scene-18/ours_source.webp",
           "novel": "assets/gallery/main/scene-18/ours_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-18/ours.glb",
-            "bytes": 11395636,
+            "src": "assets/models/main/scene-18/ours.glb.gz",
+            "bytes": 9290514,
             "camera": {
               "orbit": "180.00000deg 58.35675deg 1.347074m",
               "target": "0.000000m 0.000000m 1.146806m",
               "fov": "57.26658deg"
-            }
+            },
+            "uncompressedBytes": 11395636,
+            "sha256": "3f602275729b2cfc54c7eaff053a7c6818444c6cb44a4de09682da784a3b2b87"
           }
         },
         {
@@ -1624,13 +1806,15 @@
           "source": "assets/gallery/main/scene-18/simfoundry_source.webp",
           "novel": "assets/gallery/main/scene-18/simfoundry_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-18/simfoundry.glb",
-            "bytes": 6948544,
+            "src": "assets/models/main/scene-18/simfoundry.glb.gz",
+            "bytes": 6223182,
             "camera": {
               "orbit": "0.00000deg 60.29923deg 1.279713m",
               "target": "-0.015414m 0.000000m -0.239070m",
               "fov": "50.70828deg"
-            }
+            },
+            "uncompressedBytes": 6948544,
+            "sha256": "b881ea25bc691a471c2f64961f72f9de93723e412c7b2c4b33ad2c625238dfea"
           }
         },
         {
@@ -1639,13 +1823,15 @@
           "source": "assets/gallery/main/scene-18/rest3d_source.webp",
           "novel": "assets/gallery/main/scene-18/rest3d_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-18/rest3d.glb",
-            "bytes": 2066668,
+            "src": "assets/models/main/scene-18/rest3d.glb.gz",
+            "bytes": 1776728,
             "camera": {
               "orbit": "178.21546deg 52.44860deg 2.323846m",
               "target": "0.023393m -0.000000m 2.520532m",
               "fov": "51.86610deg"
-            }
+            },
+            "uncompressedBytes": 2066668,
+            "sha256": "273ddd62f4a3b5bad01dec5272ab3991c96325a8afd7a95b1eec1e3506cc6509"
           }
         },
         {
@@ -1654,13 +1840,15 @@
           "source": "assets/gallery/main/scene-18/sc_source.webp",
           "novel": "assets/gallery/main/scene-18/sc_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-18/sc.glb",
-            "bytes": 8828868,
+            "src": "assets/models/main/scene-18/sc.glb.gz",
+            "bytes": 7645604,
             "camera": {
               "orbit": "-0.05346deg 75.15628deg 2.501735m",
               "target": "0.002256m -0.640903m -2.418247m",
               "fov": "46.75632deg"
-            }
+            },
+            "uncompressedBytes": 8828868,
+            "sha256": "1acfd2a75bc28ec5f531485d2e85de52092f53864eff78a6d19b0a070ded2d01"
           }
         },
         {
@@ -1669,13 +1857,15 @@
           "source": "assets/gallery/main/scene-18/viga_source.webp",
           "novel": "assets/gallery/main/scene-18/viga_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-18/viga.glb",
-            "bytes": 6639716,
+            "src": "assets/models/main/scene-18/viga.glb.gz",
+            "bytes": 5461868,
             "camera": {
               "orbit": "-179.99999deg 68.00000deg 1.418850m",
               "target": "0.000000m 0.018489m 0.265535m",
               "fov": "42.18468deg"
-            }
+            },
+            "uncompressedBytes": 6639716,
+            "sha256": "bc7e20d8e1590bdc680272d1c9f532de7519c09429d0f09aee71b6fe3c20dad8"
           }
         }
       ],
@@ -1694,13 +1884,15 @@
           "source": "assets/gallery/main/scene-19/ours_source.webp",
           "novel": "assets/gallery/main/scene-19/ours_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-19/ours.glb",
-            "bytes": 8448504,
+            "src": "assets/models/main/scene-19/ours.glb.gz",
+            "bytes": 6965773,
             "camera": {
               "orbit": "180.00000deg 59.50727deg 1.561343m",
               "target": "0.000000m 0.000000m 1.345399m",
               "fov": "53.09583deg"
-            }
+            },
+            "uncompressedBytes": 8448504,
+            "sha256": "b025b905a460bc91ab52c90638cf607ee9070a46c7d3bea490511bd76e74e418"
           }
         },
         {
@@ -1709,13 +1901,15 @@
           "source": "assets/gallery/main/scene-19/simfoundry_source.webp",
           "novel": "assets/gallery/main/scene-19/simfoundry_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-19/simfoundry.glb",
-            "bytes": 7021904,
+            "src": "assets/models/main/scene-19/simfoundry.glb.gz",
+            "bytes": 6310747,
             "camera": {
               "orbit": "0.00000deg 60.91180deg 1.332081m",
               "target": "0.039262m 0.000000m -0.312307m",
               "fov": "50.40739deg"
-            }
+            },
+            "uncompressedBytes": 7021904,
+            "sha256": "6b3e053f65b2fbd972dedf80077054ae84bceeb74ab4a1ab9502527ce8dda19c"
           }
         },
         {
@@ -1724,13 +1918,15 @@
           "source": "assets/gallery/main/scene-19/rest3d_source.webp",
           "novel": "assets/gallery/main/scene-19/rest3d_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-19/rest3d.glb",
-            "bytes": 1401452,
+            "src": "assets/models/main/scene-19/rest3d.glb.gz",
+            "bytes": 1216131,
             "camera": {
               "orbit": "-179.81147deg 51.42779deg 2.665990m",
               "target": "-0.003511m 0.000000m 2.963776m",
               "fov": "49.21942deg"
-            }
+            },
+            "uncompressedBytes": 1401452,
+            "sha256": "ffaf10cdebdeb2501057e9fe03fc89e11f15058009e685d9d3665774598ba144"
           }
         },
         {
@@ -1739,13 +1935,15 @@
           "source": "assets/gallery/main/scene-19/sc_source.webp",
           "novel": "assets/gallery/main/scene-19/sc_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-19/sc.glb",
-            "bytes": 9012604,
+            "src": "assets/models/main/scene-19/sc.glb.gz",
+            "bytes": 7829099,
             "camera": {
               "orbit": "0.16765deg 74.34873deg 3.445431m",
               "target": "-0.009708m -0.929514m -3.317666m",
               "fov": "44.30273deg"
-            }
+            },
+            "uncompressedBytes": 9012604,
+            "sha256": "e0d5e0d24161ccbb87e6da2f5ad1f66d95cb91fb7c08eed022823bf1f7c6c95d"
           }
         },
         {
@@ -1754,13 +1952,15 @@
           "source": "assets/gallery/main/scene-19/viga_source.webp",
           "novel": "assets/gallery/main/scene-19/viga_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-19/viga.glb",
-            "bytes": 5904592,
+            "src": "assets/models/main/scene-19/viga.glb.gz",
+            "bytes": 4942169,
             "camera": {
               "orbit": "179.99999deg 95.69502deg 1.664047m",
               "target": "-0.000000m 0.285030m 1.579756m",
               "fov": "45.74733deg"
-            }
+            },
+            "uncompressedBytes": 5904592,
+            "sha256": "ce42d43b6609fe2014c0a5ceed2e6c10afd68e66468d5b8d111d211ca39398eb"
           }
         }
       ],
@@ -1779,13 +1979,15 @@
           "source": "assets/gallery/main/scene-20/ours_source.webp",
           "novel": "assets/gallery/main/scene-20/ours_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-20/ours.glb",
-            "bytes": 1392924,
+            "src": "assets/models/main/scene-20/ours.glb.gz",
+            "bytes": 1167746,
             "camera": {
               "orbit": "180.00000deg 50.85745deg 1.877588m",
               "target": "0.000000m 0.000000m 1.456216m",
               "fov": "50.99714deg"
-            }
+            },
+            "uncompressedBytes": 1392924,
+            "sha256": "4cd2319d901ac1bc1fabece62fbbe90237c472a434fabe9d2b5199161eba7c1c"
           }
         },
         {
@@ -1794,13 +1996,15 @@
           "source": "assets/gallery/main/scene-20/simfoundry_source.webp",
           "novel": "assets/gallery/main/scene-20/simfoundry_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-20/simfoundry.glb",
-            "bytes": 1768976,
+            "src": "assets/models/main/scene-20/simfoundry.glb.gz",
+            "bytes": 1580140,
             "camera": {
               "orbit": "0.00000deg 49.35425deg 1.705268m",
               "target": "0.319858m 0.000000m 0.624414m",
               "fov": "48.60792deg"
-            }
+            },
+            "uncompressedBytes": 1768976,
+            "sha256": "c3318a5a8f669dce06e20a17867f417a1f6b79cee1cdfc71dccbb4976597deae"
           }
         },
         {
@@ -1809,13 +2013,15 @@
           "source": "assets/gallery/main/scene-20/rest3d_source.webp",
           "novel": "assets/gallery/main/scene-20/rest3d_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-20/rest3d.glb",
-            "bytes": 630936,
+            "src": "assets/models/main/scene-20/rest3d.glb.gz",
+            "bytes": 552909,
             "camera": {
               "orbit": "-179.96275deg 46.28531deg 2.467319m",
               "target": "-0.000364m 0.000000m 2.682202m",
               "fov": "47.96211deg"
-            }
+            },
+            "uncompressedBytes": 630936,
+            "sha256": "5051ea4b0603b552e0ccd8314d3815c0557b77392f331becab8f23bdd7d88684"
           }
         },
         {
@@ -1824,13 +2030,15 @@
           "source": "assets/gallery/main/scene-20/sc_source.webp",
           "novel": "assets/gallery/main/scene-20/sc_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-20/sc.glb",
-            "bytes": 2049320,
+            "src": "assets/models/main/scene-20/sc.glb.gz",
+            "bytes": 1775204,
             "camera": {
               "orbit": "0.38142deg 69.06779deg 1.833293m",
               "target": "-0.011399m -0.654968m -1.712265m",
               "fov": "43.15402deg"
-            }
+            },
+            "uncompressedBytes": 2049320,
+            "sha256": "bae937d841fb71acd76efc44009865cd557102e42c71f562cc31c7037b24de0c"
           }
         },
         {
@@ -1839,13 +2047,15 @@
           "source": "assets/gallery/main/scene-20/viga_source.webp",
           "novel": "assets/gallery/main/scene-20/viga_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-20/viga.glb",
-            "bytes": 1889868,
+            "src": "assets/models/main/scene-20/viga.glb.gz",
+            "bytes": 1524453,
             "camera": {
               "orbit": "0.00000deg 43.81475deg 1.716834m",
               "target": "0.060000m 0.281163m 0.031386m",
               "fov": "48.45549deg"
-            }
+            },
+            "uncompressedBytes": 1889868,
+            "sha256": "23c590ec31d991c4b3cd590251a269bb5523e2b4a0d43722156d161b0964af62"
           }
         }
       ],
@@ -1864,13 +2074,15 @@
           "source": "assets/gallery/main/scene-22/ours_source.webp",
           "novel": "assets/gallery/main/scene-22/ours_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-22/ours.glb",
-            "bytes": 6088296,
+            "src": "assets/models/main/scene-22/ours.glb.gz",
+            "bytes": 4997899,
             "camera": {
               "orbit": "180.00000deg 49.57990deg 1.311373m",
               "target": "0.000000m 0.000000m 0.998363m",
               "fov": "42.23711deg"
-            }
+            },
+            "uncompressedBytes": 6088296,
+            "sha256": "6b2112290fa5f40cf0c9e3c04134a067dde21202dc24907d5d71829d18a909d4"
           }
         },
         {
@@ -1879,13 +2091,15 @@
           "source": "assets/gallery/main/scene-22/simfoundry_source.webp",
           "novel": "assets/gallery/main/scene-22/simfoundry_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-22/simfoundry.glb",
-            "bytes": 5268900,
+            "src": "assets/models/main/scene-22/simfoundry.glb.gz",
+            "bytes": 4710773,
             "camera": {
               "orbit": "0.00000deg 49.47629deg 1.232666m",
               "target": "0.008328m 0.000000m -0.121446m",
               "fov": "36.05878deg"
-            }
+            },
+            "uncompressedBytes": 5268900,
+            "sha256": "72ac97d8bcc2af9bdb701b164aa4384de9fb854d721d2b4731bebf9fe9e446d1"
           }
         },
         {
@@ -1894,13 +2108,15 @@
           "source": "assets/gallery/main/scene-22/rest3d_source.webp",
           "novel": "assets/gallery/main/scene-22/rest3d_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-22/rest3d.glb",
-            "bytes": 1433240,
+            "src": "assets/models/main/scene-22/rest3d.glb.gz",
+            "bytes": 1234297,
             "camera": {
               "orbit": "179.85989deg 40.86695deg 1.465535m",
               "target": "-0.000006m 0.000000m 1.464177m",
               "fov": "38.16852deg"
-            }
+            },
+            "uncompressedBytes": 1433240,
+            "sha256": "99bc49defd8d3a6c3ca77e73cd91bc586d7f437440967ffdba4f81903248af10"
           }
         },
         {
@@ -1909,13 +2125,15 @@
           "source": "assets/gallery/main/scene-22/sc_source.webp",
           "novel": "assets/gallery/main/scene-22/sc_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-22/sc.glb",
-            "bytes": 7346448,
+            "src": "assets/models/main/scene-22/sc.glb.gz",
+            "bytes": 6288154,
             "camera": {
               "orbit": "0.63488deg 64.51186deg 2.565495m",
               "target": "-0.025661m -1.103995m -2.315665m",
               "fov": "34.18686deg"
-            }
+            },
+            "uncompressedBytes": 7346448,
+            "sha256": "c2519de288fbc985f399e3d8cabaaab8bafbb6fc1b6f605dfe9ae920a15b8809"
           }
         },
         {
@@ -1924,13 +2142,15 @@
           "source": "assets/gallery/main/scene-22/viga_source.webp",
           "novel": "assets/gallery/main/scene-22/viga_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-22/viga.glb",
-            "bytes": 5653800,
+            "src": "assets/models/main/scene-22/viga.glb.gz",
+            "bytes": 4493721,
             "camera": {
               "orbit": "-28.96005deg 62.22543deg 1.396936m",
               "target": "0.048467m 0.769036m -0.081441m",
               "fov": "37.29908deg"
-            }
+            },
+            "uncompressedBytes": 5653800,
+            "sha256": "02e024877e16351df7d0e5be6dda9f815abbb96511ddd595e8b81ffaab50a5ae"
           }
         }
       ],
@@ -1949,13 +2169,15 @@
           "source": "assets/gallery/main/scene-23/ours_source.webp",
           "novel": "assets/gallery/main/scene-23/ours_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-23/ours.glb",
-            "bytes": 3539948,
+            "src": "assets/models/main/scene-23/ours.glb.gz",
+            "bytes": 2917949,
             "camera": {
               "orbit": "180.00000deg 39.27778deg 1.421417m",
               "target": "0.000000m 0.000000m 0.899871m",
               "fov": "43.45445deg"
-            }
+            },
+            "uncompressedBytes": 3539948,
+            "sha256": "8f3550ea4f6b7e99b24d83d8c1d9e9fd02954a33eea8d318d983ec512911566b"
           }
         },
         {
@@ -1964,13 +2186,15 @@
           "source": "assets/gallery/main/scene-23/simfoundry_source.webp",
           "novel": "assets/gallery/main/scene-23/simfoundry_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-23/simfoundry.glb",
-            "bytes": 2729696,
+            "src": "assets/models/main/scene-23/simfoundry.glb.gz",
+            "bytes": 2458744,
             "camera": {
               "orbit": "0.00000deg 39.73169deg 1.048296m",
               "target": "-0.028015m 0.000000m -0.094605m",
               "fov": "37.15029deg"
-            }
+            },
+            "uncompressedBytes": 2729696,
+            "sha256": "c3db26935f4b57a425c5a0797ad1bfdb994fed5c484c5714624dcef1b8579aa1"
           }
         },
         {
@@ -1979,14 +2203,16 @@
           "source": "assets/gallery/main/scene-23/rest3d_source.webp",
           "novel": "assets/gallery/main/scene-23/rest3d_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-23/rest3d.glb",
-            "bytes": 744124,
+            "src": "assets/models/main/scene-23/rest3d.glb.gz",
+            "bytes": 647701,
             "camera": {
               "orbit": "0deg 45deg 100%",
               "target": "auto auto auto",
               "fov": "45deg"
             },
-            "displayNote": "The saved source camera misses the reconstructed objects; this viewer opens with the full scene in view."
+            "displayNote": "The saved source camera misses the reconstructed objects; this viewer opens with the full scene in view.",
+            "uncompressedBytes": 744124,
+            "sha256": "1a340711e38002e6055dc9b677d2894f0db75deff4abe40b3cf6fb58c550496b"
           }
         },
         {
@@ -1995,13 +2221,15 @@
           "source": "assets/gallery/main/scene-23/sc_source.webp",
           "novel": "assets/gallery/main/scene-23/sc_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-23/sc.glb",
-            "bytes": 5073748,
+            "src": "assets/models/main/scene-23/sc.glb.gz",
+            "bytes": 4246876,
             "camera": {
               "orbit": "0.34396deg 54.47761deg 11.072675m",
               "target": "-0.054100m -6.433458m -9.011761m",
               "fov": "34.23221deg"
-            }
+            },
+            "uncompressedBytes": 5073748,
+            "sha256": "26541b846819feeaf6b23c71af79e01df70dc33553bc8db96b438383f7ad0e24"
           }
         },
         {
@@ -2010,13 +2238,15 @@
           "source": "assets/gallery/main/scene-23/viga_source.webp",
           "novel": "assets/gallery/main/scene-23/viga_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-23/viga.glb",
-            "bytes": 122020,
+            "src": "assets/models/main/scene-23/viga.glb.gz",
+            "bytes": 45694,
             "camera": {
               "orbit": "0.00000deg 45.83662deg 1.657799m",
               "target": "0.165000m 0.855000m -0.039232m",
               "fov": "42.18468deg"
-            }
+            },
+            "uncompressedBytes": 122020,
+            "sha256": "f643d1986ddf7aa7f2f1422d3158415d70e363313a9516b1905eb09a2ea104f0"
           }
         }
       ],
@@ -2035,13 +2265,15 @@
           "source": "assets/gallery/main/scene-24/ours_source.webp",
           "novel": "assets/gallery/main/scene-24/ours_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-24/ours.glb",
-            "bytes": 3466860,
+            "src": "assets/models/main/scene-24/ours.glb.gz",
+            "bytes": 2915873,
             "camera": {
               "orbit": "180.00000deg 48.32403deg 1.273718m",
               "target": "0.000000m 0.000000m 0.951362m",
               "fov": "43.14593deg"
-            }
+            },
+            "uncompressedBytes": 3466860,
+            "sha256": "814b08c42d3fecaa192add98b18dc3fd537418aab88975d857b335b9711ad3cd"
           }
         },
         {
@@ -2050,13 +2282,15 @@
           "source": "assets/gallery/main/scene-24/simfoundry_source.webp",
           "novel": "assets/gallery/main/scene-24/simfoundry_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-24/simfoundry.glb",
-            "bytes": 4546132,
+            "src": "assets/models/main/scene-24/simfoundry.glb.gz",
+            "bytes": 4074892,
             "camera": {
               "orbit": "0.00000deg 49.68930deg 1.335001m",
               "target": "-0.025026m 0.000000m -0.155653m",
               "fov": "37.25584deg"
-            }
+            },
+            "uncompressedBytes": 4546132,
+            "sha256": "257bf9d2761155822ad9d7b0d0dfccb00be697e7eda244f1d19cba604022ce48"
           }
         },
         {
@@ -2065,13 +2299,15 @@
           "source": "assets/gallery/main/scene-24/rest3d_source.webp",
           "novel": "assets/gallery/main/scene-24/rest3d_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-24/rest3d.glb",
-            "bytes": 1710000,
+            "src": "assets/models/main/scene-24/rest3d.glb.gz",
+            "bytes": 1471348,
             "camera": {
               "orbit": "-178.83490deg 35.77938deg 1.997535m",
               "target": "0.006766m 0.000000m 1.761079m",
               "fov": "36.91500deg"
-            }
+            },
+            "uncompressedBytes": 1710000,
+            "sha256": "0dd67a8e20861c3ad53e619445df65b175e46a510ebe8aad0670d5a7eacfcbd5"
           }
         },
         {
@@ -2080,13 +2316,15 @@
           "source": "assets/gallery/main/scene-24/sc_source.webp",
           "novel": "assets/gallery/main/scene-24/sc_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-24/sc.glb",
-            "bytes": 4953748,
+            "src": "assets/models/main/scene-24/sc.glb.gz",
+            "bytes": 4260300,
             "camera": {
               "orbit": "-0.10942deg 63.12958deg 9.755781m",
               "target": "0.016619m -4.409362m -8.702443m",
               "fov": "33.04467deg"
-            }
+            },
+            "uncompressedBytes": 4953748,
+            "sha256": "2b9336749c3d063618482390a34a6055810b7df544d24ce0f44e23b72e0aabea"
           }
         },
         {
@@ -2095,13 +2333,15 @@
           "source": "assets/gallery/main/scene-24/viga_source.webp",
           "novel": "assets/gallery/main/scene-24/viga_novel.webp",
           "model": {
-            "src": "assets/models/main/scene-24/viga.glb",
-            "bytes": 3482260,
+            "src": "assets/models/main/scene-24/viga.glb.gz",
+            "bytes": 2856128,
             "camera": {
               "orbit": "-20.85446deg 52.89286deg 1.381551m",
               "target": "0.052235m 0.786500m -0.009618m",
               "fov": "42.18468deg"
-            }
+            },
+            "uncompressedBytes": 3482260,
+            "sha256": "3be4f7220047c75b99a257158ae2edbc3d60bcd5dd3c6b4468f43f58e4088ed0"
           }
         }
       ],
@@ -2120,13 +2360,15 @@
           "source": "assets/gallery/gpt6/scene-21/ours_source.webp",
           "novel": "assets/gallery/gpt6/scene-21/ours_novel.webp",
           "model": {
-            "src": "assets/models/gpt6/scene-21/ours.glb",
-            "bytes": 6379884,
+            "src": "assets/models/gpt6/scene-21/ours.glb.gz",
+            "bytes": 5335989,
             "camera": {
               "orbit": "180.00000deg 38.45931deg 1.377345m",
               "target": "0.000000m 0.000000m 0.856652m",
               "fov": "45.14871deg"
-            }
+            },
+            "uncompressedBytes": 6379884,
+            "sha256": "98f777603298fcfa842cfc0810b5cead6518e7f6a39c277fe02dc357af555f08"
           }
         },
         {
@@ -2135,13 +2377,15 @@
           "source": "assets/gallery/gpt6/scene-21/viga_source.webp",
           "novel": "assets/gallery/gpt6/scene-21/viga_novel.webp",
           "model": {
-            "src": "assets/models/gpt6/scene-21/viga.glb",
-            "bytes": 10929276,
+            "src": "assets/models/gpt6/scene-21/viga.glb.gz",
+            "bytes": 8498232,
             "camera": {
               "orbit": "0.00000deg 40.74445deg 2.948676m",
               "target": "0.000000m -0.004000m -0.704561m",
               "fov": "36.36731deg"
-            }
+            },
+            "uncompressedBytes": 10929276,
+            "sha256": "fc18f545c887f2775c67fd573731daa2a1896959a126b2387a2030d722bbf09d"
           }
         },
         {
@@ -2150,13 +2394,15 @@
           "source": "assets/gallery/gpt6/scene-21/codex_source.webp",
           "novel": "assets/gallery/gpt6/scene-21/codex_novel.webp",
           "model": {
-            "src": "assets/models/gpt6/scene-21/codex.glb",
-            "bytes": 5802860,
+            "src": "assets/models/gpt6/scene-21/codex.glb.gz",
+            "bytes": 4400039,
             "camera": {
               "orbit": "0.00000deg 40.00000deg 6.168050m",
               "target": "0.000000m 1.650000m -0.199746m",
               "fov": "35.95849deg"
-            }
+            },
+            "uncompressedBytes": 5802860,
+            "sha256": "21c588bee9c4960d42c85653179e6a5c98d159eff219ce09cff61a03f1ee1c1f"
           }
         }
       ],
@@ -2175,13 +2421,15 @@
           "source": "assets/gallery/gpt6/scene-01/ours_source.webp?v=edited-input",
           "novel": "assets/gallery/gpt6/scene-01/ours_novel.webp?v=edited-input",
           "model": {
-            "src": "assets/models/gpt6/scene-01/ours.glb",
-            "bytes": 4274152,
+            "src": "assets/models/gpt6/scene-01/ours.glb.gz",
+            "bytes": 3608758,
             "camera": {
               "orbit": "179.99999deg 70.76312deg 0.849441m",
               "target": "-0.000000m 0.000000m 0.802012m",
               "fov": "43.78463deg"
-            }
+            },
+            "uncompressedBytes": 4274152,
+            "sha256": "0fef8d7cbf86b946f7feb32bfa33e0916fd4924f653477ccd95d861162906a9c"
           }
         },
         {
@@ -2190,13 +2438,15 @@
           "source": "assets/gallery/gpt6/scene-01/viga_source.webp?v=edited-input",
           "novel": "assets/gallery/gpt6/scene-01/viga_novel.webp?v=edited-input",
           "model": {
-            "src": "assets/models/gpt6/scene-01/viga.glb",
-            "bytes": 4783836,
+            "src": "assets/models/gpt6/scene-01/viga.glb.gz",
+            "bytes": 3943826,
             "camera": {
               "orbit": "-179.99999deg 71.66538deg 1.535448m",
               "target": "0.000000m -0.483000m 1.457502m",
               "fov": "35.11539deg"
-            }
+            },
+            "uncompressedBytes": 4783836,
+            "sha256": "f9ca5f9812a6e9f9ed5a3bdae21ac508d27f72eb4b6de21d7c84da48713291c1"
           }
         },
         {
@@ -2205,13 +2455,15 @@
           "source": "assets/gallery/gpt6/scene-01/codex_source.webp?v=edited-input",
           "novel": "assets/gallery/gpt6/scene-01/codex_novel.webp?v=edited-input",
           "model": {
-            "src": "assets/models/gpt6/scene-01/codex.glb",
-            "bytes": 1176692,
+            "src": "assets/models/gpt6/scene-01/codex.glb.gz",
+            "bytes": 376653,
             "camera": {
               "orbit": "-17.66257deg 69.70258deg 2.196640m",
               "target": "0.195098m -0.062000m -0.493118m",
               "fov": "25.91790deg"
-            }
+            },
+            "uncompressedBytes": 1176692,
+            "sha256": "11c28429917208cbc228fe28ac67032b0de1709af6054899f489e5d15c64c649"
           }
         }
       ],
@@ -2230,13 +2482,15 @@
           "source": "assets/gallery/gpt6/scene-02/ours_source.webp",
           "novel": "assets/gallery/gpt6/scene-02/ours_novel.webp",
           "model": {
-            "src": "assets/models/gpt6/scene-02/ours.glb",
-            "bytes": 2789768,
+            "src": "assets/models/gpt6/scene-02/ours.glb.gz",
+            "bytes": 2381256,
             "camera": {
               "orbit": "180.00000deg 37.06754deg 1.059715m",
               "target": "0.000000m 0.000000m 0.638750m",
               "fov": "53.32594deg"
-            }
+            },
+            "uncompressedBytes": 2789768,
+            "sha256": "36a30dec8bd1cffc94e30d5395b662db019351a229ad3605fd422434657957ae"
           }
         },
         {
@@ -2245,13 +2499,15 @@
           "source": "assets/gallery/gpt6/scene-02/viga_source.webp",
           "novel": "assets/gallery/gpt6/scene-02/viga_novel.webp",
           "model": {
-            "src": "assets/models/gpt6/scene-02/viga.glb",
-            "bytes": 2198940,
+            "src": "assets/models/gpt6/scene-02/viga.glb.gz",
+            "bytes": 1690883,
             "camera": {
               "orbit": "0.00000deg 36.00466deg 2.760303m",
               "target": "-0.090000m 0.017000m 0.057353m",
               "fov": "35.86119deg"
-            }
+            },
+            "uncompressedBytes": 2198940,
+            "sha256": "9b5a6105a72de791b445f0479ec16fe4e71e780732d87ce0d2af61d44255484a"
           }
         },
         {
@@ -2260,13 +2516,15 @@
           "source": "assets/gallery/gpt6/scene-02/codex_source.webp",
           "novel": "assets/gallery/gpt6/scene-02/codex_novel.webp",
           "model": {
-            "src": "assets/models/gpt6/scene-02/codex.glb",
-            "bytes": 4743020,
+            "src": "assets/models/gpt6/scene-02/codex.glb.gz",
+            "bytes": 2718797,
             "camera": {
               "orbit": "0.29010deg 47.65457deg 3.235605m",
               "target": "-0.067108m 0.880500m 0.068604m",
               "fov": "29.58866deg"
-            }
+            },
+            "uncompressedBytes": 4743020,
+            "sha256": "d1193b09ed960fdae385c4bc662beb90899754bca4e4e9fcd6824aa751cce9f9"
           }
         }
       ],
@@ -2285,13 +2543,15 @@
           "source": "assets/gallery/gpt6/scene-03/ours_source.webp",
           "novel": "assets/gallery/gpt6/scene-03/ours_novel.webp",
           "model": {
-            "src": "assets/models/gpt6/scene-03/ours.glb",
-            "bytes": 3672964,
+            "src": "assets/models/gpt6/scene-03/ours.glb.gz",
+            "bytes": 3146134,
             "camera": {
               "orbit": "180.00000deg 31.91863deg 0.986007m",
               "target": "0.000000m 0.000000m 0.521316m",
               "fov": "59.22088deg"
-            }
+            },
+            "uncompressedBytes": 3672964,
+            "sha256": "083001b057cd3a606840e2f67327862a5e78e69ce2bed1e44dd2cdbc13cb8ce0"
           }
         },
         {
@@ -2300,13 +2560,15 @@
           "source": "assets/gallery/gpt6/scene-03/viga_source.webp",
           "novel": "assets/gallery/gpt6/scene-03/viga_novel.webp",
           "model": {
-            "src": "assets/models/gpt6/scene-03/viga.glb",
-            "bytes": 2811800,
+            "src": "assets/models/gpt6/scene-03/viga.glb.gz",
+            "bytes": 2371862,
             "camera": {
               "orbit": "-179.99999deg 90.00000deg 1.503112m",
               "target": "0.000000m 0.000000m 1.503112m",
               "fov": "53.70163deg"
-            }
+            },
+            "uncompressedBytes": 2811800,
+            "sha256": "c66af03547369bc5a52a16865eff715b28ace0a423904a688c88dc4b2df421e9"
           }
         },
         {
@@ -2315,13 +2577,15 @@
           "source": "assets/gallery/gpt6/scene-03/codex_source.webp",
           "novel": "assets/gallery/gpt6/scene-03/codex_novel.webp",
           "model": {
-            "src": "assets/models/gpt6/scene-03/codex.glb",
-            "bytes": 1817028,
+            "src": "assets/models/gpt6/scene-03/codex.glb.gz",
+            "bytes": 1178485,
             "camera": {
               "orbit": "0.00000deg 27.99871deg 4.747677m",
               "target": "0.000000m 0.003000m 0.073195m",
               "fov": "67.05937deg"
-            }
+            },
+            "uncompressedBytes": 1817028,
+            "sha256": "58d3250b5b5a18393dc15acb9eec38969eca4917eff61db47d8c18888442dbe7"
           }
         }
       ],
@@ -2340,13 +2604,15 @@
           "source": "assets/gallery/gpt6/scene-04/ours_source.webp",
           "novel": "assets/gallery/gpt6/scene-04/ours_novel.webp",
           "model": {
-            "src": "assets/models/gpt6/scene-04/ours.glb",
-            "bytes": 2336540,
+            "src": "assets/models/gpt6/scene-04/ours.glb.gz",
+            "bytes": 2003352,
             "camera": {
               "orbit": "180.00000deg 31.82533deg 1.668547m",
               "target": "0.000000m 0.000000m 0.879877m",
               "fov": "53.09848deg"
-            }
+            },
+            "uncompressedBytes": 2336540,
+            "sha256": "ab8247d54e2e023975b9df5ee78ad56d86511a14a41612993de45c59e91b454c"
           }
         },
         {
@@ -2355,13 +2621,15 @@
           "source": "assets/gallery/gpt6/scene-04/viga_source.webp",
           "novel": "assets/gallery/gpt6/scene-04/viga_novel.webp",
           "model": {
-            "src": "assets/models/gpt6/scene-04/viga.glb",
-            "bytes": 1433284,
+            "src": "assets/models/gpt6/scene-04/viga.glb.gz",
+            "bytes": 1083023,
             "camera": {
               "orbit": "0.00001deg 37.72928deg 1.850613m",
               "target": "-0.000000m 0.023000m -0.488008m",
               "fov": "46.85944deg"
-            }
+            },
+            "uncompressedBytes": 1433284,
+            "sha256": "37cf188e96d6dae02c759e108643872d31d8e53730dff7062a4c1cfebd39c35a"
           }
         },
         {
@@ -2370,13 +2638,15 @@
           "source": "assets/gallery/gpt6/scene-04/codex_source.webp",
           "novel": "assets/gallery/gpt6/scene-04/codex_novel.webp",
           "model": {
-            "src": "assets/models/gpt6/scene-04/codex.glb",
-            "bytes": 1024236,
+            "src": "assets/models/gpt6/scene-04/codex.glb.gz",
+            "bytes": 405508,
             "camera": {
               "orbit": "0.00000deg 42.48465deg 3.819922m",
               "target": "0.000000m -0.001034m -0.000947m",
               "fov": "38.90594deg"
-            }
+            },
+            "uncompressedBytes": 1024236,
+            "sha256": "7248f441e21b58852585ab59c64656e0540cf86a0c9beb7a1f2ae7b7d3e12476"
           }
         }
       ],
@@ -2395,13 +2665,15 @@
           "source": "assets/gallery/gpt6/scene-05/ours_source.webp",
           "novel": "assets/gallery/gpt6/scene-05/ours_novel.webp",
           "model": {
-            "src": "assets/models/gpt6/scene-05/ours.glb",
-            "bytes": 12773208,
+            "src": "assets/models/gpt6/scene-05/ours.glb.gz",
+            "bytes": 10546548,
             "camera": {
               "orbit": "180.00000deg 50.76843deg 1.038318m",
               "target": "0.000000m 0.000000m 0.804277m",
               "fov": "60.42080deg"
-            }
+            },
+            "uncompressedBytes": 12773208,
+            "sha256": "002d207624968aee18aa990611df0032e72f1d603f2bcb5554dc01d4fdf42a82"
           }
         },
         {
@@ -2410,13 +2682,15 @@
           "source": "assets/gallery/gpt6/scene-05/viga_source.webp",
           "novel": "assets/gallery/gpt6/scene-05/viga_novel.webp",
           "model": {
-            "src": "assets/models/gpt6/scene-05/viga.glb",
-            "bytes": 7224364,
+            "src": "assets/models/gpt6/scene-05/viga.glb.gz",
+            "bytes": 4197275,
             "camera": {
               "orbit": "0.00000deg 48.07116deg 1.895504m",
               "target": "-0.085000m 0.013411m 0.139792m",
               "fov": "39.11650deg"
-            }
+            },
+            "uncompressedBytes": 7224364,
+            "sha256": "5730f4fd0242cf89d3879f545b0f645540223215bcd891a22c22384b49433dbb"
           }
         },
         {
@@ -2425,13 +2699,15 @@
           "source": "assets/gallery/gpt6/scene-05/codex_source.webp",
           "novel": "assets/gallery/gpt6/scene-05/codex_novel.webp",
           "model": {
-            "src": "assets/models/gpt6/scene-05/codex.glb",
-            "bytes": 4278724,
+            "src": "assets/models/gpt6/scene-05/codex.glb.gz",
+            "bytes": 1967205,
             "camera": {
               "orbit": "0.00000deg 46.77757deg 1.838493m",
               "target": "-0.040000m 0.900940m 0.120289m",
               "fov": "45.74733deg"
-            }
+            },
+            "uncompressedBytes": 4278724,
+            "sha256": "1a2ddf4c9fe54f816096f392cae720a7d27c78cbe06fd69944fbe8e156e00eff"
           }
         }
       ],
@@ -2450,13 +2726,15 @@
           "source": "assets/gallery/gpt6/scene-06/ours_source.webp",
           "novel": "assets/gallery/gpt6/scene-06/ours_novel.webp",
           "model": {
-            "src": "assets/models/gpt6/scene-06/ours.glb",
-            "bytes": 5579736,
+            "src": "assets/models/gpt6/scene-06/ours.glb.gz",
+            "bytes": 4529341,
             "camera": {
               "orbit": "180.00000deg 67.95901deg 0.736827m",
               "target": "0.000000m 0.192649m 0.682976m",
               "fov": "60.82038deg"
-            }
+            },
+            "uncompressedBytes": 5579736,
+            "sha256": "640cb36e594dab34fcc7d36933cc9e37ba923649c735a37baa85d765be6fb358"
           }
         },
         {
@@ -2465,13 +2743,15 @@
           "source": "assets/gallery/gpt6/scene-06/viga_source.webp",
           "novel": "assets/gallery/gpt6/scene-06/viga_novel.webp",
           "model": {
-            "src": "assets/models/gpt6/scene-06/viga.glb",
-            "bytes": 972944,
+            "src": "assets/models/gpt6/scene-06/viga.glb.gz",
+            "bytes": 660523,
             "camera": {
               "orbit": "179.99999deg 64.01078deg 2.085797m",
               "target": "-0.000000m -0.214000m 1.404874m",
               "fov": "44.49805deg"
-            }
+            },
+            "uncompressedBytes": 972944,
+            "sha256": "2e7d8222b18eb082efdfac7d8a4f6f825676dae991bd561943f1851d3b63bb35"
           }
         },
         {
@@ -2480,13 +2760,15 @@
           "source": "assets/gallery/gpt6/scene-06/codex_source.webp",
           "novel": "assets/gallery/gpt6/scene-06/codex_novel.webp",
           "model": {
-            "src": "assets/models/gpt6/scene-06/codex.glb",
-            "bytes": 1609188,
+            "src": "assets/models/gpt6/scene-06/codex.glb.gz",
+            "bytes": 790826,
             "camera": {
               "orbit": "-12.53579deg 58.96597deg 2.263973m",
               "target": "0.421057m 0.782815m -0.243665m",
               "fov": "41.64179deg"
-            }
+            },
+            "uncompressedBytes": 1609188,
+            "sha256": "4a8f8b0962d2420ab01cdd9f517ad6f840c70584ec566fd00145e84710be8587"
           }
         }
       ],
@@ -2505,13 +2787,15 @@
           "source": "assets/gallery/gpt6/scene-07/ours_source.webp",
           "novel": "assets/gallery/gpt6/scene-07/ours_novel.webp",
           "model": {
-            "src": "assets/models/gpt6/scene-07/ours.glb",
-            "bytes": 5713840,
+            "src": "assets/models/gpt6/scene-07/ours.glb.gz",
+            "bytes": 4848658,
             "camera": {
               "orbit": "180.00000deg 71.46343deg 0.539845m",
               "target": "0.000000m 0.141118m 0.511839m",
               "fov": "44.67304deg"
-            }
+            },
+            "uncompressedBytes": 5713840,
+            "sha256": "235122ba581d5d8e3f06a7cb4c62f80fc7a02041669bcea6940e6a477f45f832"
           }
         },
         {
@@ -2520,13 +2804,15 @@
           "source": "assets/gallery/gpt6/scene-07/viga_source.webp",
           "novel": "assets/gallery/gpt6/scene-07/viga_novel.webp",
           "model": {
-            "src": "assets/models/gpt6/scene-07/viga.glb",
-            "bytes": 3413932,
+            "src": "assets/models/gpt6/scene-07/viga.glb.gz",
+            "bytes": 1177169,
             "camera": {
               "orbit": "-179.99999deg 67.03606deg 1.406126m",
               "target": "0.000000m 0.380398m 1.299691m",
               "fov": "37.04202deg"
-            }
+            },
+            "uncompressedBytes": 3413932,
+            "sha256": "943bdc13f07069a1b8c660b5575ecff5ad966f344214b182a4fe0f579c9d5470"
           }
         },
         {
@@ -2535,13 +2821,15 @@
           "source": "assets/gallery/gpt6/scene-07/codex_source.webp",
           "novel": "assets/gallery/gpt6/scene-07/codex_novel.webp",
           "model": {
-            "src": "assets/models/gpt6/scene-07/codex.glb",
-            "bytes": 1798460,
+            "src": "assets/models/gpt6/scene-07/codex.glb.gz",
+            "bytes": 958685,
             "camera": {
               "orbit": "0.00000deg 64.14446deg 17.198893m",
               "target": "0.000000m -0.000500m -2.477222m",
               "fov": "30.96779deg"
-            }
+            },
+            "uncompressedBytes": 1798460,
+            "sha256": "a6f2dfb57600435873f1a814d05966acb5a97a338ef8d7c9f26f3aa463c0b093"
           }
         }
       ],
@@ -2560,13 +2848,15 @@
           "source": "assets/gallery/gpt6/scene-08/ours_source.webp",
           "novel": "assets/gallery/gpt6/scene-08/ours_novel.webp",
           "model": {
-            "src": "assets/models/gpt6/scene-08/ours.glb",
-            "bytes": 4201148,
+            "src": "assets/models/gpt6/scene-08/ours.glb.gz",
+            "bytes": 3536655,
             "camera": {
               "orbit": "180.00000deg 66.88714deg 0.476797m",
               "target": "0.000000m 0.103522m 0.438526m",
               "fov": "46.13294deg"
-            }
+            },
+            "uncompressedBytes": 4201148,
+            "sha256": "ffddc47722dfd89b2449cbd2f6537bd24aef42e2ca71fea76261e29d9a16d0e0"
           }
         },
         {
@@ -2575,13 +2865,15 @@
           "source": "assets/gallery/gpt6/scene-08/viga_source.webp",
           "novel": "assets/gallery/gpt6/scene-08/viga_novel.webp",
           "model": {
-            "src": "assets/models/gpt6/scene-08/viga.glb",
-            "bytes": 4140528,
+            "src": "assets/models/gpt6/scene-08/viga.glb.gz",
+            "bytes": 3300165,
             "camera": {
               "orbit": "172.34603deg 64.45607deg 2.877246m",
               "target": "0.004237m 0.249323m 1.722880m",
               "fov": "28.64544deg"
-            }
+            },
+            "uncompressedBytes": 4140528,
+            "sha256": "87bd604272e4aa331e453a2e2f4db921f602c0208b6341e73a451d83322a7a07"
           }
         },
         {
@@ -2590,13 +2882,15 @@
           "source": "assets/gallery/gpt6/scene-08/codex_source.webp",
           "novel": "assets/gallery/gpt6/scene-08/codex_novel.webp",
           "model": {
-            "src": "assets/models/gpt6/scene-08/codex.glb",
-            "bytes": 2876848,
+            "src": "assets/models/gpt6/scene-08/codex.glb.gz",
+            "bytes": 2054632,
             "camera": {
               "orbit": "-4.52246deg 65.85250deg 11.635663m",
               "target": "0.137187m -0.360000m -1.684431m",
               "fov": "29.24175deg"
-            }
+            },
+            "uncompressedBytes": 2876848,
+            "sha256": "e26da44b6af3878547c6e69aff1acab8c9b5d2febee722d297d38b0644c2dd0c"
           }
         }
       ],
@@ -2615,13 +2909,15 @@
           "source": "assets/gallery/gpt6/scene-09/ours_source.webp",
           "novel": "assets/gallery/gpt6/scene-09/ours_novel.webp",
           "model": {
-            "src": "assets/models/gpt6/scene-09/ours.glb",
-            "bytes": 3832372,
+            "src": "assets/models/gpt6/scene-09/ours.glb.gz",
+            "bytes": 3261787,
             "camera": {
               "orbit": "180.00000deg 57.50929deg 3.101240m",
               "target": "0.000000m 0.000000m 2.615830m",
               "fov": "49.89990deg"
-            }
+            },
+            "uncompressedBytes": 3832372,
+            "sha256": "b5e4df849d943954c080745172c0fd9cc9f23cd0be1227500ee38ed29a714fcf"
           }
         },
         {
@@ -2630,13 +2926,15 @@
           "source": "assets/gallery/gpt6/scene-09/viga_source.webp",
           "novel": "assets/gallery/gpt6/scene-09/viga_novel.webp",
           "model": {
-            "src": "assets/models/gpt6/scene-09/viga.glb",
-            "bytes": 2058848,
+            "src": "assets/models/gpt6/scene-09/viga.glb.gz",
+            "bytes": 1268773,
             "camera": {
               "orbit": "-177.77295deg 58.47400deg 4.895910m",
               "target": "0.162172m -0.000000m 0.570136m",
               "fov": "33.39849deg"
-            }
+            },
+            "uncompressedBytes": 2058848,
+            "sha256": "4e3a04eb43cefed2f15e1209172f19dd0b43bf84bdba8578165806d6292d5535"
           }
         },
         {
@@ -2645,13 +2943,15 @@
           "source": "assets/gallery/gpt6/scene-09/codex_source.webp",
           "novel": "assets/gallery/gpt6/scene-09/codex_novel.webp",
           "model": {
-            "src": "assets/models/gpt6/scene-09/codex.glb",
-            "bytes": 4978848,
+            "src": "assets/models/gpt6/scene-09/codex.glb.gz",
+            "bytes": 3426386,
             "camera": {
               "orbit": "1.67065deg 59.17878deg 6.131339m",
               "target": "-0.153509m 0.008542m -0.463173m",
               "fov": "31.65231deg"
-            }
+            },
+            "uncompressedBytes": 4978848,
+            "sha256": "0fc1c264dd9344cd5d6e18fe8965d8feb0368ed9558a312a43a5068a86f10316"
           }
         }
       ],
@@ -2670,13 +2970,15 @@
           "source": "assets/gallery/gpt6/scene-10/ours_source.webp",
           "novel": "assets/gallery/gpt6/scene-10/ours_novel.webp",
           "model": {
-            "src": "assets/models/gpt6/scene-10/ours.glb",
-            "bytes": 2225172,
+            "src": "assets/models/gpt6/scene-10/ours.glb.gz",
+            "bytes": 1910744,
             "camera": {
               "orbit": "180.00000deg 65.57295deg 2.210656m",
               "target": "0.000000m 0.457275m 2.012777m",
               "fov": "39.08535deg"
-            }
+            },
+            "uncompressedBytes": 2225172,
+            "sha256": "248331fce6f037b431bb2942fe4027ca21d6dc0e3605ec4d5be2175e173f2817"
           }
         },
         {
@@ -2685,13 +2987,15 @@
           "source": "assets/gallery/gpt6/scene-10/viga_source.webp",
           "novel": "assets/gallery/gpt6/scene-10/viga_novel.webp",
           "model": {
-            "src": "assets/models/gpt6/scene-10/viga.glb",
-            "bytes": 3351628,
+            "src": "assets/models/gpt6/scene-10/viga.glb.gz",
+            "bytes": 2128688,
             "camera": {
               "orbit": "27.85965deg 66.07667deg 3.144899m",
               "target": "0.136623m 0.524700m 0.258477m",
               "fov": "28.64544deg"
-            }
+            },
+            "uncompressedBytes": 3351628,
+            "sha256": "bc8e9fc4dc5770998403fb36aec07087a30d2461aa7effee0099b8fd5297174a"
           }
         },
         {
@@ -2700,13 +3004,15 @@
           "source": "assets/gallery/gpt6/scene-10/codex_source.webp",
           "novel": "assets/gallery/gpt6/scene-10/codex_novel.webp",
           "model": {
-            "src": "assets/models/gpt6/scene-10/codex.glb",
-            "bytes": 4047936,
+            "src": "assets/models/gpt6/scene-10/codex.glb.gz",
+            "bytes": 2977549,
             "camera": {
               "orbit": "0.00000deg 67.55726deg 6.246494m",
               "target": "0.000000m 0.015339m -1.173394m",
               "fov": "20.91982deg"
-            }
+            },
+            "uncompressedBytes": 4047936,
+            "sha256": "b7f3a7b8047cc3d00cd723d45e69937d65fc5b801ff3e20c8e030f53ef8aa164"
           }
         }
       ],
@@ -2725,13 +3031,15 @@
           "source": "assets/gallery/gpt6/scene-11/ours_source.webp",
           "novel": "assets/gallery/gpt6/scene-11/ours_novel.webp",
           "model": {
-            "src": "assets/models/gpt6/scene-11/ours.glb",
-            "bytes": 5231564,
+            "src": "assets/models/gpt6/scene-11/ours.glb.gz",
+            "bytes": 4310583,
             "camera": {
               "orbit": "180.00000deg 77.66585deg 0.726919m",
               "target": "0.000000m 0.116275m 0.710141m",
               "fov": "33.19722deg"
-            }
+            },
+            "uncompressedBytes": 5231564,
+            "sha256": "6632beec4d66e9fb08dc37062079626fdb2007e82e8a9ea3920dad11a4afd75b"
           }
         },
         {
@@ -2740,13 +3048,15 @@
           "source": "assets/gallery/gpt6/scene-11/viga_source.webp",
           "novel": "assets/gallery/gpt6/scene-11/viga_novel.webp",
           "model": {
-            "src": "assets/models/gpt6/scene-11/viga.glb",
-            "bytes": 10493504,
+            "src": "assets/models/gpt6/scene-11/viga.glb.gz",
+            "bytes": 5789707,
             "camera": {
               "orbit": "-27.97948deg 72.84216deg 0.112083m",
               "target": "-1.559756m 1.851935m 2.405423m",
               "fov": "20.86169deg"
-            }
+            },
+            "uncompressedBytes": 10493504,
+            "sha256": "1c0d3e99c16995b081624c021b67ecee4e29ec994308bdc577c661fdd4cc8b02"
           }
         },
         {
@@ -2755,13 +3065,15 @@
           "source": "assets/gallery/gpt6/scene-11/codex_source.webp",
           "novel": "assets/gallery/gpt6/scene-11/codex_novel.webp",
           "model": {
-            "src": "assets/models/gpt6/scene-11/codex.glb",
-            "bytes": 78284972,
+            "src": "assets/models/gpt6/scene-11/codex.glb.gz",
+            "bytes": 42478289,
             "camera": {
               "orbit": "-30.73928deg 75.20422deg 39.179721m",
               "target": "1.362003m -0.005501m -2.558460m",
               "fov": "12.00000deg"
-            }
+            },
+            "uncompressedBytes": 78284972,
+            "sha256": "96fc41901c3719e0c176feec2ee25c3f7692920c421406be339c646041ddee5d"
           }
         }
       ],
@@ -2780,13 +3092,15 @@
           "source": "assets/gallery/gpt6/scene-12/ours_source.webp",
           "novel": "assets/gallery/gpt6/scene-12/ours_novel.webp",
           "model": {
-            "src": "assets/models/gpt6/scene-12/ours.glb",
-            "bytes": 3018488,
+            "src": "assets/models/gpt6/scene-12/ours.glb.gz",
+            "bytes": 2608575,
             "camera": {
               "orbit": "180.00000deg 68.00647deg 0.745816m",
               "target": "0.000000m 0.168349m 0.691540m",
               "fov": "38.63877deg"
-            }
+            },
+            "uncompressedBytes": 3018488,
+            "sha256": "43ce0244c9dd1cf2e6815a0b0ab85945cd704d5c3c96acd7c7f89373dfedc737"
           }
         },
         {
@@ -2795,13 +3109,15 @@
           "source": "assets/gallery/gpt6/scene-12/viga_source.webp",
           "novel": "assets/gallery/gpt6/scene-12/viga_novel.webp",
           "model": {
-            "src": "assets/models/gpt6/scene-12/viga.glb",
-            "bytes": 3987828,
+            "src": "assets/models/gpt6/scene-12/viga.glb.gz",
+            "bytes": 3475292,
             "camera": {
               "orbit": "-179.99999deg 69.86369deg 3.221948m",
               "target": "0.000000m -0.159171m 2.025010m",
               "fov": "40.18723deg"
-            }
+            },
+            "uncompressedBytes": 3987828,
+            "sha256": "2b7ce1e5a583548af555bb593965528b0e07650592c4ca1bc3188264577a8602"
           }
         },
         {
@@ -2810,14 +3126,16 @@
           "source": "assets/gallery/gpt6/scene-12/codex_source.webp",
           "novel": "assets/gallery/gpt6/scene-12/codex_novel.webp",
           "model": {
-            "src": "assets/models/gpt6/scene-12/codex.glb",
-            "bytes": 5029208,
+            "src": "assets/models/gpt6/scene-12/codex.glb.gz",
+            "bytes": 3524849,
             "camera": {
               "orbit": "0.00000deg 65.00000deg 24.000296m",
               "target": "0.000000m -0.256206m -3.625500m",
               "fov": "26.35416deg"
             },
-            "displayNote": "This scene’s custom painted shaders are approximated for the browser."
+            "displayNote": "This scene’s custom painted shaders are approximated for the browser.",
+            "uncompressedBytes": 5029208,
+            "sha256": "1b95c74cbd682303a6ba69a145aed9b819dd8f4a25b533dc4e03d4d7dbc0f173"
           }
         }
       ],
@@ -2836,13 +3154,15 @@
           "source": "assets/gallery/gpt6/scene-13/ours_source.webp",
           "novel": "assets/gallery/gpt6/scene-13/ours_novel.webp",
           "model": {
-            "src": "assets/models/gpt6/scene-13/ours.glb",
-            "bytes": 3887100,
+            "src": "assets/models/gpt6/scene-13/ours.glb.gz",
+            "bytes": 3178043,
             "camera": {
               "orbit": "180.00000deg 42.21563deg 0.927427m",
               "target": "0.000000m 0.000000m 0.623159m",
               "fov": "46.66968deg"
-            }
+            },
+            "uncompressedBytes": 3887100,
+            "sha256": "30de6c5683b02771555dfd56231e98363950bf471cef420307b7cc773e559ddb"
           }
         },
         {
@@ -2851,14 +3171,16 @@
           "source": "assets/gallery/gpt6/scene-13/viga_source.webp",
           "novel": "assets/gallery/gpt6/scene-13/viga_novel.webp",
           "model": {
-            "src": "assets/models/gpt6/scene-13/viga.glb",
-            "bytes": 17348500,
+            "src": "assets/models/gpt6/scene-13/viga.glb.gz",
+            "bytes": 14137257,
             "camera": {
               "orbit": "-179.99999deg 90.00000deg 1.677111m",
               "target": "0.000000m 0.000000m 1.677111m",
               "fov": "45.74733deg"
             },
-            "displayNote": "This very dense scene uses a lighter mesh for interactive viewing."
+            "displayNote": "This very dense scene uses a lighter mesh for interactive viewing.",
+            "uncompressedBytes": 17348500,
+            "sha256": "951b7faabb93b77f319680bbc618610dbc56a56263abd29a1df40a4902fe2792"
           }
         },
         {
@@ -2867,13 +3189,15 @@
           "source": "assets/gallery/gpt6/scene-13/codex_source.webp",
           "novel": "assets/gallery/gpt6/scene-13/codex_novel.webp",
           "model": {
-            "src": "assets/models/gpt6/scene-13/codex.glb",
-            "bytes": 1217460,
+            "src": "assets/models/gpt6/scene-13/codex.glb.gz",
+            "bytes": 645931,
             "camera": {
               "orbit": "28.86126deg 42.26744deg 19.747305m",
               "target": "-0.946492m -0.180000m -0.374070m",
               "fov": "31.16136deg"
-            }
+            },
+            "uncompressedBytes": 1217460,
+            "sha256": "99e477370eca6928d0ab4d9844ec605d1058bbae32faf0bf48657230f2eee039"
           }
         }
       ],
@@ -2892,13 +3216,15 @@
           "source": "assets/gallery/gpt6/scene-14/ours_source.webp",
           "novel": "assets/gallery/gpt6/scene-14/ours_novel.webp",
           "model": {
-            "src": "assets/models/gpt6/scene-14/ours.glb",
-            "bytes": 2493184,
+            "src": "assets/models/gpt6/scene-14/ours.glb.gz",
+            "bytes": 2020773,
             "camera": {
               "orbit": "180.00000deg 47.13706deg 0.629406m",
               "target": "0.000000m 0.000000m 0.461344m",
               "fov": "53.13986deg"
-            }
+            },
+            "uncompressedBytes": 2493184,
+            "sha256": "5085ffc203619285c761e302519a2d35ed35b61f1d64bfe07ee06f6cb0590168"
           }
         },
         {
@@ -2907,13 +3233,15 @@
           "source": "assets/gallery/gpt6/scene-14/viga_source.webp",
           "novel": "assets/gallery/gpt6/scene-14/viga_novel.webp",
           "model": {
-            "src": "assets/models/gpt6/scene-14/viga.glb",
-            "bytes": 7362884,
+            "src": "assets/models/gpt6/scene-14/viga.glb.gz",
+            "bytes": 4173455,
             "camera": {
               "orbit": "-179.99999deg 90.00000deg 1.660165m",
               "target": "0.000000m 0.000000m 1.660165m",
               "fov": "45.74733deg"
-            }
+            },
+            "uncompressedBytes": 7362884,
+            "sha256": "688d99864437298e9ae28ef2592a75373ddb00e0e4c46e0b3b45d911fb2671ca"
           }
         },
         {
@@ -2922,13 +3250,15 @@
           "source": "assets/gallery/gpt6/scene-14/codex_source.webp",
           "novel": "assets/gallery/gpt6/scene-14/codex_novel.webp",
           "model": {
-            "src": "assets/models/gpt6/scene-14/codex.glb",
-            "bytes": 2940412,
+            "src": "assets/models/gpt6/scene-14/codex.glb.gz",
+            "bytes": 1692411,
             "camera": {
               "orbit": "29.06855deg 49.92001deg 8.635464m",
               "target": "-1.270240m -2.200000m -2.285120m",
               "fov": "45.11449deg"
-            }
+            },
+            "uncompressedBytes": 2940412,
+            "sha256": "1da05454b5def0b16f7bf472fc9cebb243e6c552da9fa93c5da4b8d045197401"
           }
         }
       ],
@@ -2947,13 +3277,15 @@
           "source": "assets/gallery/gpt6/scene-15/ours_source.webp",
           "novel": "assets/gallery/gpt6/scene-15/ours_novel.webp",
           "model": {
-            "src": "assets/models/gpt6/scene-15/ours.glb",
-            "bytes": 5627860,
+            "src": "assets/models/gpt6/scene-15/ours.glb.gz",
+            "bytes": 4566878,
             "camera": {
               "orbit": "180.00000deg 43.41732deg 1.076628m",
               "target": "0.000000m 0.000000m 0.739974m",
               "fov": "51.54470deg"
-            }
+            },
+            "uncompressedBytes": 5627860,
+            "sha256": "c91ab7c37f25f9c98cf39a13428ceff70e20f4d428962053658881461180eb87"
           }
         },
         {
@@ -2962,13 +3294,15 @@
           "source": "assets/gallery/gpt6/scene-15/viga_source.webp",
           "novel": "assets/gallery/gpt6/scene-15/viga_novel.webp",
           "model": {
-            "src": "assets/models/gpt6/scene-15/viga.glb",
-            "bytes": 1702904,
+            "src": "assets/models/gpt6/scene-15/viga.glb.gz",
+            "bytes": 1306248,
             "camera": {
               "orbit": "10.24666deg 43.23653deg 1.660874m",
               "target": "-0.022384m 0.810000m 0.180427m",
               "fov": "41.11209deg"
-            }
+            },
+            "uncompressedBytes": 1702904,
+            "sha256": "e53bfcacdf4eb8b054e3c0f18881159aacc1c7a0cc29f5451c3b7e04805d59de"
           }
         },
         {
@@ -2977,13 +3311,15 @@
           "source": "assets/gallery/gpt6/scene-15/codex_source.webp",
           "novel": "assets/gallery/gpt6/scene-15/codex_novel.webp",
           "model": {
-            "src": "assets/models/gpt6/scene-15/codex.glb",
-            "bytes": 1692052,
+            "src": "assets/models/gpt6/scene-15/codex.glb.gz",
+            "bytes": 609852,
             "camera": {
               "orbit": "11.04323deg 41.20718deg 1.303720m",
               "target": "0.039227m 0.745858m 0.148743m",
               "fov": "49.29862deg"
-            }
+            },
+            "uncompressedBytes": 1692052,
+            "sha256": "d1915ecba5cc2aa76fe1a4dcc266c190f5df7a3ecbdf5b91b0f7ad68ebfea25d"
           }
         }
       ],
@@ -3002,13 +3338,15 @@
           "source": "assets/gallery/gpt6/scene-16/ours_source.webp",
           "novel": "assets/gallery/gpt6/scene-16/ours_novel.webp",
           "model": {
-            "src": "assets/models/gpt6/scene-16/ours.glb",
-            "bytes": 9574312,
+            "src": "assets/models/gpt6/scene-16/ours.glb.gz",
+            "bytes": 7870451,
             "camera": {
               "orbit": "180.00000deg 59.32826deg 1.097576m",
               "target": "0.000000m 0.000000m 0.944029m",
               "fov": "52.40450deg"
-            }
+            },
+            "uncompressedBytes": 9574312,
+            "sha256": "88593026b6f432242401655f2bd5fc5d6e0e0b9ec21b7c754ec9b767d7d57445"
           }
         },
         {
@@ -3017,13 +3355,15 @@
           "source": "assets/gallery/gpt6/scene-16/viga_source.webp",
           "novel": "assets/gallery/gpt6/scene-16/viga_novel.webp",
           "model": {
-            "src": "assets/models/gpt6/scene-16/viga.glb",
-            "bytes": 10195936,
+            "src": "assets/models/gpt6/scene-16/viga.glb.gz",
+            "bytes": 8625835,
             "camera": {
               "orbit": "-179.99999deg 90.00000deg 1.476598m",
               "target": "0.000000m 0.000000m 1.476598m",
               "fov": "45.74733deg"
-            }
+            },
+            "uncompressedBytes": 10195936,
+            "sha256": "6b054273dc8f536b9da5e9e6726ae3d5f7e5dad6a0d229b99b5bc2aae2f21e21"
           }
         },
         {
@@ -3032,13 +3372,15 @@
           "source": "assets/gallery/gpt6/scene-16/codex_source.webp",
           "novel": "assets/gallery/gpt6/scene-16/codex_novel.webp",
           "model": {
-            "src": "assets/models/gpt6/scene-16/codex.glb",
-            "bytes": 3223776,
+            "src": "assets/models/gpt6/scene-16/codex.glb.gz",
+            "bytes": 1909099,
             "camera": {
               "orbit": "61.31399deg 62.27237deg 16.420612m",
               "target": "-0.751043m 0.000000m -0.410947m",
               "fov": "49.53538deg"
-            }
+            },
+            "uncompressedBytes": 3223776,
+            "sha256": "cc95fc4091fac683a956292c76f18a981ee979ec3ae8a846e76d5494f1dcc9ad"
           }
         }
       ],
@@ -3057,13 +3399,15 @@
           "source": "assets/gallery/gpt6/scene-17/ours_source.webp",
           "novel": "assets/gallery/gpt6/scene-17/ours_novel.webp",
           "model": {
-            "src": "assets/models/gpt6/scene-17/ours.glb",
-            "bytes": 4059128,
+            "src": "assets/models/gpt6/scene-17/ours.glb.gz",
+            "bytes": 3374028,
             "camera": {
               "orbit": "180.00000deg 38.98585deg 1.346410m",
               "target": "0.000000m 0.000000m 0.847065m",
               "fov": "53.74345deg"
-            }
+            },
+            "uncompressedBytes": 4059128,
+            "sha256": "49ff19298028ebf941922b331a03a72577968e0da6c2952dc51a03b04ef86d59"
           }
         },
         {
@@ -3072,13 +3416,15 @@
           "source": "assets/gallery/gpt6/scene-17/viga_source.webp",
           "novel": "assets/gallery/gpt6/scene-17/viga_novel.webp",
           "model": {
-            "src": "assets/models/gpt6/scene-17/viga.glb",
-            "bytes": 5665368,
+            "src": "assets/models/gpt6/scene-17/viga.glb.gz",
+            "bytes": 4560994,
             "camera": {
               "orbit": "-179.99999deg 90.00000deg 1.187652m",
               "target": "0.000000m 0.000000m 1.187652m",
               "fov": "45.74733deg"
-            }
+            },
+            "uncompressedBytes": 5665368,
+            "sha256": "a55c0d7c68034dc18ca4c479a1c96333ffc7ff1f9a4332f7dd1620c3dc90c936"
           }
         },
         {
@@ -3087,13 +3433,15 @@
           "source": "assets/gallery/gpt6/scene-17/codex_source.webp",
           "novel": "assets/gallery/gpt6/scene-17/codex_novel.webp",
           "model": {
-            "src": "assets/models/gpt6/scene-17/codex.glb",
-            "bytes": 9885820,
+            "src": "assets/models/gpt6/scene-17/codex.glb.gz",
+            "bytes": 6219864,
             "camera": {
               "orbit": "28.00000deg 40.00001deg 22.092427m",
               "target": "-0.027893m -0.070801m -0.052459m",
               "fov": "30.21915deg"
-            }
+            },
+            "uncompressedBytes": 9885820,
+            "sha256": "a8090ad6a2e5a7fe0fc263689e01446e3ae987a00530d449e5a5a0b7e44fea72"
           }
         }
       ],
@@ -3112,13 +3460,15 @@
           "source": "assets/gallery/gpt6/scene-18/ours_source.webp",
           "novel": "assets/gallery/gpt6/scene-18/ours_novel.webp",
           "model": {
-            "src": "assets/models/gpt6/scene-18/ours.glb",
-            "bytes": 11882980,
+            "src": "assets/models/gpt6/scene-18/ours.glb.gz",
+            "bytes": 9749522,
             "camera": {
               "orbit": "180.00000deg 58.35675deg 1.347074m",
               "target": "0.000000m 0.000000m 1.146806m",
               "fov": "57.26658deg"
-            }
+            },
+            "uncompressedBytes": 11882980,
+            "sha256": "b465cbbf459cfe70c055a721ce15c36e66a13f101fc75faf3ef27b4d097719d9"
           }
         },
         {
@@ -3127,13 +3477,15 @@
           "source": "assets/gallery/gpt6/scene-18/viga_source.webp",
           "novel": "assets/gallery/gpt6/scene-18/viga_novel.webp",
           "model": {
-            "src": "assets/models/gpt6/scene-18/viga.glb",
-            "bytes": 6980588,
+            "src": "assets/models/gpt6/scene-18/viga.glb.gz",
+            "bytes": 5516716,
             "camera": {
               "orbit": "180.00000deg 59.03627deg 1.625627m",
               "target": "-0.000000m 0.044395m 1.393964m",
               "fov": "45.74733deg"
-            }
+            },
+            "uncompressedBytes": 6980588,
+            "sha256": "6c293ce3d6313101b2852649f863881d5c14506fe3e7e62345468ea0b8fb2edc"
           }
         },
         {
@@ -3142,13 +3494,15 @@
           "source": "assets/gallery/gpt6/scene-18/codex_source.webp",
           "novel": "assets/gallery/gpt6/scene-18/codex_novel.webp",
           "model": {
-            "src": "assets/models/gpt6/scene-18/codex.glb",
-            "bytes": 3418060,
+            "src": "assets/models/gpt6/scene-18/codex.glb.gz",
+            "bytes": 1768680,
             "camera": {
               "orbit": "0.00000deg 59.99893deg 9.819681m",
               "target": "0.000000m 0.000000m -0.000002m",
               "fov": "49.44614deg"
-            }
+            },
+            "uncompressedBytes": 3418060,
+            "sha256": "5d053c56b46761c4b01aff3c5fddb978723d6f9feea7099917279a7511013b9a"
           }
         }
       ],
@@ -3167,13 +3521,15 @@
           "source": "assets/gallery/gpt6/scene-19/ours_source.webp",
           "novel": "assets/gallery/gpt6/scene-19/ours_novel.webp",
           "model": {
-            "src": "assets/models/gpt6/scene-19/ours.glb",
-            "bytes": 8509388,
+            "src": "assets/models/gpt6/scene-19/ours.glb.gz",
+            "bytes": 7031505,
             "camera": {
               "orbit": "180.00000deg 59.50727deg 1.561343m",
               "target": "0.000000m 0.000000m 1.345399m",
               "fov": "53.09583deg"
-            }
+            },
+            "uncompressedBytes": 8509388,
+            "sha256": "b448d180a320d5d0077f5f18cb04bbeb17c9afb54c15a67ec07c245fb3da856f"
           }
         },
         {
@@ -3182,13 +3538,15 @@
           "source": "assets/gallery/gpt6/scene-19/viga_source.webp",
           "novel": "assets/gallery/gpt6/scene-19/viga_novel.webp",
           "model": {
-            "src": "assets/models/gpt6/scene-19/viga.glb",
-            "bytes": 3081748,
+            "src": "assets/models/gpt6/scene-19/viga.glb.gz",
+            "bytes": 2304944,
             "camera": {
               "orbit": "-179.99999deg 90.00000deg 1.378359m",
               "target": "0.000000m 0.000000m 1.378359m",
               "fov": "45.74733deg"
-            }
+            },
+            "uncompressedBytes": 3081748,
+            "sha256": "597432bb6e7a1b080a2ce987ffdb53f7c3fb561409bbef4189da67a1469e1b15"
           }
         },
         {
@@ -3197,13 +3555,15 @@
           "source": "assets/gallery/gpt6/scene-19/codex_source.webp",
           "novel": "assets/gallery/gpt6/scene-19/codex_novel.webp",
           "model": {
-            "src": "assets/models/gpt6/scene-19/codex.glb",
-            "bytes": 3782808,
+            "src": "assets/models/gpt6/scene-19/codex.glb.gz",
+            "bytes": 2757243,
             "camera": {
               "orbit": "-28.14880deg 60.03677deg 24.502457m",
               "target": "0.014402m -0.017607m -0.026920m",
               "fov": "54.87946deg"
-            }
+            },
+            "uncompressedBytes": 3782808,
+            "sha256": "c19f8da915fdaac244c9972c370bfad9bbd3add3052148be9666a4babb686011"
           }
         }
       ],
@@ -3222,13 +3582,15 @@
           "source": "assets/gallery/gpt6/scene-20/ours_source.webp",
           "novel": "assets/gallery/gpt6/scene-20/ours_novel.webp",
           "model": {
-            "src": "assets/models/gpt6/scene-20/ours.glb",
-            "bytes": 1486712,
+            "src": "assets/models/gpt6/scene-20/ours.glb.gz",
+            "bytes": 1247685,
             "camera": {
               "orbit": "180.00000deg 50.85745deg 1.877588m",
               "target": "0.000000m 0.000000m 1.456216m",
               "fov": "50.99714deg"
-            }
+            },
+            "uncompressedBytes": 1486712,
+            "sha256": "c0f0607e8434136d13037964f9656af3f4adc0f47adb1c4742872298b9ab36a9"
           }
         },
         {
@@ -3237,13 +3599,15 @@
           "source": "assets/gallery/gpt6/scene-20/viga_source.webp",
           "novel": "assets/gallery/gpt6/scene-20/viga_novel.webp",
           "model": {
-            "src": "assets/models/gpt6/scene-20/viga.glb",
-            "bytes": 2300572,
+            "src": "assets/models/gpt6/scene-20/viga.glb.gz",
+            "bytes": 1829161,
             "camera": {
               "orbit": "-179.99999deg 90.00000deg 1.483561m",
               "target": "0.000000m 0.000000m 1.483561m",
               "fov": "45.74733deg"
-            }
+            },
+            "uncompressedBytes": 2300572,
+            "sha256": "76e9e53fa118ed11d5d58cf5e947ce5363a6cfa8bb52320b44bd0792047af1c5"
           }
         },
         {
@@ -3252,13 +3616,15 @@
           "source": "assets/gallery/gpt6/scene-20/codex_source.webp",
           "novel": "assets/gallery/gpt6/scene-20/codex_novel.webp",
           "model": {
-            "src": "assets/models/gpt6/scene-20/codex.glb",
-            "bytes": 1947504,
+            "src": "assets/models/gpt6/scene-20/codex.glb.gz",
+            "bytes": 1195369,
             "camera": {
               "orbit": "-30.00115deg 49.98780deg 7.166716m",
               "target": "-0.042383m 0.071155m 0.073405m",
               "fov": "53.13010deg"
-            }
+            },
+            "uncompressedBytes": 1947504,
+            "sha256": "b69da309b6c4ebf244965257ac2bf0f0be8cfb803cb6df35d2877c335a902c85"
           }
         }
       ],
@@ -3277,13 +3643,15 @@
           "source": "assets/gallery/gpt6/scene-22/ours_source.webp",
           "novel": "assets/gallery/gpt6/scene-22/ours_novel.webp",
           "model": {
-            "src": "assets/models/gpt6/scene-22/ours.glb",
-            "bytes": 5989212,
+            "src": "assets/models/gpt6/scene-22/ours.glb.gz",
+            "bytes": 4892604,
             "camera": {
               "orbit": "180.00000deg 49.57990deg 1.311373m",
               "target": "0.000000m 0.000000m 0.998363m",
               "fov": "42.23711deg"
-            }
+            },
+            "uncompressedBytes": 5989212,
+            "sha256": "ee8d9a358c824b9e026e7b295c5a19aab32a25bcb35151b003f7c4ff93aa59ae"
           }
         },
         {
@@ -3292,13 +3660,15 @@
           "source": "assets/gallery/gpt6/scene-22/viga_source.webp",
           "novel": "assets/gallery/gpt6/scene-22/viga_novel.webp",
           "model": {
-            "src": "assets/models/gpt6/scene-22/viga.glb",
-            "bytes": 8692892,
+            "src": "assets/models/gpt6/scene-22/viga.glb.gz",
+            "bytes": 6304142,
             "camera": {
               "orbit": "-179.99999deg 90.00000deg 2.709129m",
               "target": "0.000000m 0.000000m 2.709129m",
               "fov": "37.29908deg"
-            }
+            },
+            "uncompressedBytes": 8692892,
+            "sha256": "3d268a08f16b992cccad5e293f45f9feb57ba0a6100faa25cb1b4cf70bfe4729"
           }
         },
         {
@@ -3307,13 +3677,15 @@
           "source": "assets/gallery/gpt6/scene-22/codex_source.webp",
           "novel": "assets/gallery/gpt6/scene-22/codex_novel.webp",
           "model": {
-            "src": "assets/models/gpt6/scene-22/codex.glb",
-            "bytes": 2334756,
+            "src": "assets/models/gpt6/scene-22/codex.glb.gz",
+            "bytes": 1424198,
             "camera": {
               "orbit": "-28.42256deg 49.98854deg 5.606703m",
               "target": "0.834628m -0.420000m -1.513340m",
               "fov": "34.76809deg"
-            }
+            },
+            "uncompressedBytes": 2334756,
+            "sha256": "2b8a4380e9e4783490647cbb29460db69f6c737495358f6b27d136265e369b76"
           }
         }
       ],
@@ -3332,13 +3704,15 @@
           "source": "assets/gallery/gpt6/scene-23/ours_source.webp",
           "novel": "assets/gallery/gpt6/scene-23/ours_novel.webp",
           "model": {
-            "src": "assets/models/gpt6/scene-23/ours.glb",
-            "bytes": 2197076,
+            "src": "assets/models/gpt6/scene-23/ours.glb.gz",
+            "bytes": 1835412,
             "camera": {
               "orbit": "180.00000deg 39.27778deg 1.421417m",
               "target": "0.000000m 0.000000m 0.899871m",
               "fov": "43.45445deg"
-            }
+            },
+            "uncompressedBytes": 2197076,
+            "sha256": "611ef6bfe4eec559de347a2fe86f91873db59dba9e70fd5a0b8cc25909dd1683"
           }
         },
         {
@@ -3347,13 +3721,15 @@
           "source": "assets/gallery/gpt6/scene-23/viga_source.webp",
           "novel": "assets/gallery/gpt6/scene-23/viga_novel.webp",
           "model": {
-            "src": "assets/models/gpt6/scene-23/viga.glb",
-            "bytes": 6191024,
+            "src": "assets/models/gpt6/scene-23/viga.glb.gz",
+            "bytes": 5174531,
             "camera": {
               "orbit": "-179.99999deg 90.00000deg 3.265362m",
               "target": "0.000000m 0.000000m 3.495362m",
               "fov": "45.74733deg"
-            }
+            },
+            "uncompressedBytes": 6191024,
+            "sha256": "ed85cf4252c9327600b17b02d84c57420607d739a9e1df14e1a697d1d80beb04"
           }
         },
         {
@@ -3362,13 +3738,15 @@
           "source": "assets/gallery/gpt6/scene-23/codex_source.webp",
           "novel": "assets/gallery/gpt6/scene-23/codex_novel.webp",
           "model": {
-            "src": "assets/models/gpt6/scene-23/codex.glb",
-            "bytes": 2576380,
+            "src": "assets/models/gpt6/scene-23/codex.glb.gz",
+            "bytes": 531055,
             "camera": {
               "orbit": "0.00000deg 40.02122deg 2.715374m",
               "target": "0.000000m 0.754550m 0.003821m",
               "fov": "34.48292deg"
-            }
+            },
+            "uncompressedBytes": 2576380,
+            "sha256": "a1e519a0a5261935bec1e613f436e51142add2f4cd32aa8d388fbf09dfaec970"
           }
         }
       ],
@@ -3387,13 +3765,15 @@
           "source": "assets/gallery/gpt6/scene-24/ours_source.webp",
           "novel": "assets/gallery/gpt6/scene-24/ours_novel.webp",
           "model": {
-            "src": "assets/models/gpt6/scene-24/ours.glb",
-            "bytes": 3812788,
+            "src": "assets/models/gpt6/scene-24/ours.glb.gz",
+            "bytes": 3252907,
             "camera": {
               "orbit": "180.00000deg 48.35269deg 1.273835m",
               "target": "0.000000m 0.000000m 0.951873m",
               "fov": "43.14593deg"
-            }
+            },
+            "uncompressedBytes": 3812788,
+            "sha256": "e03879125db7619e243c2e6472c8c0c381d3671626bbcadf0036ab5c20476ccf"
           }
         },
         {
@@ -3402,13 +3782,15 @@
           "source": "assets/gallery/gpt6/scene-24/viga_source.webp",
           "novel": "assets/gallery/gpt6/scene-24/viga_novel.webp",
           "model": {
-            "src": "assets/models/gpt6/scene-24/viga.glb",
-            "bytes": 5488120,
+            "src": "assets/models/gpt6/scene-24/viga.glb.gz",
+            "bytes": 3011894,
             "camera": {
               "orbit": "29.07066deg 45.91270deg 2.200429m",
               "target": "-0.318335m -0.546000m -0.538821m",
               "fov": "33.39849deg"
-            }
+            },
+            "uncompressedBytes": 5488120,
+            "sha256": "2d96a82f4f79ad9246c4aa5ad5580878dd3fc7a7fa0eef48a62eb357ba2dddcb"
           }
         },
         {
@@ -3417,13 +3799,15 @@
           "source": "assets/gallery/gpt6/scene-24/codex_source.webp",
           "novel": "assets/gallery/gpt6/scene-24/codex_novel.webp",
           "model": {
-            "src": "assets/models/gpt6/scene-24/codex.glb",
-            "bytes": 4988524,
+            "src": "assets/models/gpt6/scene-24/codex.glb.gz",
+            "bytes": 2297362,
             "camera": {
               "orbit": "30.70966deg 52.21316deg 10.170776m",
               "target": "-1.552169m -0.472081m -2.606337m",
               "fov": "35.86478deg"
-            }
+            },
+            "uncompressedBytes": 4988524,
+            "sha256": "4be72c7cc25c70b04c7c2a976ba7f5dedeb2e618b0b6d98bf4efc17022816f33"
           }
         }
       ],

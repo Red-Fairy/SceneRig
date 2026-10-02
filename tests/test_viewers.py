@@ -5,6 +5,7 @@ Start scripts/serve.py, then run this file with the same --base-url and
 --browser options as test_site.py. Requires Playwright and Chromium.
 """
 import argparse
+import gzip
 import json
 import os
 from pathlib import Path
@@ -79,8 +80,12 @@ class ViewerTests(unittest.TestCase):
                     self.assertTrue(model["src"].startswith("assets/models/"))
                     response = self.context.request.get(f"{self.base}/{model['src']}", headers={"Range": "bytes=0-19"})
                     self.assertIn(response.status, (200, 206))
-                    magic, version, size = struct.unpack("<4sII", response.body()[:12])
-                    self.assertEqual((magic, version), (b"glTF", 2))
+                    if model["src"].endswith(".gz"):
+                        self.assertEqual(response.body()[:2], b"\x1f\x8b")
+                        size = int(response.headers["content-range"].split("/")[-1])
+                    else:
+                        magic, version, size = struct.unpack("<4sII", response.body()[:12])
+                        self.assertEqual((magic, version), (b"glTF", 2))
                     self.assertEqual(size, model["bytes"])
         self.assertEqual(count, 192)
 
@@ -153,6 +158,37 @@ class ViewerTests(unittest.TestCase):
         self.page.goto(f"{self.base}/viewer.html?group=main&scene=does-not-exist&method=ours")
         self.page.wait_for_function("document.querySelector('#viewer-loading').textContent.includes('could not be found')")
         self.assertTrue(self.page.locator("#back-to-gallery").is_visible())
+
+    def test_gzip_loader_and_host_decoding(self):
+        self.page.goto(f"{self.base}/viewer.html?scene=does-not-exist")
+        raw = struct.pack("<4sII", b"glTF", 2, 24) + struct.pack("<I4s", 4, b"JSON") + b"{}  "
+        for encoding in (None, "gzip"):
+            path = f"{self.base}/test-model.glb.gz"
+            headers = {"Content-Encoding": encoding} if encoding else {}
+            self.page.route(path, lambda route: route.fulfill(body=gzip.compress(raw), headers=headers))
+            result = self.page.evaluate("""async source => {
+                const {modelURL, releaseModelURL} = await import('./assets/js/model-source.js');
+                const url = await modelURL(source);
+                const data = [...new Uint8Array(await (await fetch(url)).arrayBuffer())];
+                releaseModelURL(url);
+                return data;
+            }""", path)
+            self.assertEqual(bytes(result), raw)
+            self.page.unroute(path)
+        self.page.route(path, lambda route: route.fulfill(body=b"corrupt data"))
+        rejected = self.page.evaluate("""async source => {
+            const {modelURL} = await import('./assets/js/model-source.js');
+            try { await modelURL(source); return false; } catch { return true; }
+        }""", path)
+        self.assertTrue(rejected)
+
+    def test_largest_model_is_visible(self):
+        self.page.goto(f"{self.base}/viewer.html?group=gpt6&scene=scene-11&method=codex")
+        self.wait_for_model()
+        self.assertTrue(self.page.locator("#scene-model").evaluate("model => model.src.startsWith('blob:')"))
+        output = Path(__file__).resolve().parents[1] / "test-results"
+        output.mkdir(exist_ok=True)
+        self.page.screenshot(path=str(output / "compressed-largest-model.png"))
 
 
 if __name__ == "__main__":
