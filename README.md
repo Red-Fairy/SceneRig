@@ -56,7 +56,7 @@ and PyTorch builds, and the runtime calls each one at a fixed path.
 | SAM 3D | `lib/utils/third_party/sam3d/.venv` | conda env, torch 2.5.1+cu121, CUDA 12.1 toolkit |
 | MolmoPoint | `lib/utils/third_party/molmo/.venv` | Python 3.11, torch 2.11.0, transformers 4.57.1 |
 | SHARP | `lib/utils/third_party/sharp/.venv` | Python 3.13, torch 2.8.0, CUDA toolkit for gsplat |
-| LanPaint | `lib/utils/third_party/lanpaint-qwen/.venv` | Python 3.12, torch 2.11.0, diffusers 0.36.0 |
+| LanPaint | `lib/utils/third_party/lanpaint-qwen/.venv` | Python 3.12, torch 2.11.0, diffusers 0.37.1 |
 | Isaac Sim | `lib/utils/third_party/isaac/venv` | Python 3.11, isaacsim 5.1.0 |
 
 SAM 3D and SHARP compile CUDA extensions, so each gets a conda CUDA toolkit

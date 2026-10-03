@@ -272,7 +272,7 @@ check_sharp() {
     && "$SHARP_CUDA/bin/nvcc" --version | grep -q "release $SHARP_TOOLKIT"
 }
 check_lanpaint() {
-  py_ok "$TP/lanpaint-qwen/.venv/bin/python" "import torch, diffusers; from diffusers import QwenImageEditPlusPipeline; from lanpaint_pipeline.registry import create_adapter; assert torch.__version__ == '2.11.0+$TORCH_BACKEND'"
+  py_ok "$TP/lanpaint-qwen/.venv/bin/python" "import torch, diffusers; from diffusers import QwenImageEditPlusPipeline; from lanpaint_pipeline.registry import create_adapter; assert torch.__version__ == '2.11.0+$TORCH_BACKEND'; assert diffusers.__version__ == '0.37.1'"
 }
 
 COMPONENTS="main blender isaac sam3 sam3d molmo sharp lanpaint"
@@ -413,7 +413,7 @@ install_sharp() {
 
 install_lanpaint() {
   local src="$TP/lanpaint-qwen" venv="$TP/lanpaint-qwen/.venv"
-  say "LanPaint + Qwen: Python 3.12, torch 2.11.0+$TORCH_BACKEND, diffusers 0.36.0"
+  say "LanPaint + Qwen: Python 3.12, torch 2.11.0+$TORCH_BACKEND, diffusers 0.37.1"
   clone_at "$LANPAINT_PIPELINE_REPO" "$LANPAINT_PIPELINE_REV" "$src"
   make_venv 3.12 "$venv"
   if check_lanpaint; then echo "already installed"; return 0; fi
