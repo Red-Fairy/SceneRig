@@ -26,9 +26,6 @@ intrinsics as JSON.
 **Output:** a reconstructed Blender scene, final render, scene geometry,
 materials, and physical-settling results under `<output_dir>/scene/`.
 
-Generative re-segmentation is enabled by default. Completed and active runs can
-be inspected in the local web viewer.
-
 ## 🛠️ Setup
 
 Requirements: Linux x86_64, an NVIDIA GPU with a driver for CUDA 12.6 or newer
